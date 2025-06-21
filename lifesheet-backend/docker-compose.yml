@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ../lifesheet
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:3001
+    depends_on:
+      - backend
+    networks:
+      - lifesheet-network
+
+  backend:
+    build:
+      context: .
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - MONGODB_URI=mongodb://mongo:27017/lifesheet
+      - JWT_SECRET=your_secure_jwt_secret_here
+      - UPLOAD_DIR=uploads
+    volumes:
+      - ./uploads:/app/uploads
+    depends_on:
+      - mongo
+    networks:
+      - lifesheet-network
+
+  mongo:
+    image: mongo:5
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - lifesheet-network
+
+networks:
+  lifesheet-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
