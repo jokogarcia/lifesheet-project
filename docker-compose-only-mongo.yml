@@ -1,0 +1,18 @@
+services:
+
+  mongo:
+    image: mongo:5
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - lifesheet-network
+
+networks:
+  lifesheet-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+#run with docker compose -f docker-compose-only-mongo.yml up -d

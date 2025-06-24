@@ -3,7 +3,7 @@ version: '3.8'
 services:
   frontend:
     build:
-      context: ../lifesheet
+      context: ./lifesheet
     ports:
       - "3000:3000"
     environment:
@@ -15,14 +15,11 @@ services:
 
   backend:
     build:
-      context: .
+      context: ./lifesheet-backend
     ports:
       - "3001:3001"
-    environment:
-      - PORT=3001
-      - MONGODB_URI=mongodb://mongo:27017/lifesheet
-      - JWT_SECRET=your_secure_jwt_secret_here
-      - UPLOAD_DIR=uploads
+    env_file:
+      - ./lifesheet-backend/.env
     volumes:
       - ./uploads:/app/uploads
     depends_on:

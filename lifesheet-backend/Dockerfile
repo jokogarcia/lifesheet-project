@@ -21,7 +21,7 @@ RUN yarn install --production --frozen-lockfile
 
 # Copy built files from builder stage
 COPY --from=builder /app/dist ./dist
-COPY .env ./
+#COPY .env ./
 
 # Create uploads directory
 RUN mkdir -p uploads
