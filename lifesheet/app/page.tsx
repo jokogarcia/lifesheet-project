@@ -1,67 +1,78 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { AuthForm } from "@/components/auth/auth-form"
+import { useState, useEffect, use } from "react"
 import { CVMainDashboard } from "@/components/cv-main-dashboard"
-import authService, { type User } from "@/services/auth-service"
+import { Welcome } from "@/components/welcome"
+import Auth0ProviderWrapper from "./auth-provider-wrapper"
+import userService,{type UserProfile} from "@/services/user-service"
 import cvsService from "@/services/cvs-service"
-import { Auth0Provider } from "@auth0/auth0-react"
+import { useAuth0 } from "@auth0/auth0-react"
 
-type AppState = "loading" | "auth" | "dashboard"
+
+type AppState = "loading" | "dashboard" | "welcome"
 export default function Page() {
-  <Auth0Provider
-    domain="dev-u01x2xo5hp3w05n4.us.auth0.com"
-    clientId="BV8xrU1HMUZyorqLuZb1KO79uh7iJlbd"
-    authorizationParams={{
-      redirect_uri: window.location.origin
-    }}
-  ><PageContent></PageContent></Auth0Provider>
+  return (
+    <Auth0ProviderWrapper>
+      <PageContent />
+    </Auth0ProviderWrapper>
+  )
 }
 function PageContent() {
   const [appState, setAppState] = useState<AppState>("loading")
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<UserProfile | undefined>(undefined)
+  const { isAuthenticated, isLoading, logout, loginWithRedirect, getAccessTokenSilently } = useAuth0();
+
+useEffect(() => {
+  const setupAuth = async () => {
+    try {
+      console.log("Setting Token for services...", isAuthenticated)
+      const token = await getAccessTokenSilently();
+      cvsService.setAuthToken(token);
+      userService.setAuthToken(token);
+      // Now you can make authenticated API calls
+    } catch (error) {
+      console.error("Error getting access token:", error);
+    }
+  };
+  
+  setupAuth();
+}, []);
 
   useEffect(() => {
-    // Check if user is already logged in
-    const currentUser = authService.getCurrentUser()
-    const token = authService.getToken()
-
-    console.log("🔍 Checking auth state:", { currentUser, hasToken: !!token })
-
-    if (currentUser && token) {
-      setUser(currentUser)
-      cvsService.setAuthToken(token)
+    if(isLoading) {
+      setAppState("loading")
+      console.log("🔄 Loading authentication state...")
+      return;
+    }
+    if (isAuthenticated) {
+      
       setAppState("dashboard")
       console.log("✅ User authenticated, showing dashboard")
+      // Fetch user profile and CV data
+      userService.getProfile()
+        .then(user => {
+          console.log("✅ User profile fetched:", user)
+          setUser(user)
+        })
+        .catch(error => {
+          console.error("❌ Error fetching user profile:", error)
+          setAppState("welcome") // Fallback to welcome if profile fetch fails
+        })
     } else {
-      setAppState("auth")
-      console.log("❌ No authentication, showing login")
+      setAppState("welcome")
+      console.log("❌ No authentication, showing welcome page")
     }
-  }, [])
+  }, [isAuthenticated, isLoading])
 
-  const handleAuthSuccess = () => {
-    console.log("🎉 Auth success callback triggered")
-    const currentUser = authService.getCurrentUser()
-    const token = authService.getToken()
 
-    console.log("🔍 Auth success - user:", currentUser, "token:", !!token)
-
-    if (currentUser && token) {
-      setUser(currentUser)
-      cvsService.setAuthToken(token)
-      setAppState("dashboard")
-      console.log("✅ Redirecting to dashboard")
-    } else {
-      console.error("❌ Auth success but no user/token found")
-      setAppState("auth")
-    }
-  }
 
   const handleSignOut = async () => {
     console.log("🚪 Signing out...")
-    await authService.logout()
-    setUser(null)
-    setAppState("auth")
+    await logout({ logoutParams: { returnTo: window.location.origin } })
+  }
+  
+  const handleStartLogin = async () => {
+    await loginWithRedirect();
   }
 
   console.log("🎯 Current app state:", appState, "User:", user?.email)
@@ -77,9 +88,11 @@ function PageContent() {
     )
   }
 
-  if (appState === "auth") {
-    return <AuthForm onAuthSuccess={handleAuthSuccess} />
+  if (appState === "welcome") {
+    return <Welcome onLogin={handleStartLogin} />
   }
+
+
 
   if (appState === "dashboard" && user) {
     return <CVMainDashboard user={user} onSignOut={handleSignOut} />

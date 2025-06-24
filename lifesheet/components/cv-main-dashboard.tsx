@@ -16,7 +16,6 @@ import {
   AlertCircle,
 } from "lucide-react"
 import { useUserCV } from "@/hooks/use-cv"
-import authService from "@/services/auth-service"
 import type { PersonalInfo, WorkExperience, Education, Skill } from "@/services/cvs-service"
 
 interface CVMainDashboardProps {
@@ -79,10 +78,7 @@ export function CVMainDashboard({ user, onSignOut }: CVMainDashboardProps) {
     }
   }, [cv, isEditing])
 
-  const handleSignOut = async () => {
-    await authService.logout()
-    onSignOut()
-  }
+  
 
   const handleStartEditing = () => {
     if (cv) {
@@ -216,7 +212,7 @@ export function CVMainDashboard({ user, onSignOut }: CVMainDashboardProps) {
               </Button>
             </>
           )}
-          <Button onClick={handleSignOut} variant="outline" className="btn-custom">
+          <Button onClick={()=>console.log("sign out clicked")} variant="outline" className="btn-custom">
             <LogOut className="h-4 w-4 mr-2" />
             Sign Out
           </Button>

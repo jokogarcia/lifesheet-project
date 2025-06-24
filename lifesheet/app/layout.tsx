@@ -3,12 +3,12 @@ import './globals.css'
 import { Auth0Provider } from '@auth0/auth0-react'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'LifeSheet',
+  description: 'Your CV management and tailoring solution',
   generator: 'v0.dev',
 }
 
- function RootLayout({
+ export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
