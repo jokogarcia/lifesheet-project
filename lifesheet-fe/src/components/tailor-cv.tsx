@@ -4,15 +4,14 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, FileText, Wand2, Maximize, Printer } from "lucide-react"
 import { useUserCV } from "@/hooks/use-cv"
+import { useNavigate } from "react-router-dom"
 import ReactMarkdown from "react-markdown"
 import cvsService from "@/services/cvs-service"
 
-interface TailorCVProps {
-  user: any
-}
 
-export function TailorCV({ user }: TailorCVProps) {
+export function TailorCV() {
   const { cv, isLoading } = useUserCV()
+  const navigate = useNavigate()
   const [jobDescription, setJobDescription] = useState("")
   const [previewMode, setPreviewMode] = useState(false)
   const [tailoredCV, setTailoredCV] = useState<any>(null)
@@ -56,7 +55,7 @@ export function TailorCV({ user }: TailorCVProps) {
           <p className="text-muted-foreground">Customize your CV for a specific job application</p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => window.location.href = "/"} variant="outline" className="btn-custom">
+          <Button onClick={() => navigate("/")} variant="outline" className="btn-custom">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Button>

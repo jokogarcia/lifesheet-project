@@ -1,5 +1,6 @@
 
 import { useAuth0 } from '@auth0/auth0-react'
+import { Routes, Route } from 'react-router-dom'
 
 import './App.css'
 import { CVMainDashboard } from './components/cv-main-dashboard'
@@ -7,10 +8,10 @@ import { Welcome } from './components/welcome'
 import { useEffect, useState } from 'react'
 import cvsService from './services/cvs-service'
 import userService from './services/user-service'
-import { tr } from 'react-day-picker/locale'
+import { TailorCV } from './components/tailor-cv'
 
 function App() {
-  const { isAuthenticated, getAccessTokenSilently } = useAuth0()
+  const { isAuthenticated, getAccessTokenSilently, isLoading:isAuthLoading } = useAuth0()
   const [hasToken, setHasToken] = useState(false)
   useEffect(() => {
     if (isAuthenticated) {
@@ -28,23 +29,21 @@ function App() {
         
     }
   }, [isAuthenticated, getAccessTokenSilently])
-if( isAuthenticated && !hasToken) {
+
+if( isAuthenticated && !hasToken || isAuthLoading) {
   return <div>Authenticating...</div>
 }
-
+  if(!hasToken) {
+    return (<Welcome />)
+  }
+  
   return (
-    <>
- 
-      {
-        hasToken ? (
-          
-          <CVMainDashboard />
-          
-        ) : (
-          <Welcome />
-        )}
-    </>
+    <Routes>
+      <Route path="/" element={<CVMainDashboard />} />
+      <Route path="/tailor-cv" element={<TailorCV />} />
+    </Routes>
   )
+ 
 }
 
 export default App

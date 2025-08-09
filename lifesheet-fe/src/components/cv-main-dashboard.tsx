@@ -18,6 +18,7 @@ import {
 import { useUserCV } from "../hooks/use-cv"
 import type { PersonalInfo, WorkExperience, Education, Skill } from "../services/cvs-service"
 import { useAuth0 } from "@auth0/auth0-react"
+import { useNavigate } from "react-router-dom"
 import LogoutButton from "./logout-button"
 
 interface CVMainDashboardProps {
@@ -27,6 +28,7 @@ interface CVMainDashboardProps {
 
 export function CVMainDashboard() {
   const {logout,user} = useAuth0()
+  const navigate = useNavigate()
 
   const { cv, isLoading, isSaving, error, saveCV, deleteCV } = useUserCV()
   const [isEditing, setIsEditing] = useState(false)
@@ -211,7 +213,7 @@ export function CVMainDashboard() {
                 <Edit className="h-4 w-4 mr-2" />
                 Edit CV
               </Button>
-              <Button onClick={() => window.location.href = "/tailor-cv"} variant="outline" className="btn-custom">
+              <Button onClick={() => navigate("/tailor-cv")} variant="outline" className="btn-custom">
                 <Briefcase className="h-4 w-4 mr-2" />
                 Tailor to a Job
               </Button>
