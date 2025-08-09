@@ -7,7 +7,7 @@ import fs from 'fs';
 // @desc    Create a new CV
 // @route   POST /api/cvs
 // @access  Private
-export const createCV = async (
+export const createTailoredCV = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -37,7 +37,7 @@ export const createCV = async (
 // @desc    Get all CVs for a user
 // @route   GET /api/cvs
 // @access  Private
-export const getCVs = async (
+export const getTailoredCvs = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -58,7 +58,7 @@ export const getCVs = async (
 // @desc    Get single CV
 // @route   GET /api/cvs/:id
 // @access  Private
-export const getCV = async (
+export const getTailoredCv = async (
   req: Request,
   res: Response,
   next: NextFunction

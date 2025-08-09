@@ -8,7 +8,6 @@ export interface IUser extends Document {
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
-  comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
 const userSchema: Schema = new Schema(
@@ -26,7 +25,7 @@ const userSchema: Schema = new Schema(
       lowercase: true,
       trim: true,
       match: [
-        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+        /^[\w.+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
         'Please add a valid email',
       ],
     },
@@ -47,9 +46,6 @@ const userSchema: Schema = new Schema(
 );
 
 
-// Compare user entered password to hashed password in database
-userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
-  return await bcrypt.compare(candidatePassword, this.password);
-};
+
 
 export default mongoose.model<IUser>('User', userSchema);

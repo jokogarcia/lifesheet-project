@@ -1,4 +1,39 @@
 import mongoose, { Schema, Document } from 'mongoose';
+export interface PersonalInfo {
+  fullName: string
+  email: string
+  phone?: string
+  location?: string
+  linkedIn?: string
+  website?: string
+  summary?: string
+}
+
+export interface WorkExperience {
+  id: string
+  company: string
+  position: string
+  startDate: string
+  endDate: string
+  current: boolean
+  description: string
+}
+
+export interface Education {
+  id: string
+  institution: string
+  degree: string
+  field: string
+  startDate: string
+  endDate: string
+  gpa: string
+}
+
+export interface Skill {
+  id: string
+  name: string
+  level: string
+}
 
 // CV Section Schema (for components like Education, Experience, etc.)
 interface ISection extends Document {
@@ -20,21 +55,12 @@ interface ISection extends Document {
 
 // CV Schema
 export interface ICV extends Document {
-  user: mongoose.Schema.Types.ObjectId;
-  name: string;
-  title?: string;
-  personalInfo: {
-    name: string;
-    email: string;
-    phone?: string;
-    address?: string;
-    website?: string;
-    linkedin?: string;
-    github?: string;
-    twitter?: string;
-    summary?: string;
-    [key: string]: any;
-  };
+  user_id: mongoose.Schema.Types.ObjectId;
+  
+  personal_info: PersonalInfo
+  work_experience:WorkExperience[]
+  education:Education[]
+  skills:Skill[]
   sections: ISection[];
   isPublic: boolean;
   customStyles?: {
@@ -44,16 +70,13 @@ export interface ICV extends Document {
     fontSize?: string;
     [key: string]: any;
   };
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
   // Field to store tailored content
   tailored?: {
-    jobDescription?: string;
-    tailoredSections?: {
-      sectionId: string;
-      tailoredContent: any;
-    }[];
-    tailoredDate?: Date;
+    jobDescription_id: string;
+    tailoredDate: Date;
+    updatedByUser:boolean;
   };
 }
 
@@ -88,33 +111,46 @@ const sectionSchema = new Schema({
 
 const cvSchema = new Schema(
   {
-    user: {
+    user_id: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
-    name: {
-      type: String,
-      required: true,
-    },
-    title: String,
-    personalInfo: {
-      name: {
-        type: String,
-        required: true,
-      },
-      email: {
-        type: String,
-        required: true,
-      },
+    personal_info: {
+      fullName: { type: String, required: true },
+      email: { type: String, required: true },
       phone: String,
-      address: String,
+      location: String,
+      linkedIn: String,
       website: String,
-      linkedin: String,
-      github: String,
-      twitter: String,
       summary: String,
     },
+    work_experience: [
+      {
+        company: String,
+        position: String,
+        startDate: String,
+        endDate: String,
+        current: Boolean,
+        description: String,
+      },
+    ],
+    education: [
+      {
+        institution: String,
+        degree: String,
+        field: String,
+        startDate: String,
+        endDate: String,
+        gpa: String,
+      },
+    ],
+    skills: [
+      {
+        name: String,
+        level: String,
+      },
+    ],
     sections: [sectionSchema],
     isPublic: {
       type: Boolean,
@@ -127,18 +163,13 @@ const cvSchema = new Schema(
       fontSize: String,
     },
     tailored: {
-      jobDescription: String,
-      tailoredSections: [
-        {
-          sectionId: String,
-          tailoredContent: Schema.Types.Mixed,
-        },
-      ],
+      jobDescription_id: String,
       tailoredDate: Date,
+      updatedByUser: Boolean,
     },
   },
   {
-    timestamps: true,
+    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
   }
 );
 

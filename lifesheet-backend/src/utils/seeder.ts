@@ -31,7 +31,7 @@ const sampleUsers = [
 // Sample CV data (will be created after users)
 const createSampleCV = async (userId: mongoose.Types.ObjectId) => {
   return {
-    user: userId,
+    user_id: userId,
     name: 'Professional CV',
     title: 'Software Developer',
     personalInfo: {

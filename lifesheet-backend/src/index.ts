@@ -6,14 +6,28 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import path from 'path';
 
-import authRoutes from './routes/auth.routes';
-import cvRoutes from './routes/cv.routes';
+import userRoutes from './routes/user.routes';
 import { errorHandler } from './middleware/errorHandler';
 import { jwtCheck, extractUserFromToken } from './middleware/auth0.middleware';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const app: Express = express();
-const PORT = process.env.PORT || 3001;
-
+const PORT = process.env.PORT || 3000;
+// Proxy all non-API requests to localhost:4000
+if (process.env.NODE_ENV !== 'production') {
+  //In production, we will use Nginx to handle the proxying
+  app.use(
+    (req, res, next) => {
+      if (req.path.startsWith('/api')) {
+        return next();
+      }
+      return createProxyMiddleware({
+        target: 'http://localhost:4000',
+        changeOrigin: true,
+      })(req, res, next);
+    }
+  );
+}
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -31,18 +45,8 @@ mongoose.connect(process.env.MONGODB_URI as string)
   });
 
 // Auth0 routes - these don't need JWT validation
-app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
 
-// Protected routes - require valid JWT
-app.use('/api/cvs', jwtCheck, extractUserFromToken, cvRoutes);
-
-// Auth0 validation test route
-app.get('/api/auth/validate', jwtCheck, extractUserFromToken, (req, res) => {
-  res.json({ 
-    message: 'Your access token was successfully validated!',
-    user: req.user
-  });
-});
 
 // Health check route
 app.get('/api/health', (req, res) => {
