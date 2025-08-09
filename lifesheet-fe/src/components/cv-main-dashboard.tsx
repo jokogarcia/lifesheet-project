@@ -1,5 +1,5 @@
 "use client"
-
+import ReactMarkdown from "react-markdown"
 import { useState, useEffect } from "react"
 import { Button } from "../components/ui/button"
 import {
@@ -194,6 +194,7 @@ export function CVMainDashboard() {
       </div>
     )
   }
+  console.log("CV data:", cv)
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
@@ -318,7 +319,7 @@ export function CVMainDashboard() {
                             className="border rounded-lg p-2"
                           />
                         ) : (
-                          <p className="p-2 bg-gray-50 rounded">{cv?.personal_info.fullName || "Not provided"}</p>
+                          <p className="p-2 bg-gray-50 rounded">{cv?.personal_info?.fullName || "Not provided"}</p>
                         )}
                       </div>
                       <div className="space-y-2">
@@ -333,7 +334,7 @@ export function CVMainDashboard() {
                             className="border rounded-lg p-2"
                           />
                         ) : (
-                          <p className="p-2 bg-gray-50 rounded">{cv?.personal_info.email || "Not provided"}</p>
+                          <p className="p-2 bg-gray-50 rounded">{cv?.personal_info?.email || "Not provided"}</p>
                         )}
                       </div>
                       <div className="space-y-2">
@@ -347,7 +348,7 @@ export function CVMainDashboard() {
                             className="border rounded-lg p-2"
                           />
                         ) : (
-                          <p className="p-2 bg-gray-50 rounded">{cv?.personal_info.phone || "Not provided"}</p>
+                          <p className="p-2 bg-gray-50 rounded">{cv?.personal_info?.phone || "Not provided"}</p>
                         )}
                       </div>
                       <div className="space-y-2">
@@ -361,7 +362,7 @@ export function CVMainDashboard() {
                             className="border rounded-lg p-2"
                           />
                         ) : (
-                          <p className="p-2 bg-gray-50 rounded">{cv?.personal_info.location || "Not provided"}</p>
+                          <p className="p-2 bg-gray-50 rounded">{cv?.personal_info?.location || "Not provided"}</p>
                         )}
                       </div>
                       <div className="space-y-2">
@@ -375,7 +376,7 @@ export function CVMainDashboard() {
                             className="border rounded-lg p-2"
                           />
                         ) : (
-                          <p className="p-2 bg-gray-50 rounded">{cv?.personal_info.linkedIn || "Not provided"}</p>
+                          <p className="p-2 bg-gray-50 rounded">{cv?.personal_info?.linkedIn || "Not provided"}</p>
                         )}
                       </div>
                       <div className="space-y-2">
@@ -389,7 +390,7 @@ export function CVMainDashboard() {
                             className="border rounded-lg p-2"
                           />
                         ) : (
-                          <p className="p-2 bg-gray-50 rounded">{cv?.personal_info.website || "Not provided"}</p>
+                          <p className="p-2 bg-gray-50 rounded">{cv?.personal_info?.website || "Not provided"}</p>
                         )}
                       </div>
                     </div>
@@ -406,7 +407,7 @@ export function CVMainDashboard() {
                         />
                       ) : (
                         <p className="p-3 bg-gray-50 rounded min-h-[100px]">
-                          {cv?.personal_info.summary || "No summary provided"}
+                          {cv?.personal_info?.summary || "No summary provided"}
                         </p>
                       )}
                     </div>
@@ -495,7 +496,7 @@ export function CVMainDashboard() {
                                 onChange={(e) => updateWorkExperience(exp.id, "description", e.target.value)}
                                 placeholder="Describe your responsibilities and achievements..."
                                 rows={3}
-                                className="border rounded-lg p-2"
+                                className="block w-full border rounded-lg p-2 h-48"
                               />
                             </div>
                           </div>
@@ -521,7 +522,9 @@ export function CVMainDashboard() {
                                   {exp.startDate} - {exp.current ? "Present" : exp.endDate}
                                 </div>
                               </div>
-                              <p className="text-sm mt-2">{exp.description}</p>
+                              <div className="text-sm mt-2 text-left">
+                                <ReactMarkdown>{exp.description}</ReactMarkdown>
+                              </div>
                             </div>
                           ))
                         )}

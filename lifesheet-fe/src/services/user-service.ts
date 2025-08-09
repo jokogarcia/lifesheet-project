@@ -45,7 +45,7 @@ class UserService {
   async getProfile(): Promise<UserProfile> {
     console.log("🔄 UserService: Fetching user profile...")
 
-    const response = await this.client.get<UserProfile>('/auth/me')
+    const response = await this.client.get<UserProfile>('/users/me')
       
      return response.data
       
@@ -55,7 +55,7 @@ class UserService {
   async updateProfile(profileData: UpdateProfileRequest): Promise<UserProfile> {
     console.log("🔄 UserService: Updating user profile...")
 
-    const response = await this.client.put<UserProfile>('/auth/me', profileData)
+    const response = await this.client.put<UserProfile>('/users/me', profileData)
     
     return response.data
   }

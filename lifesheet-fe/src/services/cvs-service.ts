@@ -4,11 +4,11 @@ import { constants } from "../constants"
 export interface PersonalInfo {
   fullName: string
   email: string
-  phone: string
-  location: string
-  linkedIn: string
-  website: string
-  summary: string
+  phone?: string
+  location?: string
+  linkedIn?: string
+  website?: string
+  summary?: string
 }
 
 export interface WorkExperience {
@@ -37,12 +37,14 @@ export interface Skill {
   level: string
 }
 
+
 export interface CV {
   id: string
   personal_info: PersonalInfo
   work_experience: WorkExperience[]
   education: Education[]
   skills: Skill[]
+  language_skills:Skill[]
   created_at: string
   updated_at: string
   user_id: string
@@ -86,7 +88,7 @@ class CVsService {
   // Get user's CV (single CV per user)
   async getUserCV(): Promise<CV | null> {
     console.log("🔄 CVsService: Fetching user CV...")
-    const response = await this.client.get<CV>('/cvs/user')
+    const response = await this.client.get<CV>('/user/me/cv')
     return response.data;
     
   }
@@ -97,7 +99,7 @@ class CVsService {
 
   // Create or update user's CV
   async createOrUpdateCV(cvData: CreateOrUpdateCVRequest): Promise<CV> {
-    const response = await this.client.put<CV>('/cvs', cvData)
+    const response = await this.client.put<CV>('/user/me/cv', cvData)
     if (!response.data) {
       throw new Error("Failed to create or update CV")
     }
@@ -108,14 +110,14 @@ class CVsService {
   // Delete user's CV TODO: verify this is not missing an id
   async deleteCV(): Promise<void> {
     console.log("🔄 CVsService: Deleting user CV...")
-    await this.client.delete('/cvs')
+    await this.client.delete('/user/me/cv')
     
   }
   
   // Tailor CV to job description
   async tailorCV(jobDescription: string): Promise<CV> {
     console.log("🔄 CVsService: Tailoring CV to job description...")
-    const response = await this.client.post<CV>('/cvs/tailor', { jobDescription })
+    const response = await this.client.post<CV>('/user/me/cv/tailor', { jobDescription })
     if (!response.data) {
       throw new Error("Failed to tailor CV")
     }

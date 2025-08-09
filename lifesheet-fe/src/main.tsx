@@ -10,7 +10,9 @@ createRoot(document.getElementById('root')!).render(
       domain={constants.AUTH0_DOMAIN}
       clientId={constants.AUTH0_CLIENT_ID}
       authorizationParams={{
-        redirect_uri: constants.appUrl
+        redirect_uri: constants.appUrl,
+        audience: constants.AUTH0_AUDIENCE,
+        scope: 'openid profile email'
       }}
     >
       <App />
