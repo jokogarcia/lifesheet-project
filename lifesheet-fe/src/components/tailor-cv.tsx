@@ -67,7 +67,7 @@ export function TailorCV() {
           <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
           <h3 className="text-lg font-semibold mb-2">No CV data available</h3>
           <p className="text-muted-foreground mb-4">Please create your CV first before tailoring it to a job</p>
-          <Button onClick={() => window.location.href = "/"}>
+          <Button onClick={() => navigate("/")}>
             Go to Dashboard
           </Button>
         </div>
@@ -154,7 +154,8 @@ export function TailorCV() {
               
               {tailoredCV ? (
                 <div className="space-y-4">
-                  {/* Here you would display the tailored CV */}
+                  {/* Here you would display the tailored CV. For now */}
+
                   <div className="p-4 border rounded-lg">
                     <h3 className="font-semibold text-lg">{tailoredCV.personal_info.fullName}</h3>
                     <p className="text-muted-foreground">{tailoredCV.personal_info.email} • {tailoredCV.personal_info.phone}</p>
