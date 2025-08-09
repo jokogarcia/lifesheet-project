@@ -170,7 +170,9 @@ export const deleteUserCV = async (req: Request, res: Response, next: NextFuncti
 };
 
 export const tailorCV = async (req: Request, res: Response, next: NextFunction) => {
-    throw new ApiError(501, 'Tailoring CV feature is not implemented yet');
+    //return the user's full CD for now
+    console.log("Tailoring CV");
+    getUserCV(req, res, next);
 }
 // CV.deleteMany({}).then(() => {
 //     console.log("All CVs deleted");
