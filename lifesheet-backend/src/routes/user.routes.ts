@@ -11,7 +11,7 @@ router.delete('/:id', deleteUserProfile);
 router.get('/:id/cv', getUserCV);
 router.put('/:id/cv', updateUsersMainCV)
 router.get('/:id/cv/:cvId', getUserTailoredCV);
+router.post('/:id/cv/tailor', tailorCV);
 router.post('/:id/cv/:cvId', upsertUserTailoredCV);
 router.delete('/:id/cv/:cvId', deleteUserCV);
-router.post('/:id/cv/tailor', tailorCV);
 export default router;
