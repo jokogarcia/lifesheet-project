@@ -8,24 +8,24 @@ import { useNavigate } from "react-router-dom"
 import ReactMarkdown from "react-markdown"
 import cvsService from "@/services/cvs-service"
 
-
 export function TailorCV() {
   const { cv, isLoading } = useUserCV()
   const navigate = useNavigate()
   const [jobDescription, setJobDescription] = useState("")
   const [previewMode, setPreviewMode] = useState(false)
-  const [tailoredCV, setTailoredCV] = useState<any>(null)
+  const [tailoredCVPDF, setTailoredCVPDF] = useState<Blob | null>(null)
   const [isTailoring, setIsTailoring] = useState(false)
 
   const handleTailorCV = async () => {
     if (!jobDescription.trim()) return
-    
+
     setIsTailoring(true)
-    
+
     try {
       // Call the real API endpoint to tailor the CV
       const tailoredResult = await cvsService.tailorCV(jobDescription);
-      setTailoredCV(tailoredResult);
+      const pdfBlob = await cvsService.getCVPDF(tailoredResult.cvId);
+      setTailoredCVPDF(pdfBlob);
     } catch (error) {
       console.error("Error tailoring CV:", error);
       // Show error message to user
@@ -81,9 +81,9 @@ export function TailorCV() {
                   <h3 className="font-semibold text-lg">Job Description</h3>
                 </div>
                 <div className="flex gap-2">
-                  <Button 
-                    onClick={() => setPreviewMode(!previewMode)} 
-                    variant="outline" 
+                  <Button
+                    onClick={() => setPreviewMode(!previewMode)}
+                    variant="outline"
                     size="sm"
                     className="btn-custom"
                   >
@@ -110,8 +110,8 @@ export function TailorCV() {
                 <p className="text-sm text-muted-foreground mb-2">
                   Supports Markdown formatting for better organization
                 </p>
-                <Button 
-                  onClick={handleTailorCV} 
+                <Button
+                  onClick={handleTailorCV}
                   disabled={!jobDescription.trim() || isTailoring}
                   className="w-full"
                 >
@@ -138,7 +138,7 @@ export function TailorCV() {
                   <FileText className="h-5 w-5" />
                   <h3 className="font-semibold text-lg">Tailored CV Preview</h3>
                 </div>
-                {tailoredCV  && (
+                {tailoredCVPDF && (
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm">
                       <Maximize className="h-4 w-4 mr-2" />
@@ -151,17 +151,17 @@ export function TailorCV() {
                   </div>
                 )}
               </div>
-              
-              {tailoredCV ? (
-                <div className="space-y-4">
-                  {/* Here you would display the tailored CV. For now */}
 
-                  <div className="p-4 border rounded-lg">
-                    <h3 className="font-semibold text-lg">{tailoredCV.personal_info.fullName}</h3>
-                    <p className="text-muted-foreground">{tailoredCV.personal_info.email} • {tailoredCV.personal_info.phone}</p>
-                    <p className="mt-2">{tailoredCV.personal_info.summary}</p>
-                  </div>
-                  
+              {tailoredCVPDF ? (
+                <div className="space-y-4">
+                  <iframe
+                    src={URL.createObjectURL(tailoredCVPDF)}
+                    className="w-full h-[500px] border rounded-lg"
+                    title="Tailored CV Preview"
+                  ></iframe>
+
+                 
+
                   <Button className="w-full">
                     Download Tailored CV
                   </Button>

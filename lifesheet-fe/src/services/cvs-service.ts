@@ -115,9 +115,9 @@ class CVsService {
   }
   
   // Tailor CV to job description
-  async tailorCV(jobDescription: string): Promise<CV> {
+  async tailorCV(jobDescription: string): Promise<{cvId: string}> {
     console.log("🔄 CVsService: Tailoring CV to job description...")
-    const response = await this.client.post<CV>('/user/me/cv/tailor', { jobDescription })
+    const response = await this.client.post<{cvId: string}>('/user/me/cv/tailor', { jobDescription })
     if (!response.data) {
       throw new Error("Failed to tailor CV")
     }
@@ -128,6 +128,17 @@ class CVsService {
   // Upload CV file
   async uploadCVFile(file: File): Promise<{ fileUrl: string; fileName: string }> {
     throw new Error("Method not implemented.");
+  }
+  // Get CV PDF
+  async getCVPDF(cvId: string): Promise<Blob> {
+    console.log("🔄 CVsService: Fetching CV PDF...")
+    const response = await this.client.get(`/user/me/cv/${cvId}/pdf`, {
+      responseType: 'blob' // Important for binary data
+    })
+    if (!response.data) {
+      throw new Error("Failed to fetch CV PDF")
+    }
+    return response.data;
   }
 }
 

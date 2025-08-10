@@ -17,6 +17,8 @@ import User, { IUser } from '../models/user.model';
 import CV, { ICV } from '../models/cv.model';
 import { ApiError } from '../middleware/errorHandler';
 import mongoose from 'mongoose';
+import { renderAsHtml } from '../utils/cv-renderer';
+import { PDFService } from '../services/pdf-service';
 
 // Helper to resolve 'me' to the authenticated user's id
 function resolveUserId(req: Request): string {
@@ -170,9 +172,57 @@ export const deleteUserCV = async (req: Request, res: Response, next: NextFuncti
 };
 
 export const tailorCV = async (req: Request, res: Response, next: NextFunction) => {
-    //return the user's full CD for now
-    console.log("Tailoring CV");
-    getUserCV(req, res, next);
+    //runs the agent to tailor the CV and returns the tailored CV ID. 
+    // for now, it just returns the main CV's ID
+    try {
+        const userId = resolveUserId(req);
+        const userInfo = await User.findById(userId);
+        if (!userInfo) {
+            throw new ApiError(404, "User Not Found")
+        }
+        let cv = await CV.findOne({ user_id: userId, deletedAt: null, tailored: { $exists: false } });
+        if (!cv) throw new ApiError(404, 'CV not found');
+        res.json({
+            cvId: cv._id,
+        });        
+    } catch (err) {
+        next(err);
+    }
+}
+export const renderCVAsHTML = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = resolveUserId(req);
+        const cvId = req.params.cvId;
+        const cv = await CV.findOne({ user_id: userId, deletedAt: null, _id: cvId });
+        if (!cv) throw new ApiError(404, 'CV not found');
+        const html = renderAsHtml(cv);
+        res.send(html);
+    } catch (err) {
+        next(err);
+    }
+}
+export const renderCVAsPDF = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = resolveUserId(req);
+        const cvId = req.params.cvId;
+        const cv = await CV.findOne({ user_id: userId, deletedAt: null, _id: cvId });
+        if (!cv) throw new ApiError(404, 'CV not found');
+        const html = renderAsHtml(cv, true); // true for print mode
+        const pdfBuffer = await PDFService.htmlToPDF(html,{
+            format: 'A4',
+            margin: {
+                top: '0in',
+                right: '0in',
+                bottom: '0in',
+                left: '0in'
+            },
+            landscape: false
+        });
+        res.setHeader('Content-Type', 'application/pdf');
+        res.send(pdfBuffer);
+    } catch (err) {
+        next(err);
+    }
 }
 // CV.deleteMany({}).then(() => {
 //     console.log("All CVs deleted");

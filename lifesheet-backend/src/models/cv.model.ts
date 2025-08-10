@@ -5,6 +5,7 @@ export interface PersonalInfo {
   phone?: string
   location?: string
   linkedIn?: string
+  github?: string
   website?: string
   summary?: string
 }
@@ -17,6 +18,8 @@ export interface WorkExperience {
   endDate: string
   current: boolean
   description: string
+  location?: string
+  achievements?: string[]
 }
 
 export interface Education {
@@ -27,11 +30,17 @@ export interface Education {
   startDate: string
   endDate: string
   gpa: string
+  location: string
 }
 
 export interface Skill {
   id: string
   name: string
+  level: string
+}
+export interface LanguageSkill {
+  id: string
+  language: string
   level: string
 }
 
@@ -56,12 +65,15 @@ interface ISection extends Document {
 // CV Schema
 export interface ICV extends Document {
   user_id: mongoose.Schema.Types.ObjectId;
-  
+  profilePictureUrl?: string; // Optional field for profile picture URL
   personal_info: PersonalInfo
   work_experience:WorkExperience[]
   education:Education[]
   skills:Skill[]
   sections: ISection[];
+  language_skills: LanguageSkill[];
+  title?: string;
+  summary?:{title: string, content: string};
   isPublic: boolean;
   customStyles?: {
     template?: string;
