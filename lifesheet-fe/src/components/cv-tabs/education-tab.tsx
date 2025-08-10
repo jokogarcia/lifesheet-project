@@ -37,7 +37,6 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
         <div className="flex items-center gap-2 mb-4">
           <GraduationCap className="h-5 w-5" />
           <h3 className="font-semibold text-lg">Education</h3>
-          {!isEditing && <div className="bg-gray-100 px-2 py-1 rounded">View Mode</div>}
         </div>
         <div className="space-y-6">
           {isEditing ? (

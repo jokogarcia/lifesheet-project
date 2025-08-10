@@ -15,7 +15,6 @@ export function PersonalInfoTab({ isEditing, personalInfo, setPersonalInfo, cv }
         <div className="flex items-center gap-2 mb-4">
           <GraduationCap className="h-5 w-5" />
           <h3 className="font-semibold text-lg">Personal Information</h3>
-          {!isEditing && <div className="bg-gray-100 px-2 py-1 rounded">View Mode</div>}
         </div>
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

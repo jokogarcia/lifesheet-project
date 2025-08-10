@@ -64,7 +64,6 @@ export function SkillsTab({
         <div className="flex items-center gap-2 mb-4">
           <Award className="h-5 w-5" />
           <h3 className="font-semibold text-lg">Skills</h3>
-          {!isEditing && <div className="bg-gray-100 px-2 py-1 rounded">View Mode</div>}
         </div>
         <div className="space-y-4">
           {isEditing ? (
