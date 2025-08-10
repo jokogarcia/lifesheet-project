@@ -57,9 +57,9 @@ export function renderAsHtml(cvdata: ICV, printmode: boolean = true, paperSize: 
     container.appendChild(leftColumn);
     container.appendChild(rightColumn);
 
-    if (!!cvdata.profilePictureUrl) {
+    if (!!cvdata.personal_info.profilePictureUrl) {
         const profilePicture: HTMLImageElement = document.createElement('img');
-        profilePicture.src = cvdata.profilePictureUrl;
+        profilePicture.src = cvdata.personal_info.profilePictureUrl;
         profilePicture.alt = 'Profile Picture';
         profilePicture.className = 'profile-photo';
         leftColumn.appendChild(profilePicture);
@@ -90,7 +90,7 @@ export function renderAsHtml(cvdata: ICV, printmode: boolean = true, paperSize: 
 
     headerSection.innerHTML = `
         <h1>${cvdata.personal_info.fullName}</h1>
-        <h2 class="job-title">${cvdata.work_experience[0]?.position || ''}</h2>
+        <h2 class="job-title">${cvdata.personal_info.title || ''}</h2>
         <div class="contact-info">
             ${cvdata.personal_info.email ? `<p><li class="fa fa-envelope"></li>: <a href='mailto:${cvdata.personal_info.email}'>${cvdata.personal_info.email}</a></p>` : ''}
             ${cvdata.personal_info.phone ? `<p><li class="fa fa-phone"></li>: <a href='tel:${cvdata.personal_info.phone}'>${phoneNumberFormatter(cvdata.personal_info.phone)}</a></p>` : ''}
@@ -103,8 +103,8 @@ export function renderAsHtml(cvdata: ICV, printmode: boolean = true, paperSize: 
 
     const paperHeight: number = getPaperSizePixels().height;
     summarySection.innerHTML = `
-        <h2>${cvdata.summary?.title || ''}</h2>
-        <p>${cvdata.summary?.content || ''}</p>
+        <h2>Summary</h2>
+        <p>${cvdata.personal_info.summary || ''}</p>
     `;
     if (overflowsPage(summarySection, paperHeight)) {
         addPageBreak(summarySection, paperHeight);

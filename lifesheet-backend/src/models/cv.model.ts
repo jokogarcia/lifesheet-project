@@ -8,6 +8,8 @@ export interface PersonalInfo {
   github?: string
   website?: string
   summary?: string
+  profilePictureUrl?: string
+  title?: string
 }
 
 export interface WorkExperience {
@@ -65,15 +67,12 @@ interface ISection extends Document {
 // CV Schema
 export interface ICV extends Document {
   user_id: mongoose.Schema.Types.ObjectId;
-  profilePictureUrl?: string; // Optional field for profile picture URL
   personal_info: PersonalInfo
   work_experience:WorkExperience[]
   education:Education[]
   skills:Skill[]
   sections: ISection[];
   language_skills: LanguageSkill[];
-  title?: string;
-  summary?:{title: string, content: string};
   isPublic: boolean;
   customStyles?: {
     template?: string;
@@ -136,6 +135,9 @@ const cvSchema = new Schema(
       linkedIn: String,
       website: String,
       summary: String,
+      profilePictureUrl: String,
+      title: String,
+      github: String
     },
     work_experience: [
       {

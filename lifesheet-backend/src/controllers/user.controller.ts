@@ -16,9 +16,12 @@ import { Request, Response, NextFunction } from 'express';
 import User, { IUser } from '../models/user.model';
 import CV, { ICV } from '../models/cv.model';
 import { ApiError } from '../middleware/errorHandler';
-import mongoose from 'mongoose';
+import fs from 'fs';
+
 import { renderAsHtml } from '../utils/cv-renderer';
 import { PDFService } from '../services/pdf-service';
+import path from 'path';
+import Picture, { IPicture } from '../models/picture.model';
 
 // Helper to resolve 'me' to the authenticated user's id
 function resolveUserId(req: Request): string {
@@ -80,7 +83,7 @@ export const getUserCV = async (req: Request, res: Response, next: NextFunction)
         }
         let cv = await CV.findOne({ user_id: userId, deletedAt: null, tailored: { $exists: false } });
         if (!cv) {
-            const newcv = createBlankCV(userId,userInfo.email,userInfo.name || userInfo.email)
+            const newcv = createBlankCV(userId, userInfo.email, userInfo.name || userInfo.email)
             // Create and save a blank CV if it doesn't exist
             cv = await CV.create(newcv);
         }
@@ -89,7 +92,7 @@ export const getUserCV = async (req: Request, res: Response, next: NextFunction)
         next(err);
     }
 };
-function createBlankCV(userId: string, userEmail: string, userName:string) {
+function createBlankCV(userId: string, userEmail: string, userName: string) {
 
     return {
         user_id: userId,
@@ -184,7 +187,7 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
         if (!cv) throw new ApiError(404, 'CV not found');
         res.json({
             cvId: cv._id,
-        });        
+        });
     } catch (err) {
         next(err);
     }
@@ -208,7 +211,7 @@ export const renderCVAsPDF = async (req: Request, res: Response, next: NextFunct
         const cv = await CV.findOne({ user_id: userId, deletedAt: null, _id: cvId });
         if (!cv) throw new ApiError(404, 'CV not found');
         const html = renderAsHtml(cv, true); // true for print mode
-        const pdfBuffer = await PDFService.htmlToPDF(html,{
+        const pdfBuffer = await PDFService.htmlToPDF(html, {
             format: 'A4',
             margin: {
                 top: '0in',
@@ -224,6 +227,78 @@ export const renderCVAsPDF = async (req: Request, res: Response, next: NextFunct
         next(err);
     }
 }
+
+export const uploadPicture = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = resolveUserId(req);
+        //get the file from the request
+        if (!req.file) {
+            throw new ApiError(400, 'No file uploaded');
+        }
+        // enforce file type
+        if (!req.file.mimetype.startsWith('image/')) {
+            throw new ApiError(400, 'File must be an image');
+        }
+        // enforce file size
+        if (req.file.size > 5 * 1024 * 1024) { // 5MB limit
+            throw new ApiError(400, 'File size exceeds 5MB');
+        }
+        // save file to local drive
+        const filePath = `uploads/${userId}/profile-picture-${Date.now()}.${req.file.originalname.split('.').pop()}`;
+        await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
+        await fs.promises.writeFile(filePath, req.file.buffer);
+        // save file info to database
+        const p = await Picture.create({
+            user_id: userId,
+            contentType: req.file.mimetype,
+            filepath: filePath,
+        });
+        res.json({ pictureId: p.id })
+    } catch (err) {
+        next(err);
+    }
+};
+export const getUserPictures = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = resolveUserId(req);
+        const pictures = await Picture.find({ user_id: userId, deletedAt: null }).select('_id');
+        const pictureIds = pictures.map(picture => picture._id).map((id: any) => id.toString());
+
+        res.json({ pictureIds });
+    } catch (err) {
+        next(err);
+    }
+};
+export const getUserPicture = async (req:
+    Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = resolveUserId(req);
+        const pictureId = req.params.pictureId;
+        const picture = await Picture.findOne({ user_id: userId, _id: pictureId, deletedAt: null });
+        if (!picture) throw new ApiError(404, 'Picture not found');
+        const buffer = await fs.promises.readFile(picture.filepath);
+        res.setHeader('Content-Type', picture.contentType);
+        res.send(buffer);
+    } catch (err) {
+        next(err);
+    }
+};
+export const deleteUserPicture = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = resolveUserId(req);
+        const pictureId = req.params.pictureId;
+        const picture = await Picture.findOneAndUpdate(
+            { user_id: userId, _id: pictureId, deletedAt: null },
+            { deletedAt: new Date() },
+            { new: true }
+        );
+        if (!picture) throw new ApiError(404, 'Picture not found');
+        await fs.promises.unlink(picture.filepath);
+        res.status(204).send(); // No content
+    } catch (err) {
+        next(err);
+    }
+};
 // CV.deleteMany({}).then(() => {
 //     console.log("All CVs deleted");
 // }).catch(err => {
