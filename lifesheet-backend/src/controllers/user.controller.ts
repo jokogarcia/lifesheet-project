@@ -179,12 +179,19 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
     // for now, it just returns the main CV's ID
     try {
         const userId = resolveUserId(req);
+        const jobDescription = req.body.jobDescription || "";
+        const pictureId = req.body.pictureId || "";
+        if (!jobDescription) {
+            throw new ApiError(400, 'Job description is required');
+        }
         const userInfo = await User.findById(userId);
         if (!userInfo) {
             throw new ApiError(404, "User Not Found")
         }
         let cv = await CV.findOne({ user_id: userId, deletedAt: null, tailored: { $exists: false } });
         if (!cv) throw new ApiError(404, 'CV not found');
+        
+
         res.json({
             cvId: cv._id,
         });
@@ -208,8 +215,17 @@ export const renderCVAsPDF = async (req: Request, res: Response, next: NextFunct
     try {
         const userId = resolveUserId(req);
         const cvId = req.params.cvId;
+        const pictureId = req.query.pictureId as string || "";
         const cv = await CV.findOne({ user_id: userId, deletedAt: null, _id: cvId });
         if (!cv) throw new ApiError(404, 'CV not found');
+        if (pictureId) {
+            const picture = await Picture.findOne({ user_id: userId, _id: pictureId, deletedAt: null });
+            if (!picture) throw new ApiError(404, 'Picture not found');
+            //get picture from file path and encode it as a blob url
+            const picturedata = await fs.promises.readFile(picture.filepath);
+            const pictureBlobUrl = `data:${picture.contentType};base64,${picturedata.toString('base64')}`;
+            cv.personal_info.profilePictureUrl = pictureBlobUrl;
+        }
         const html = renderAsHtml(cv, true); // true for print mode
         const pdfBuffer = await PDFService.htmlToPDF(html, {
             format: 'A4',
