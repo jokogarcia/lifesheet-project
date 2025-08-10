@@ -16,6 +16,10 @@ createRoot(document.getElementById('root')!).render(
           audience: constants.AUTH0_AUDIENCE,
           scope: 'openid profile email'
         }}
+        //These settings fix the user being logged out on refresh in Firefox
+        useRefreshTokens={true} 
+        cacheLocation="localstorage"
+        cookieDomain={window.location.hostname}
       >
         <App />
       </Auth0Provider>
