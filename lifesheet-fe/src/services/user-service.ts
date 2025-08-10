@@ -45,7 +45,7 @@ class UserService {
   async getProfile(): Promise<UserProfile> {
     console.log("🔄 UserService: Fetching user profile...")
 
-    const response = await this.client.get<UserProfile>('/users/me')
+    const response = await this.client.get<UserProfile>('/user/me')
       
      return response.data
       
@@ -55,9 +55,46 @@ class UserService {
   async updateProfile(profileData: UpdateProfileRequest): Promise<UserProfile> {
     console.log("🔄 UserService: Updating user profile...")
 
-    const response = await this.client.put<UserProfile>('/users/me', profileData)
+    const response = await this.client.put<UserProfile>('/user/me', profileData)
     
     return response.data
+  }
+  async getUserPictures(): Promise<string[]> {
+    console.log("🔄 UserService: Fetching user pictures...")
+    const response = await this.client.get<{pictureIds:string[]}>('/user/me/pictures')
+    return response.data.pictureIds
+  }
+  
+  async uploadPicture(file: File): Promise<string> {
+    console.log("🔄 UserService: Uploading picture...")
+    const formData = new FormData()
+    formData.append("picture", file)
+
+    const response = await this.client.post<{pictureId:string}>('/user/me/picture', formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+
+    return response.data.pictureId
+  }
+
+  async deletePicture(pictureId: string): Promise<void> {
+    console.log("🔄 UserService: Deleting picture...")
+    await this.client.delete(`/user/me/picture/${pictureId}`)
+  }
+  
+  async getPicture(pictureId: string): Promise<string> {
+    console.log("🔄 UserService: Fetching picture...")
+    const response = await this.client.get(`/user/me/picture/${pictureId}`, {
+      responseType: 'blob'
+    })
+    
+    // Create blob URL from the response
+    const blob = new Blob([response.data], { type: response.headers['content-type'] || 'image/jpeg' })
+    const blobUrl = URL.createObjectURL(blob)
+    
+    return blobUrl
   }
 }
 

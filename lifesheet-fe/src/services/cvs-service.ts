@@ -3,11 +3,14 @@ import { constants } from "../constants"
 // Types for our CV data
 export interface PersonalInfo {
   fullName: string
+  profilePictureUrl?: string
+  title?: string
   email: string
   phone?: string
   location?: string
   linkedIn?: string
   website?: string
+  github?: string
   summary?: string
 }
 
@@ -19,6 +22,8 @@ export interface WorkExperience {
   endDate: string
   current: boolean
   description: string
+  location?: string
+  achievements?: string[]
 }
 
 export interface Education {
@@ -29,6 +34,7 @@ export interface Education {
   startDate: string
   endDate: string
   gpa: string
+  location: string
 }
 
 export interface Skill {
@@ -37,14 +43,19 @@ export interface Skill {
   level: string
 }
 
-
+export interface LanguageSkill {
+  id: string
+  language: string
+  level: string
+}
 export interface CV {
   id: string
+  
   personal_info: PersonalInfo
   work_experience: WorkExperience[]
   education: Education[]
   skills: Skill[]
-  language_skills:Skill[]
+  language_skills:LanguageSkill[]
   created_at: string
   updated_at: string
   user_id: string
@@ -55,6 +66,7 @@ export interface CreateOrUpdateCVRequest {
   work_experience: WorkExperience[]
   education: Education[]
   skills: Skill[]
+  language_skills?: LanguageSkill[]
 }
 
 // No need for mock data anymore, we're using real API calls

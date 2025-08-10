@@ -1,6 +1,6 @@
 "use client"
 import ReactMarkdown from "react-markdown"
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { Button } from "../components/ui/button"
 import {
   Upload,
@@ -16,9 +16,11 @@ import {
   AlertCircle,
 } from "lucide-react"
 import { useUserCV } from "../hooks/use-cv"
-import type { PersonalInfo, WorkExperience, Education, Skill } from "../services/cvs-service"
+import type { PersonalInfo, WorkExperience, Education, Skill, LanguageSkill } from "../services/cvs-service"
 import { useAuth0 } from "@auth0/auth0-react"
 import { useNavigate } from "react-router-dom"
+import userService from "../services/user-service"
+import { constants } from "../constants"
 import LogoutButton from "./logout-button"
 
 interface CVMainDashboardProps {
@@ -27,23 +29,27 @@ interface CVMainDashboardProps {
 }
 
 export function CVMainDashboard() {
-  const {logout,user} = useAuth0()
+  const { logout, user } = useAuth0()
   const navigate = useNavigate()
 
   const { cv, isLoading, isSaving, error, saveCV, deleteCV } = useUserCV()
   const [isEditing, setIsEditing] = useState(false)
   const [activeTab, setActiveTab] = useState("personal")
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
-  const onSignOut=()=>{logout()}
+  const [pictures, setPictures] = useState<string[]>([])
+  const [isUploadingPicture, setIsUploadingPicture] = useState(false)
+  const onSignOut = () => { logout() }
   // Form state
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({
     fullName: "",
+    title: "",
+    profilePictureUrl: "",
     email: "",
     phone: "",
     location: "",
     linkedIn: "",
     website: "",
+    github: "",
     summary: "",
   })
 
@@ -56,6 +62,8 @@ export function CVMainDashboard() {
       endDate: "",
       current: false,
       description: "",
+      location: "",
+      achievements: [],
     },
   ])
 
@@ -68,11 +76,14 @@ export function CVMainDashboard() {
       startDate: "",
       endDate: "",
       gpa: "",
+      location: "",
     },
   ])
 
   const [skills, setSkills] = useState<Skill[]>([])
   const [newSkill, setNewSkill] = useState({ name: "", level: "Intermediate" })
+  const [languageSkills, setLanguageSkills] = useState<LanguageSkill[]>([])
+  const [newLanguageSkill, setNewLanguageSkill] = useState({ language: "", level: "Intermediate" })
 
   // Initialize form data when CV is loaded or when entering edit mode
   useEffect(() => {
@@ -81,10 +92,24 @@ export function CVMainDashboard() {
       setWorkExperience(cv.work_experience)
       setEducation(cv.education)
       setSkills(cv.skills)
+      setLanguageSkills(cv.language_skills || [])
     }
   }, [cv, isEditing])
 
-  
+  // Load user pictures
+  useEffect(() => {
+    const loadPictures = async () => {
+      try {
+        const userPictures = await userService.getUserPictures()
+        setPictures(userPictures)
+      } catch (error) {
+        console.error("Error loading pictures:", error)
+      }
+    }
+    loadPictures()
+  }, [])
+
+
 
   const handleStartEditing = () => {
     if (cv) {
@@ -92,6 +117,7 @@ export function CVMainDashboard() {
       setWorkExperience(cv.work_experience)
       setEducation(cv.education)
       setSkills(cv.skills)
+      setLanguageSkills(cv.language_skills || [])
     }
     setIsEditing(true)
   }
@@ -108,6 +134,7 @@ export function CVMainDashboard() {
         work_experience: workExperience,
         education: education,
         skills: skills,
+        language_skills: languageSkills,
       })
       setIsEditing(false)
       setSaveMessage("CV saved successfully!")
@@ -128,6 +155,8 @@ export function CVMainDashboard() {
       endDate: "",
       current: false,
       description: "",
+      location: "",
+      achievements: [],
     }
     setWorkExperience([...workExperience, newExp])
   }
@@ -140,6 +169,39 @@ export function CVMainDashboard() {
     setWorkExperience(workExperience.map((exp) => (exp.id === id ? { ...exp, [field]: value } : exp)))
   }
 
+  // Achievements handlers
+  const addAchievement = (expId: string) => {
+    setWorkExperience(workExperience.map((exp) =>
+      exp.id === expId
+        ? { ...exp, achievements: [...(exp.achievements || []), ""] }
+        : exp
+    ))
+  }
+
+  const updateAchievement = (expId: string, achievementIndex: number, value: string) => {
+    setWorkExperience(workExperience.map((exp) =>
+      exp.id === expId
+        ? {
+          ...exp,
+          achievements: exp.achievements?.map((ach, idx) =>
+            idx === achievementIndex ? value : ach
+          ) || []
+        }
+        : exp
+    ))
+  }
+
+  const removeAchievement = (expId: string, achievementIndex: number) => {
+    setWorkExperience(workExperience.map((exp) =>
+      exp.id === expId
+        ? {
+          ...exp,
+          achievements: exp.achievements?.filter((_, idx) => idx !== achievementIndex) || []
+        }
+        : exp
+    ))
+  }
+
   // Education handlers
   const addEducation = () => {
     const newEdu: Education = {
@@ -150,6 +212,7 @@ export function CVMainDashboard() {
       startDate: "",
       endDate: "",
       gpa: "",
+      location: "",
     }
     setEducation([...education, newEdu])
   }
@@ -179,10 +242,49 @@ export function CVMainDashboard() {
     setSkills(skills.filter((skill) => skill.id !== id))
   }
 
-  const handleFileUpload = (event: any) => {
+  // Language Skills handlers
+  const addLanguageSkill = () => {
+    if (newLanguageSkill.language.trim()) {
+      const languageSkill: LanguageSkill = {
+        id: Date.now().toString(),
+        language: newLanguageSkill.language,
+        level: newLanguageSkill.level,
+      }
+      setLanguageSkills([...languageSkills, languageSkill])
+      setNewLanguageSkill({ language: "", level: "Intermediate" })
+    }
+  }
+
+  const removeLanguageSkill = (id: string) => {
+    setLanguageSkills(languageSkills.filter((langSkill) => langSkill.id !== id))
+  }
+
+  // Picture management handlers
+  const handlePictureUpload = async (event: any) => {
     const file = event.target.files?.[0]
     if (file) {
-      setUploadedFile(file)
+      setIsUploadingPicture(true)
+      try {
+        const pictureId = await userService.uploadPicture(file)
+        // Reload pictures to get the updated list
+        const updatedPictures = await userService.getUserPictures()
+        setPictures(updatedPictures)
+        console.log("Picture uploaded successfully:", pictureId)
+      } catch (error) {
+        console.error("Error uploading picture:", error)
+      } finally {
+        setIsUploadingPicture(false)
+      }
+    }
+  }
+
+  const handleDeletePicture = async (pictureId: string) => {
+    try {
+      await userService.deletePicture(pictureId)
+      // Remove the picture from state
+      setPictures(pictures.filter(id => id !== pictureId))
+    } catch (error) {
+      console.error("Error deleting picture:", error)
     }
   }
 
@@ -293,9 +395,9 @@ export function CVMainDashboard() {
                 <Award className="h-4 w-4" />
                 Skills
               </div>
-              <div onClick={() => setActiveTab("upload")} className="flex items-center gap-2 cursor-pointer">
+              <div onClick={() => setActiveTab("pictures")} className="flex items-center gap-2 cursor-pointer">
                 <FileText className="h-4 w-4" />
-                Upload
+                Pictures
               </div>
             </div>
 
@@ -322,6 +424,20 @@ export function CVMainDashboard() {
                           />
                         ) : (
                           <p className="p-2 bg-gray-50 rounded">{cv?.personal_info?.fullName || "Not provided"}</p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="title">Title (Optional)</label>
+                        {isEditing ? (
+                          <input
+                            id="title"
+                            value={personalInfo.title || ""}
+                            onChange={(e) => setPersonalInfo({ ...personalInfo, title: e.target.value })}
+                            placeholder="Software Engineer"
+                            className="border rounded-lg p-2"
+                          />
+                        ) : (
+                          <p className="p-2 bg-gray-50 rounded">{cv?.personal_info?.title || "Not provided"}</p>
                         )}
                       </div>
                       <div className="space-y-2">
@@ -395,9 +511,24 @@ export function CVMainDashboard() {
                           <p className="p-2 bg-gray-50 rounded">{cv?.personal_info?.website || "Not provided"}</p>
                         )}
                       </div>
+                      <div className="space-y-2">
+                        <label htmlFor="github">GitHub (Optional)</label>
+                        {isEditing ? (
+                          <input
+                            id="github"
+                            value={personalInfo.github || ""}
+                            onChange={(e) => setPersonalInfo({ ...personalInfo, github: e.target.value })}
+                            placeholder="github.com/johndoe"
+                            className="border rounded-lg p-2"
+                          />
+                        ) : (
+                          <p className="p-2 bg-gray-50 rounded">{cv?.personal_info?.github || "Not provided"}</p>
+                        )}
+                      </div>
+
                     </div>
                     <div className="space-y-2">
-                      <label htmlFor="summary">Professional Summary</label>
+                      <label htmlFor="summary">Professional Summary</label><br />
                       {isEditing ? (
                         <textarea
                           id="summary"
@@ -463,6 +594,15 @@ export function CVMainDashboard() {
                                 />
                               </div>
                               <div className="space-y-2">
+                                <label>Location</label>
+                                <input
+                                  value={exp.location || ""}
+                                  onChange={(e) => updateWorkExperience(exp.id, "location", e.target.value)}
+                                  placeholder="City, State/Country"
+                                  className="border rounded-lg p-2"
+                                />
+                              </div>
+                              <div className="space-y-2">
                                 <label>Start Date</label>
                                 <input
                                   type="date"
@@ -501,6 +641,33 @@ export function CVMainDashboard() {
                                 className="block w-full border rounded-lg p-2 h-48"
                               />
                             </div>
+                            <div className="space-y-2">
+                              <label>Key Achievements (Optional)</label>
+                              <div className="space-y-2">
+                                {(exp.achievements || []).map((achievement, achIndex) => (
+                                  <div key={achIndex} className="flex gap-2">
+                                    <input
+                                      value={achievement}
+                                      onChange={(e) => updateAchievement(exp.id, achIndex, e.target.value)}
+                                      placeholder="Describe a key achievement..."
+                                      className="flex-1 border rounded-lg p-2"
+                                    />
+                                    <button
+                                      onClick={() => removeAchievement(exp.id, achIndex)}
+                                      className="bg-red-100 text-red-600 px-3 py-2 rounded"
+                                    >
+                                      ×
+                                    </button>
+                                  </div>
+                                ))}
+                                <button
+                                  onClick={() => addAchievement(exp.id)}
+                                  className="bg-blue-100 text-blue-600 px-3 py-2 rounded text-sm"
+                                >
+                                  + Add Achievement
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         ))}
                         <button onClick={addWorkExperience} className="bg-green-100 text-green-600 px-4 py-2 rounded btn-custom">
@@ -519,6 +686,9 @@ export function CVMainDashboard() {
                                 <div>
                                   <h3 className="font-semibold text-lg">{exp.position}</h3>
                                   <p className="text-muted-foreground">{exp.company}</p>
+                                  {exp.location && (
+                                    <p className="text-sm text-muted-foreground">{exp.location}</p>
+                                  )}
                                 </div>
                                 <div className="bg-gray-100 px-2 py-1 rounded">
                                   {exp.startDate} - {exp.current ? "Present" : exp.endDate}
@@ -527,6 +697,18 @@ export function CVMainDashboard() {
                               <div className="text-sm mt-2 text-left">
                                 <ReactMarkdown>{exp.description}</ReactMarkdown>
                               </div>
+                              {exp.achievements && exp.achievements.length > 0 && (
+                                <div className="mt-3">
+                                  <h4 className="font-medium text-sm mb-2">Key Achievements:</h4>
+                                  <ul className="list-disc list-inside space-y-1">
+                                    {exp.achievements.map((achievement, achIndex) => (
+                                      <li key={achIndex} className="text-sm text-muted-foreground">
+                                        {achievement}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
                             </div>
                           ))
                         )}
@@ -705,6 +887,49 @@ export function CVMainDashboard() {
                             </div>
                           </div>
                         )}
+
+                        {/* Language Skills Section */}
+                        <div className="border-t pt-4 mt-6">
+                          <h4 className="font-semibold text-lg mb-4">Language Skills</h4>
+                          <div className="flex gap-2 mb-4">
+                            <input
+                              value={newLanguageSkill.language}
+                              onChange={(e) => setNewLanguageSkill({ ...newLanguageSkill, language: e.target.value })}
+                              placeholder="Language (e.g., English, Spanish, French)"
+                              className="flex-1 border rounded-lg p-2"
+                            />
+                            <select
+                              value={newLanguageSkill.level}
+                              onChange={(e) => setNewLanguageSkill({ ...newLanguageSkill, level: e.target.value })}
+                              className="px-3 py-2 border rounded-md"
+                            >
+                              <option value="Beginner">Beginner</option>
+                              <option value="Intermediate">Intermediate</option>
+                              <option value="Advanced">Advanced</option>
+                              <option value="Native">Native</option>
+                              <option value="Fluent">Fluent</option>
+                            </select>
+                            <button onClick={addLanguageSkill} className="bg-green-100 text-green-600 px-4 py-2 rounded btn-custom">
+                              <Plus className="h-4 w-4" />
+                            </button>
+                          </div>
+
+                          {languageSkills.length > 0 && (
+                            <div className="space-y-2">
+                              <label>Your Languages</label>
+                              <div className="flex flex-wrap gap-2">
+                                {languageSkills.map((langSkill) => (
+                                  <div key={langSkill.id} className="bg-blue-50 px-2 py-1 rounded flex items-center gap-2 transition-colors hover:bg-blue-100">
+                                    {langSkill.language} ({langSkill.level})
+                                    <button onClick={() => removeLanguageSkill(langSkill.id)} className="ml-1 hover:text-destructive">
+                                      ×
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </>
                     ) : (
                       <div className="space-y-2">
@@ -719,6 +944,20 @@ export function CVMainDashboard() {
                             ))}
                           </div>
                         )}
+
+                        {/* Language Skills Display */}
+                        {cv?.language_skills && cv.language_skills.length > 0 && (
+                          <div className="border-t pt-4 mt-6">
+                            <h4 className="font-semibold text-lg mb-4">Language Skills</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {cv.language_skills.map((langSkill) => (
+                                <div key={langSkill.id} className="bg-blue-50 px-2 py-1 rounded transition-colors hover:bg-blue-100">
+                                  {langSkill.language} ({langSkill.level})
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -726,51 +965,81 @@ export function CVMainDashboard() {
               </div>
             )}
 
-            {/* Upload Tab */}
-            {activeTab === "upload" && (
+            {/* Pictures Tab */}
+            {activeTab === "pictures" && (
               <div className="space-y-4">
                 <div className="border rounded-lg p-6 card-hover bg-gradient-subtle">
                   <div className="flex items-center gap-2 mb-4">
                     <FileText className="h-5 w-5" />
-                    <h3 className="font-semibold text-lg">Upload CV Document</h3>
+                    <h3 className="font-semibold text-lg">Profile Pictures</h3>
                   </div>
-                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
+
+                  {/* Upload Section */}
+                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center mb-6">
                     <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                     <div className="space-y-2">
-                      <label htmlFor="cv-upload" className="cursor-pointer">
-                        <span className="text-lg font-medium">Click to upload your CV</span>
+                      <label htmlFor="picture-upload" className="cursor-pointer">
+                        <span className="text-lg font-medium">Click to upload a picture</span>
                         <p className="text-sm text-muted-foreground">or drag and drop</p>
                       </label>
                       <input
-                        id="cv-upload"
+                        id="picture-upload"
                         type="file"
-                        accept=".pdf,.doc,.docx"
-                        onChange={handleFileUpload}
+                        accept=".png,.jpg,.jpeg,.gif,.webp"
+                        onChange={handlePictureUpload}
                         className="hidden"
+                        disabled={isUploadingPicture}
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground mt-2">Supported formats: PDF, DOC, DOCX (Max 10MB)</p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Supported formats: PNG, JPG, JPEG, GIF, WebP (Max 5MB)
+                    </p>
+                    {isUploadingPicture && (
+                      <div className="mt-4">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+                        <p className="text-sm text-muted-foreground mt-2">Uploading...</p>
+                      </div>
+                    )}
                   </div>
 
-                  {uploadedFile && (
-                    <div className="p-4 bg-muted rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-5 w-5" />
-                          <span className="font-medium">{uploadedFile.name}</span>
-                          <div className="bg-gray-100 px-2 py-1 rounded">
-                            {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => setUploadedFile(null)}
-                          className="bg-red-100 text-red-600 px-4 py-2 rounded"
-                        >
-                          Remove
-                        </button>
+                  {/* Pictures Grid */}
+                  <div>
+                    <h4 className="font-semibold text-lg mb-4">Your Pictures ({pictures.length})</h4>
+                    {pictures.length === 0 ? (
+                      <div className="text-center py-8">
+                        <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                        <p className="text-muted-foreground">No pictures uploaded yet</p>
+                        <p className="text-sm text-muted-foreground">Upload your first picture above</p>
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {pictures.map((pictureId, index) => (
+                          <div
+                            key={pictureId}
+                            className="relative group border rounded-lg overflow-hidden bg-gray-50 aspect-square"
+                          >
+                            <SecureImg
+                              pictureId={pictureId}
+                              alt={`Profile picture ${index + 1}`}
+                              className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-black/30 group-hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center">
+                              <button
+                                onClick={() => handleDeletePicture(pictureId)}
+                                className="opacity-0 group-hover:opacity-100 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-all duration-200"
+                                title="Delete picture"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                            <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                              #{index + 1}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -807,5 +1076,43 @@ export function CVMainDashboard() {
         </>
       )}
     </div>
+  )
+}
+
+function SecureImg({ pictureId, alt, className }: { pictureId: string; alt?: string; className?: string }) {
+  const [error, setError] = useState(false);
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!pictureId) {
+      setError(true)
+    }
+
+    userService.getPicture(pictureId)
+      .then((blob) => {
+        if (blob) {
+          setBlobUrl(blob);
+        } else {
+          setError(true);
+        }
+      })
+      .catch(() => {
+        setError(true);
+      });
+    return () => {
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
+      }
+    };
+
+  }, [pictureId])
+  const placeholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMiA5QzEwLjM0MzEgOSA5IDEwLjM0MzEgOSAxMkM5IDEzLjY1NjkgMTAuMzQzMSAxNSAxMkM5IDE1IDEwLjM0MzEgMTMgMTUgMTVDMTMuNjU2OSAxNSAxNSAxMy42NTY5IDE1IDEyQzE1IDEwLjM0MzEgMTMuNjU2OSAxMiAxMiAxMkM5IDEzLjY1NjkgOSA5LjM0MzEgOSA5WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4='
+  const _src = error || !blobUrl ? placeholder : blobUrl;
+  return (
+    <img
+      src={_src}
+      alt={alt}
+      className={className}
+      onError={() => setError(true)}
+    />
   )
 }
