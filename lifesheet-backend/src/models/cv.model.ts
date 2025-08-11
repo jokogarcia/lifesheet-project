@@ -141,12 +141,16 @@ const cvSchema = new Schema(
     },
     work_experience: [
       {
+  // client supplies a stable id for front-end tracking
+  id: String,
         company: String,
         position: String,
         startDate: String,
         endDate: String,
         current: Boolean,
-        description: String,
+  description: String,
+  location: String,
+  achievements: [String],
       },
     ],
     education: [

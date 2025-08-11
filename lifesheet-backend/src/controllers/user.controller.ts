@@ -49,8 +49,8 @@ export const getUserProfile = async (req: Request, res: Response, next: NextFunc
 export const updateUserProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = resolveUserId(req);
-        const updates = { ...req.body, updatedAt: new Date() };
-        delete updates.email; // Do not allow email change
+        const updates = { ...req.body, updatedAt: new Date() } as any;
+        delete updates.email;
         delete updates.auth0sub;
         const user = await User.findByIdAndUpdate(userId, updates, { new: true, runValidators: true }).select('-auth0sub -__v');
         if (!user) throw new ApiError(404, 'User not found');
@@ -125,22 +125,22 @@ export const getUserTailoredCV = async (req: Request, res: Response, next: NextF
     }
 };
 
-export const updateUsersMainCV = async (req: Request, res: Response, next: NextFunction) => {
+export const updateUsersMainCV = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const userId = resolveUserId(req);
-        let cv = await CV.findOne({ user_id: userId, deletedAt: null, tailored: { $exists: false } });
-        if (!cv) {
-            throw new ApiError(404, 'CV not found');
-        }
-        Object.assign(cv, req.body, { updatedAt: new Date() });
-        await cv.save();
-        res.json(cv);
+        const payload = req.body as ICV;
+        const result = await CV.findOneAndUpdate(
+            { user_id: userId, deletedAt: null, tailored: { $exists: false } },
+            { $set: payload, $currentDate: { updated_at: true } },
+            { new: true, runValidators: true }
+        );
 
+        res.json(result);
     } catch (err) {
         next(err);
     }
 }
-export const upsertUserTailoredCV = async (req: Request, res: Response, next: NextFunction) => {
+export const upsertUserTailoredCV = async (req: Request, res: Response, next: NextFunction):Promise<void> => {
     try {
         const userId = resolveUserId(req);
         if (!req.user || req.user.id !== userId) throw new ApiError(403, 'Forbidden');
@@ -190,7 +190,7 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
         }
         let cv = await CV.findOne({ user_id: userId, deletedAt: null, tailored: { $exists: false } });
         if (!cv) throw new ApiError(404, 'CV not found');
-        
+
 
         res.json({
             cvId: cv._id,
