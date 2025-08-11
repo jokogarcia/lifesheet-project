@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom"
 import ReactMarkdown from "react-markdown"
 import cvsService from "@/services/cvs-service"
 import userService from "@/services/user-service"
-import { SecureImg } from "./cv-tabs"
+import { SecureImg } from "@/components/ui/secure-img"
 
 export function TailorCV() {
   const { cv, isLoading } = useUserCV()

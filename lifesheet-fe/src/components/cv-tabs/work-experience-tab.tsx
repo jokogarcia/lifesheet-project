@@ -1,12 +1,12 @@
 import { Briefcase, Plus } from "lucide-react"
 import ReactMarkdown from "react-markdown"
-import type { WorkExperience } from "../../services/cvs-service"
+import type { CV, WorkExperience } from "../../services/cvs-service"
 
 interface WorkExperienceTabProps {
   isEditing: boolean
   workExperience: WorkExperience[]
   setWorkExperience: (exp: WorkExperience[]) => void
-  cv: any
+  cv: CV
 }
 
 export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience, cv }: WorkExperienceTabProps) {
@@ -29,7 +29,7 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
     setWorkExperience(workExperience.filter((exp) => exp.id !== id))
   }
 
-  const updateWorkExperience = (id: string, field: keyof WorkExperience, value: any) => {
+  const updateWorkExperience = (id: string, field: keyof WorkExperience, value: WorkExperience[keyof WorkExperience]) => {
     setWorkExperience(workExperience.map((exp) => (exp.id === id ? { ...exp, [field]: value } : exp)))
   }
 
