@@ -92,6 +92,15 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                       />
                     </div>
                     <div className="space-y-2">
+                      <label>Location</label>
+                      <input
+                        value={edu.location}
+                        onChange={(e) => updateEducation(edu.id, "location", e.target.value)}
+                        placeholder="City, State/Country"
+                        className="border rounded-lg p-2 placeholder-gray-500"
+                      />
+                    </div>
+                    <div className="space-y-2">
                       <label>Start Date</label>
                       <input
                         type="date"
@@ -130,6 +139,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                           {edu.degree} in {edu.field}
                         </h3>
                         <p className="text-muted-foreground">{edu.institution}</p>
+                        {edu.location && <p className="text-sm text-muted-foreground">{edu.location}</p>}
                       </div>
                       <div className="text-right">
                         <div className="bg-gray-100 px-2 py-1 rounded">

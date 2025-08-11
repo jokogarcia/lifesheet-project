@@ -68,9 +68,9 @@ interface ISection extends Document {
 export interface ICV extends Document {
   user_id: mongoose.Schema.Types.ObjectId;
   personal_info: PersonalInfo
-  work_experience:WorkExperience[]
-  education:Education[]
-  skills:Skill[]
+  work_experience: WorkExperience[]
+  education: Education[]
+  skills: Skill[]
   sections: ISection[];
   language_skills: LanguageSkill[];
   isPublic: boolean;
@@ -87,7 +87,7 @@ export interface ICV extends Document {
   tailored?: {
     jobDescription_id: string;
     tailoredDate: Date;
-    updatedByUser:boolean;
+    updatedByUser: boolean;
   };
 }
 
@@ -141,32 +141,42 @@ const cvSchema = new Schema(
     },
     work_experience: [
       {
-  // client supplies a stable id for front-end tracking
-  id: String,
+        // client supplies a stable id for front-end tracking
+        id: String,
         company: String,
         position: String,
         startDate: String,
         endDate: String,
         current: Boolean,
-  description: String,
-  location: String,
-  achievements: [String],
+        description: String,
+        location: String,
+        achievements: [String],
       },
     ],
     education: [
       {
-        institution: String,
-        degree: String,
+        id: String,
+        institution: { type: String, required: true },
+        degree: { type: String, required: true },
         field: String,
-        startDate: String,
+        startDate: { type: String, required: true },
         endDate: String,
         gpa: String,
+        location: { type: String, required: true },
       },
     ],
     skills: [
       {
-        name: String,
+        id: String,
+        name: { type: String, required: true },
         level: String,
+      },
+    ],
+    language_skills: [
+      {
+        id: String,
+        language: { type: String, required: true },
+        level: { type: String, required: true },
       },
     ],
     sections: [sectionSchema],
