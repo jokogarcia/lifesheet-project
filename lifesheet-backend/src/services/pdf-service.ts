@@ -10,6 +10,7 @@ export class PDFService {
     private static async getBrowser(): Promise<Browser> {
         if (!this.browser) {
             this.browser = await puppeteer.launch({
+                executablePath: '/usr/bin/google-chrome',
                 headless: true,
                 args: [
                     '--no-sandbox',
