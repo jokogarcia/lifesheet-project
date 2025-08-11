@@ -180,9 +180,7 @@ export function CVMainDashboard() {
       </div>
     )
   }
-  if(!cv){
-    return <div>No CV data available</div>
-  }
+
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
       {/* Header */}

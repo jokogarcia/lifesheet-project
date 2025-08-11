@@ -5,7 +5,7 @@ interface PersonalInfoTabProps {
   isEditing: boolean
   personalInfo: PersonalInfo
   setPersonalInfo: (info: PersonalInfo) => void
-  cv: CV
+  cv: CV | null
 }
 
 export function PersonalInfoTab({ isEditing, personalInfo, setPersonalInfo, cv }: PersonalInfoTabProps) {

@@ -5,7 +5,7 @@ interface EducationTabProps {
   isEditing: boolean
   education: Education[]
   setEducation: (edu: Education[]) => void
-  cv: CV
+  cv: CV | null
 }
 
 export function EducationTab({ isEditing, education, setEducation, cv }: EducationTabProps) {

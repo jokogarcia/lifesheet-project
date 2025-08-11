@@ -11,7 +11,7 @@ interface SkillsTabProps {
   setLanguageSkills: (skills: LanguageSkill[]) => void
   newLanguageSkill: { language: string; level: string }
   setNewLanguageSkill: (skill: { language: string; level: string }) => void
-  cv: CV
+  cv: CV | null | null
 }
 
 export function SkillsTab({

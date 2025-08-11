@@ -6,7 +6,7 @@ interface WorkExperienceTabProps {
   isEditing: boolean
   workExperience: WorkExperience[]
   setWorkExperience: (exp: WorkExperience[]) => void
-  cv: CV
+  cv: CV | null
 }
 
 export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience, cv }: WorkExperienceTabProps) {
