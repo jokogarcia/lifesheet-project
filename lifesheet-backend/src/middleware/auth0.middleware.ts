@@ -4,11 +4,12 @@ import { Request, Response, NextFunction } from 'express';
 import { ApiError } from './errorHandler';
 import User, { IUser } from '../models/user.model';
 import { getUserInfo as getUserAuth0Info } from '../services/auth0';
+import  { constants } from '../constants'
 
 // Initialize Auth0 middleware
 export const jwtCheck = auth({
-  audience: process.env.AUTH0_AUDIENCE,
-  issuerBaseURL: `https://${process.env.AUTH0_DOMAIN}/`,
+  audience: constants.AUTH0_AUDIENCE,
+  issuerBaseURL: `https://${constants.AUTH0_DOMAIN}/`,
   tokenSigningAlg: 'RS256'
 });
 declare global {

@@ -2,6 +2,7 @@ import express from 'express';
 import CV, { ICV } from '../models/cv.model';
 import Picture from '../models/picture.model';
 import fs from 'fs'
+import {constants} from '../constants';
 import path from 'path';
 const router = express.Router();
 router.get('/cv-toprint/:id', async (req, res) => {
@@ -14,7 +15,7 @@ router.get('/cv-toprint/:id', async (req, res) => {
             return;
         }
         if (pictureId) {
-            cv.personal_info.profilePictureUrl = `http://localhost:3000/private/picture/${pictureId}`;
+            cv.personal_info.profilePictureUrl = new URL(`private/picture/${pictureId}`, constants.API_URL).toString();
         }
         const printableCV = {
             "workExperienceTitle": "WORK EXPERIENCE",
