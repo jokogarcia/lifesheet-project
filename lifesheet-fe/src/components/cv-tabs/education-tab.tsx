@@ -61,7 +61,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                         value={edu.institution}
                         onChange={(e) => updateEducation(edu.id, "institution", e.target.value)}
                         placeholder="University Name"
-                        className="border rounded-lg p-2"
+                        className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
                     <div className="space-y-2">
@@ -70,7 +70,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                         value={edu.degree}
                         onChange={(e) => updateEducation(edu.id, "degree", e.target.value)}
                         placeholder="Bachelor's, Master's, etc."
-                        className="border rounded-lg p-2"
+                        className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
                     <div className="space-y-2">
@@ -79,7 +79,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                         value={edu.field}
                         onChange={(e) => updateEducation(edu.id, "field", e.target.value)}
                         placeholder="Computer Science, Business, etc."
-                        className="border rounded-lg p-2"
+                        className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
                     <div className="space-y-2">
@@ -88,7 +88,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                         value={edu.gpa}
                         onChange={(e) => updateEducation(edu.id, "gpa", e.target.value)}
                         placeholder="3.8/4.0"
-                        className="border rounded-lg p-2"
+                        className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
                     <div className="space-y-2">
@@ -97,7 +97,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                         type="date"
                         value={edu.startDate}
                         onChange={(e) => updateEducation(edu.id, "startDate", e.target.value)}
-                        className="border rounded-lg p-2"
+                        className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
                     <div className="space-y-2">
@@ -106,7 +106,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                         type="date"
                         value={edu.endDate}
                         onChange={(e) => updateEducation(edu.id, "endDate", e.target.value)}
-                        className="border rounded-lg p-2"
+                        className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
                   </div>

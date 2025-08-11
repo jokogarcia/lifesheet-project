@@ -95,7 +95,7 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                         value={exp.company}
                         onChange={(e) => updateWorkExperience(exp.id, "company", e.target.value)}
                         placeholder="Company Name"
-                        className="border rounded-lg p-2"
+                        className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
                     <div className="space-y-2">
@@ -104,7 +104,7 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                         value={exp.position}
                         onChange={(e) => updateWorkExperience(exp.id, "position", e.target.value)}
                         placeholder="Job Title"
-                        className="border rounded-lg p-2"
+                        className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
                     <div className="space-y-2">
@@ -113,7 +113,7 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                         value={exp.location || ""}
                         onChange={(e) => updateWorkExperience(exp.id, "location", e.target.value)}
                         placeholder="City, State/Country"
-                        className="border rounded-lg p-2"
+                        className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
                     <div className="space-y-2">
@@ -152,7 +152,7 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                       onChange={(e) => updateWorkExperience(exp.id, "description", e.target.value)}
                       placeholder="Describe your responsibilities and achievements..."
                       rows={3}
-                      className="block w-full border rounded-lg p-2 h-48"
+                      className="block w-full border rounded-lg p-2 h-48 placeholder-gray-500"
                     />
                   </div>
                   <div className="space-y-2">
@@ -164,7 +164,7 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                             value={achievement}
                             onChange={(e) => updateAchievement(exp.id, achIndex, e.target.value)}
                             placeholder="Describe a key achievement..."
-                            className="flex-1 border rounded-lg p-2"
+                            className="flex-1 border rounded-lg p-2 placeholder-gray-500"
                           />
                           <button
                             onClick={() => removeAchievement(exp.id, achIndex)}

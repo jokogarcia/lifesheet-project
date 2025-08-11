@@ -73,7 +73,7 @@ export function SkillsTab({
                   value={newSkill.name}
                   onChange={(e) => setNewSkill({ ...newSkill, name: e.target.value })}
                   placeholder="Skill name (e.g., JavaScript, Project Management)"
-                  className="flex-1 border rounded-lg p-2"
+                  className="flex-1 border rounded-lg p-2 placeholder-gray-500"
                 />
                 <select
                   value={newSkill.level}
@@ -114,7 +114,7 @@ export function SkillsTab({
                     value={newLanguageSkill.language}
                     onChange={(e) => setNewLanguageSkill({ ...newLanguageSkill, language: e.target.value })}
                     placeholder="Language (e.g., English, Spanish, French)"
-                    className="flex-1 border rounded-lg p-2"
+                    className="flex-1 border rounded-lg p-2 placeholder-gray-500"
                   />
                   <select
                     value={newLanguageSkill.level}
