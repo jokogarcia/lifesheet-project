@@ -18,7 +18,6 @@ import CV, { ICV } from '../models/cv.model';
 import { ApiError } from '../middleware/errorHandler';
 import fs from 'fs';
 
-import { renderAsHtml } from '../utils/cv-renderer';
 import { PDFService } from '../services/pdf-service';
 import path from 'path';
 import Picture, { IPicture } from '../models/picture.model';
@@ -199,44 +198,14 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
         next(err);
     }
 }
-export const renderCVAsHTML = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const userId = resolveUserId(req);
-        const cvId = req.params.cvId;
-        const cv = await CV.findOne({ user_id: userId, deletedAt: null, _id: cvId });
-        if (!cv) throw new ApiError(404, 'CV not found');
-        const html = renderAsHtml(cv);
-        res.send(html);
-    } catch (err) {
-        next(err);
-    }
-}
+
 export const renderCVAsPDF = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = resolveUserId(req);
         const cvId = req.params.cvId;
-        const pictureId = req.query.pictureId as string || "";
-        const cv = await CV.findOne({ user_id: userId, deletedAt: null, _id: cvId });
-        if (!cv) throw new ApiError(404, 'CV not found');
-        if (pictureId) {
-            const picture = await Picture.findOne({ user_id: userId, _id: pictureId, deletedAt: null });
-            if (!picture) throw new ApiError(404, 'Picture not found');
-            //get picture from file path and encode it as a blob url
-            const picturedata = await fs.promises.readFile(picture.filepath);
-            const pictureBlobUrl = `data:${picture.contentType};base64,${picturedata.toString('base64')}`;
-            cv.personal_info.profilePictureUrl = pictureBlobUrl;
-        }
-        const html = renderAsHtml(cv, true); // true for print mode
-        const pdfBuffer = await PDFService.htmlToPDF(html, {
-            format: 'A4',
-            margin: {
-                top: '0in',
-                right: '0in',
-                bottom: '0in',
-                left: '0in'
-            },
-            landscape: false
-        });
+        const pictureId=req.query.pictureId as string;
+
+        const pdfBuffer = await PDFService.cvToPDF(cvId, pictureId);
         res.setHeader('Content-Type', 'application/pdf');
         res.send(pdfBuffer);
     } catch (err) {

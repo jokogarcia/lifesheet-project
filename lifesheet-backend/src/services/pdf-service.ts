@@ -1,6 +1,6 @@
 import puppeteer, { Browser, Page } from 'puppeteer';
 import { ApiError } from '../middleware/errorHandler';
-
+import fs from 'fs';
 export class PDFService {
     private static browser: Browser | null = null;
 
@@ -62,6 +62,35 @@ export class PDFService {
             if (page) {
                 await page.close();
             }
+        }
+    }
+    static async cvToPDF(cvId:string, pictureId?:string){
+        
+        try {
+            const browser = await this.getBrowser();
+            const page = await browser.newPage();
+            let jsonurl = `http://localhost:3000/private/cv-toprint/${cvId}`;
+            if(pictureId) jsonurl += `?pictureId=${pictureId}`;
+            const fullurl = `http://localhost:3000/private/cv-printer/index.html?cv=${encodeURIComponent(jsonurl)}`;
+            console.log('Navigating to:', fullurl);
+            await page.goto(fullurl, { waitUntil: 'networkidle0' });
+            const pdfBuffer = await page.pdf({
+                format: 'A4',
+                landscape: false,
+                printBackground: true,
+                margin: {
+                    top: '0in',
+                    right: '0in',
+                    bottom: '0in',
+                    left: '0in'
+                },
+                preferCSSPageSize: false
+            });
+
+            return Buffer.from(pdfBuffer);
+        } catch (error) {
+            console.error('Error generating CV PDF:', error);
+            throw new ApiError(500, 'Failed to generate CV PDF');
         }
     }
 
