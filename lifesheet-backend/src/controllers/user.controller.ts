@@ -15,12 +15,15 @@ Routes:
 import { Request, Response, NextFunction } from 'express';
 import User, { IUser } from '../models/user.model';
 import CV, { ICV } from '../models/cv.model';
+import JobDescription from '../models/job-description';
 import { ApiError } from '../middleware/errorHandler';
 import fs from 'fs';
+import * as cvTailoringService from '../services/cv-tailoring-service'
 
 import { PDFService } from '../services/pdf-service';
 import path from 'path';
 import Picture, { IPicture } from '../models/picture.model';
+import { Consumption } from '../models/consumption.model';
 
 // Helper to resolve 'me' to the authenticated user's id
 function resolveUserId(req: Request): string {
@@ -178,21 +181,55 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
     // for now, it just returns the main CV's ID
     try {
         const userId = resolveUserId(req);
-        const jobDescription = req.body.jobDescription || "";
+        let jobDescription = req.body.jobDescription || "";
+        let jobDescriptionId = req.body.jobDescriptionId || "";
         const pictureId = req.body.pictureId || "";
-        if (!jobDescription) {
-            throw new ApiError(400, 'Job description is required');
+        if (!jobDescription && !jobDescriptionId) {
+            throw new ApiError(400, 'Job description is required. Provide one or a valid job description ID.');
+        }
+        if(!jobDescription) {
+            const jobDescriptionDoc = await JobDescription
+            .findOne({ _id: jobDescriptionId,
+                userId,
+                deletedAt: null
+             });
+            if (!jobDescriptionDoc) {
+                throw new ApiError(404, 'Job description not found');
+            }
+            
+            jobDescription = jobDescriptionDoc.content;
+
+        }else{
+            //No jobDescriptionId, but jobDescription is provided
+            const r = await JobDescription.create({ content: jobDescription, userId });
+            jobDescriptionId = r._id;
         }
         const userInfo = await User.findById(userId);
         if (!userInfo) {
             throw new ApiError(404, "User Not Found")
         }
-        let cv = await CV.findOne({ user_id: userId, deletedAt: null, tailored: { $exists: false } });
-        if (!cv) throw new ApiError(404, 'CV not found');
-
-
+        let mainCv = await CV.findOne({ user_id: userId, deletedAt: null, tailored: { $exists: false } });
+        if (!mainCv) throw new ApiError(500, 'Main CV not found');
+        const r = await cvTailoringService.tailorCV(mainCv, jobDescription);
+        if (!r || !r.tailored_cv) {
+            throw new ApiError(500, 'Failed to tailor CV');
+        }
+        const tailoredCv = r.tailored_cv;
+        tailoredCv.tailored={
+            jobDescription_id: jobDescriptionId,
+            tailoredDate: new Date(),
+            updatedByUser: false
+        };
+        const { _id: tailoredCvId } = await CV.create(tailoredCv);
+        const { _id: consumptionId } = await Consumption.create({
+            userId,
+            jobDescriptionId,
+            cvId: tailoredCvId,
+            createdAt: new Date(),
+            tokens: r.tokens_used
+        });
         res.json({
-            cvId: cv._id,
+            cvId: tailoredCvId
         });
     } catch (err) {
         next(err);

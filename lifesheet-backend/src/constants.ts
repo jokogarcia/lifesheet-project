@@ -5,5 +5,6 @@ export const constants ={
     AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || 'your-auth0-audience',
     API_URL: process.env.API_URL || 'http://localhost:3000',
     PRIVATE_API_URL: process.env.PRIVATE_API_URL || 'http://localhost:3000',
-    NODE_ENV: process.env.NODE_ENV || 'development'
+    NODE_ENV: process.env.NODE_ENV || 'development',
+    CV_TAILORING_SERVICE: process.env.CV_TAILORING_SERVICE || 'http://localhost:8000',
 }
