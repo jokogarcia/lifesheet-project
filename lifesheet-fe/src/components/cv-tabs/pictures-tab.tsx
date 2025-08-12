@@ -1,10 +1,9 @@
 import { FileText, Upload, Trash2 } from "lucide-react"
 import { SecureImg } from "../ui/secure-img"
-
 interface PicturesTabProps {
   pictures: string[]
   isUploadingPicture: boolean
-  handlePictureUpload: (event: any) => void
+  handlePictureUpload: (event: React.ChangeEvent<HTMLInputElement>) => void
   handleDeletePicture: (pictureId: string) => void
 }
 

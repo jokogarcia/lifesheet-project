@@ -1,6 +1,6 @@
 import puppeteer, { Browser, Page } from 'puppeteer';
 import { ApiError } from '../middleware/errorHandler';
-import fs from 'fs';
+import { constants } from '../constants'; // Import constants for API URL
 export class PDFService {
     private static browser: Browser | null = null;
 
@@ -10,6 +10,7 @@ export class PDFService {
     private static async getBrowser(): Promise<Browser> {
         if (!this.browser) {
             this.browser = await puppeteer.launch({
+                executablePath: '/usr/bin/google-chrome',
                 headless: true,
                 args: [
                     '--no-sandbox',
@@ -69,9 +70,9 @@ export class PDFService {
         try {
             const browser = await this.getBrowser();
             const page = await browser.newPage();
-            let jsonurl = `http://localhost:3000/private/cv-toprint/${cvId}`;
+            let jsonurl = new URL(`private/cv-toprint/${cvId}`, constants.PRIVATE_API_URL).toString();
             if(pictureId) jsonurl += `?pictureId=${pictureId}`;
-            const fullurl = `http://localhost:3000/private/cv-printer/index.html?cv=${encodeURIComponent(jsonurl)}`;
+            const fullurl = new URL(`private/cv-printer/index.html?cv=${encodeURIComponent(jsonurl)}`, constants.PRIVATE_API_URL).toString();
             console.log('Navigating to:', fullurl);
             await page.goto(fullurl, { waitUntil: 'networkidle0' });
             const pdfBuffer = await page.pdf({

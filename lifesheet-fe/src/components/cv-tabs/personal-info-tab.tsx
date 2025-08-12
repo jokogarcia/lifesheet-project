@@ -1,11 +1,11 @@
 import { GraduationCap } from "lucide-react"
-import type { PersonalInfo } from "../../services/cvs-service"
+import type { CV, PersonalInfo } from "../../services/cvs-service"
 
 interface PersonalInfoTabProps {
   isEditing: boolean
   personalInfo: PersonalInfo
   setPersonalInfo: (info: PersonalInfo) => void
-  cv: any
+  cv: CV | null
 }
 
 export function PersonalInfoTab({ isEditing, personalInfo, setPersonalInfo, cv }: PersonalInfoTabProps) {

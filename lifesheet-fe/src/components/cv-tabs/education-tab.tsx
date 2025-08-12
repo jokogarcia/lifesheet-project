@@ -1,11 +1,11 @@
 import { GraduationCap, Plus } from "lucide-react"
-import type { Education } from "../../services/cvs-service"
+import type { CV, Education } from "../../services/cvs-service"
 
 interface EducationTabProps {
   isEditing: boolean
   education: Education[]
   setEducation: (edu: Education[]) => void
-  cv: any
+  cv: CV | null
 }
 
 export function EducationTab({ isEditing, education, setEducation, cv }: EducationTabProps) {

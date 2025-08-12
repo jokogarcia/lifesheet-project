@@ -9,12 +9,17 @@ import path from 'path';
 import userRoutes from './routes/user.routes';
 import privateRoutes from './routes/private.routes';
 import { errorHandler } from './middleware/errorHandler';
-import { jwtCheck, extractUserFromToken } from './middleware/auth0.middleware';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { PDFService } from './services/pdf-service';
-
+import { constants } from './constants'
+//TODO:
+// consolidate all constants in a constants.ts file [DONE]
+// replace uses of hardcoded localhost:3000 api url [DONE]
+// configure docker compose with nginx reverse proxy
+// test that everything works
+// design api contract with agent
 const app: Express = express();
-const PORT = process.env.PORT || 3000;
+
 // Graceful shutdown handlers
 const gracefulShutdown = async (signal: string) => {
   console.log(`Received ${signal}. Starting graceful shutdown...`);
@@ -42,7 +47,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI as string)
+mongoose.connect(constants.MONGODB_URI as string)
   .then(() => {
     console.log('Connected to MongoDB');
   })
@@ -62,7 +67,7 @@ app.get('/api/health', (req, res) => {
 
 
 // Proxy all non-API requests to localhost:4000
-if (process.env.NODE_ENV !== 'production' && false) {
+if (constants.NODE_ENV !== 'production') {
   //In production, we will use Nginx to handle the proxying
   
   app.use(
@@ -95,6 +100,6 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(constants.PORT, () => {
+  console.log(`Server is running on port ${constants.PORT}`);
 });

@@ -3,9 +3,9 @@ version: '3.8'
 services:
   frontend:
     build:
-      context: ./lifesheet
+      context: .
     ports:
-      - "3000:3000"
+      - "3000:80"
     environment:
       - NEXT_PUBLIC_API_URL=http://backend:3001
     depends_on:
@@ -20,6 +20,10 @@ services:
       - "3001:3001"
     env_file:
       - ./lifesheet-backend/.env
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/lifesheet
+      - PORT=3001
+      - PRIVATE_API_URL=http://localhost:3001
     volumes:
       - ./uploads:/app/uploads
     depends_on:

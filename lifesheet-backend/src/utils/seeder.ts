@@ -2,12 +2,12 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import User from '../models/user.model';
 import CV from '../models/cv.model';
-
+import {constants } from '../constants';
 // Load env vars
 dotenv.config();
 
 // Connect to DB
-mongoose.connect(process.env.MONGODB_URI as string).then(() => {
+mongoose.connect(constants.MONGODB_URI as string).then(() => {
   console.log('MongoDB Connected...');
 }).catch((err) => {
   console.error('MongoDB Connection Error:', err);

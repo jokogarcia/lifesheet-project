@@ -1,5 +1,6 @@
+import { constants } from '../constants';
 export async function getUserInfo(token: string) {
-    const url = new URL('/userinfo',`https://${process.env.AUTH0_DOMAIN!}`)
+    const url = new URL('/userinfo', `https://${constants.AUTH0_DOMAIN}/`)
     const response = await fetch(url, {
         method: 'GET',
         headers: {

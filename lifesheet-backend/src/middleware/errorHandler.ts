@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import {constants} from '../constants'
 
 interface AppError extends Error {
   statusCode?: number;
@@ -18,7 +19,7 @@ export const errorHandler = (
   res.status(statusCode).json({
     success: false,
     error: message,
-    stack: process.env.NODE_ENV === 'production' ? undefined : err.stack,
+    stack: constants.NODE_ENV === 'production' ? undefined : err.stack,
   });
 };
 

@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
-import { Button } from "../components/ui/button"
+import { Button } from "@/components/ui/button"
 import {
   Briefcase,
   GraduationCap,
@@ -142,7 +142,7 @@ export function CVMainDashboard() {
 
 
   // Picture management handlers
-  const handlePictureUpload = async (event: any) => {
+  const handlePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
       setIsUploadingPicture(true)
@@ -180,7 +180,6 @@ export function CVMainDashboard() {
       </div>
     )
   }
-  console.log("CV data:", cv)
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">

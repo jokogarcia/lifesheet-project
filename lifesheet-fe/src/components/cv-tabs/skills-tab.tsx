@@ -1,5 +1,5 @@
 import { Award, Plus } from "lucide-react"
-import type { Skill, LanguageSkill } from "../../services/cvs-service"
+import type { Skill, LanguageSkill, CV } from "../../services/cvs-service"
 
 interface SkillsTabProps {
   isEditing: boolean
@@ -11,7 +11,7 @@ interface SkillsTabProps {
   setLanguageSkills: (skills: LanguageSkill[]) => void
   newLanguageSkill: { language: string; level: string }
   setNewLanguageSkill: (skill: { language: string; level: string }) => void
-  cv: any
+  cv: CV | null | null
 }
 
 export function SkillsTab({
