@@ -11,7 +11,9 @@ async function callApi(cv,job_description){
     });
     if(response.status > 299) {
         const errorData = await response.json();
+        console.error("Error detail", errorData)
         throw new Error(`API call failed: Status ${response.status}, Message: ${errorData.detail}`);
+        
     }
     const data = await response.json();
     return data;

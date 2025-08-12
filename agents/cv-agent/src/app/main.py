@@ -42,8 +42,6 @@ def tailor_endpoint(req: TailorRequest) -> JSONResponse:
     try:
         original_cv = json.loads(req.cv)
     except json.JSONDecodeError as e:
-        print(f"Invalid CV JSON: {e}")
-        print("Request body:", req.json())
         raise HTTPException(status_code=400, detail=f"Invalid 'cv' JSON: {e}")
 
     try:
