@@ -1,6 +1,8 @@
 
 async function callApi(cv,job_description){
-    const response = await fetch('http://localhost:8000/tailor', {
+    cv = JSON.stringify(cv);
+    job_description = JSON.stringify(job_description);
+    const response = await fetch('http://127.0.0.1:8000/tailor', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
