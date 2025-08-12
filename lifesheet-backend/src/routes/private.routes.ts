@@ -15,7 +15,7 @@ router.get('/cv-toprint/:id', async (req, res) => {
             return;
         }
         if (pictureId) {
-            cv.personal_info.profilePictureUrl = new URL(`private/picture/${pictureId}`, constants.API_URL).toString();
+            cv.personal_info.profilePictureUrl = new URL(`private/picture/${pictureId}`, constants.PRIVATE_API_URL).toString();
         }
         const printableCV = {
             "workExperienceTitle": "WORK EXPERIENCE",
