@@ -5,19 +5,18 @@ services:
     build:
       context: .
     ports:
-      - "3000:80"
+      - "5500:80"
     environment:
       - NEXT_PUBLIC_API_URL=http://backend:3001
     depends_on:
       - backend
+      - cv-agent
     networks:
       - lifesheet-network
 
   backend:
     build:
       context: ./lifesheet-backend
-    ports:
-      - "3001:3001"
     env_file:
       - ./lifesheet-backend/.env
     environment:
@@ -33,10 +32,18 @@ services:
 
   mongo:
     image: mongo:5
-    ports:
-      - "27017:27017"
+
     volumes:
       - mongo-data:/data/db
+    networks:
+      - lifesheet-network
+  cv-agent:
+    build:
+      context: ./agents/cv-agent
+
+    environment:
+      - PORT=8000
+      - HOST=127.0.0.1
     networks:
       - lifesheet-network
 
