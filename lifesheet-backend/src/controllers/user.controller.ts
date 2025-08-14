@@ -24,6 +24,8 @@ import { PDFService } from '../services/pdf-service';
 import path from 'path';
 import Picture, { IPicture } from '../models/picture.model';
 import { Consumption } from '../models/consumption.model';
+import { SaaSPlan, SaaSSubscription } from '../models/saaS-plan.model';
+import { getSecondsUntilNextWeek, getSecondsUntilTomorrow } from '../utils/utils';
 
 // Helper to resolve 'me' to the authenticated user's id
 function resolveUserId(req: Request): string {
@@ -142,7 +144,7 @@ export const updateUsersMainCV = async (req: Request, res: Response, next: NextF
         next(err);
     }
 }
-export const upsertUserTailoredCV = async (req: Request, res: Response, next: NextFunction):Promise<void> => {
+export const upsertUserTailoredCV = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const userId = resolveUserId(req);
         if (!req.user || req.user.id !== userId) throw new ApiError(403, 'Forbidden');
@@ -181,25 +183,37 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
     // for now, it just returns the main CV's ID
     try {
         const userId = resolveUserId(req);
+        const canDo = await checkUserCanDoOperation(userId);
+        if (!canDo.canOperate) {
+            const retryAfter = canDo.reason === "Daily limit reached" ? getSecondsUntilTomorrow() : getSecondsUntilNextWeek();
+            res.status(429)
+                .header('Retry-After', retryAfter.toString())
+                .json({
+                    message: `${canDo.reason}. Try again in ${retryAfter} seconds.`,
+                    retryAfter
+                });
+                return;
+        }
         let jobDescription = req.body.jobDescription || "";
         let jobDescriptionId = req.body.jobDescriptionId || "";
         const pictureId = req.body.pictureId || "";
         if (!jobDescription && !jobDescriptionId) {
             throw new ApiError(400, 'Job description is required. Provide one or a valid job description ID.');
         }
-        if(!jobDescription) {
+        if (!jobDescription) {
             const jobDescriptionDoc = await JobDescription
-            .findOne({ _id: jobDescriptionId,
-                userId,
-                deletedAt: null
-             });
+                .findOne({
+                    _id: jobDescriptionId,
+                    userId,
+                    deletedAt: null
+                });
             if (!jobDescriptionDoc) {
                 throw new ApiError(404, 'Job description not found');
             }
-            
+
             jobDescription = jobDescriptionDoc.content;
 
-        }else{
+        } else {
             //No jobDescriptionId, but jobDescription is provided
             const r = await JobDescription.create({ content: jobDescription, userId });
             jobDescriptionId = r._id;
@@ -215,7 +229,7 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
             throw new ApiError(500, 'Failed to tailor CV');
         }
         const tailoredCv = r.tailored_cv;
-        tailoredCv.tailored={
+        tailoredCv.tailored = {
             jobDescription_id: jobDescriptionId,
             tailoredDate: new Date(),
             updatedByUser: false
@@ -240,7 +254,7 @@ export const renderCVAsPDF = async (req: Request, res: Response, next: NextFunct
     try {
         const userId = resolveUserId(req);
         const cvId = req.params.cvId;
-        const pictureId=req.query.pictureId as string;
+        const pictureId = req.query.pictureId as string;
 
         const pdfBuffer = await PDFService.cvToPDF(cvId, pictureId);
         res.setHeader('Content-Type', 'application/pdf');
@@ -321,6 +335,169 @@ export const deleteUserPicture = async (req: Request, res: Response, next: NextF
         next(err);
     }
 };
+async function getUsersConsumptions(userId: string) {
+    const now = new Date();
+    const usersConsumptions = await Consumption.find({ userId });
+    //User's consumption's from today UTC
+    const todaysConsumptions = usersConsumptions.filter(consumption => {
+        const todayMidnight = new Date(now.toISOString().split('T')[0] + 'T00:00:00Z');
+        const consumptionDateUTC = new Date(consumption.createdAt.toISOString().split('T')[0] + 'T00:00:00Z');
+        return consumptionDateUTC === todayMidnight;
+    });
+    const thisWeeksConsumptions = usersConsumptions.filter(consumption => {
+        const consumptionDateUTC = new Date(consumption.createdAt.toISOString().split('T')[0] + 'T00:00:00Z');
+        const todayUTC = new Date(now.toISOString().split('T')[0] + 'T00:00:00Z');
+        const startOfWeek = new Date(todayUTC);
+        startOfWeek.setDate(todayUTC.getDate() - todayUTC.getDay());
+        return consumptionDateUTC >= startOfWeek;
+    });
+    return {
+        usersConsumptions,
+        todaysConsumptions,
+        thisWeeksConsumptions
+    }
+}
+async function _getUsersActiveSubscription(userId: string) {
+    const now = new Date();
+    const subscriptions = await SaaSSubscription.find({
+        userId,
+        startDate: { $lt: now },
+        endDate: { $gt: now },
+        status: 'active'
+    })
+    if (subscriptions.length === 0) {
+        //Assign free plan
+        const freePlan = await SaaSPlan.findOne({ name: "Free Plan" });
+        if (!freePlan) {
+            throw new ApiError(500, 'Free plan not found');
+        }
+        const newSubscription = new SaaSSubscription({
+            userId,
+            planId: freePlan._id,
+            startDate: new Date(),
+            endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+            status: 'active'
+        });
+        await newSubscription.save();
+        return newSubscription;
+    } else if (subscriptions.length > 1) {
+        // Use the most recent
+        const mostRecent = subscriptions.reduce((prev, curr) => {
+            return (prev.startDate > curr.startDate) ? prev : curr;
+        });
+        return mostRecent;
+    }
+    return subscriptions[0];
+}
+export const getUsersActiveSubscription = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = resolveUserId(req);
+        const now = new Date();
+        const { usersConsumptions, todaysConsumptions, thisWeeksConsumptions } = await getUsersConsumptions(userId);
+        const activeSubscription = await _getUsersActiveSubscription(userId);
+        res.json({
+            activeSubscription,
+            todaysConsumptions,
+            thisWeeksConsumptions
+        });
+
+    } catch (err) {
+        next(err);
+    }
+};
+/** Returns all plans, regardless of status */
+export const getAllUsersSubscriptions = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = resolveUserId(req);
+        const subscriptions = await SaaSSubscription.find({ userId }).populate('planId');
+        res.json(subscriptions);
+    } catch (err) {
+        next(err);
+    }
+};
+export const getUsersSubscriptionStatus = async (req: Request, res: Response, next: NextFunction) => {
+    const userId = resolveUserId(req);
+    const subscriptionId = req.params.subscriptionId;
+    if (!subscriptionId || typeof subscriptionId !== "string") {
+        res.status(400).json({ message: "Subscription ID is required" });
+        return;
+    }
+    const subscription = await SaaSSubscription.findOne({ userId, _id: subscriptionId })
+    if(!subscription) {
+        res.status(404).json({ message: "Subscription not found" });
+        return;
+    }
+    res.json({status: subscription?.status});
+}
+export const initiatePlanPurchase = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = resolveUserId(req);
+        const activeSubscription = await _getUsersActiveSubscription(userId);
+        const { provider, planId } = req.body as { provider: 'paypal' | 'stripe', planId: string };
+        const plan = await SaaSPlan.findById(planId);
+        if (!plan) {
+            throw new ApiError(400, 'Invalid plan ID');
+        }
+        const s = await SaaSSubscription.create({
+            userId,
+            planId,
+            // These dates are placeholders, actual dates
+            // will be set when payment is processed
+            startDate: new Date(),
+            endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+            status: 'payment-pending'
+        });
+       
+        {
+            //TODO: Initiate payment process with the selected provider
+            // Getting price and currency from plan
+            //This is just a dummy placeholder. Remove the setTimeout
+            setTimeout(() => {
+                s.startDate = new Date();
+                // Convert startDate to timestamp, add milliseconds, then create a new Date
+                const startTimestamp = s.startDate.getTime();
+                const endTimestamp = startTimestamp + (plan.days * 24 * 60 * 60 * 1000);
+                s.endDate = new Date(endTimestamp);
+                s.status = 'active';
+                s.save().catch(err => {
+                    console.error("Error saving subscription:", err);
+                });
+            }, 5000);
+        }
+        // Proceed with the plan purchase
+        res.json({ 
+            message: "Plan purchase initiated",
+            subscriptionId: s._id
+         });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export async function checkUserCanDoOperation(userId: string) {
+    const activeSubscription = await _getUsersActiveSubscription(userId);
+    const activePlan = await SaaSPlan.findById(activeSubscription.planId);
+    const { todaysConsumptions, thisWeeksConsumptions } = await getUsersConsumptions(userId);
+    if (!activePlan) {
+        return {
+            canOperate: false,
+            reason: "No active plan"
+        }
+    } if (todaysConsumptions.length >= activePlan.dailyRateLimit) {
+        return {
+            canOperate: false,
+            reason: "Daily limit reached"
+        }
+    } if (thisWeeksConsumptions.length >= activePlan.weeklyRateLimit) {
+        return {
+            canOperate: false,
+            reason: "Weekly limit reached"
+        }
+    }
+    return {
+        canOperate: true
+    }
+}
 // CV.deleteMany({}).then(() => {
 //     console.log("All CVs deleted");
 // }).catch(err => {
