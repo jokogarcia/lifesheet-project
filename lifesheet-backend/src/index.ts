@@ -1,12 +1,12 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import express, { Express } from 'express';
+import express, { Express, Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import path from 'path';
 
-import userRoutes from './routes/user.routes';
+import apiRouter from './routes/api';
 import privateRoutes from './routes/private.routes';
 import { errorHandler } from './middleware/errorHandler';
 import { createProxyMiddleware } from 'http-proxy-middleware';
@@ -57,27 +57,21 @@ mongoose.connect(constants.MONGODB_URI as string)
   });
 
 // Auth0 routes - these don't need JWT validation
-app.use('/api/user', userRoutes);
+app.use('/api', apiRouter);
 app.use('/private', privateRoutes);
 
-// Health check route
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'Server is running' });
-});
+
+
 
 
 // Proxy all non-API requests to localhost:4000
 if (constants.NODE_ENV !== 'production') {
   //In production, we will use Nginx to handle the proxying
   
-  app.use(
-    (req, res, next) => {
-      return createProxyMiddleware({
-        target: 'http://localhost:4000',
-        changeOrigin: true,
-      })(req, res, next);
-    }
-  );
+  app.use(createProxyMiddleware({
+    target: 'http://localhost:4000',
+    changeOrigin: true,
+  }));
 }
 
 // Error handling middleware

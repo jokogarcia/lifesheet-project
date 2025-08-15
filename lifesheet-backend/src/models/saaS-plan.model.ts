@@ -3,7 +3,6 @@ import mongoose, { Schema, Document } from 'mongoose';
 import User from './user.model';
 
 export interface ISaaSPlan extends Document {
-    id: string;
     name: string;
     days: number; //Number of days the plan is valid for
     description: string;
@@ -19,7 +18,6 @@ export interface ISaaSPlan extends Document {
 }
 
 const SaaSPlanSchema: Schema = new Schema({
-    id: { type: String, required: true },
     name: { type: String, required: true },
     days: { type: Number, required: true, default: 30 },
     description: { type: String, required: true },

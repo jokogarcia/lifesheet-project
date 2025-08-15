@@ -353,8 +353,8 @@ async function getUsersConsumptions(userId: string) {
     });
     return {
         usersConsumptions,
-        todaysConsumptions,
-        thisWeeksConsumptions
+        todaysConsumptions: todaysConsumptions.length,
+        thisWeeksConsumptions: thisWeeksConsumptions.length
     }
 }
 async function _getUsersActiveSubscription(userId: string) {
@@ -395,10 +395,18 @@ export const getUsersActiveSubscription = async (req: Request, res: Response, ne
         const now = new Date();
         const { usersConsumptions, todaysConsumptions, thisWeeksConsumptions } = await getUsersConsumptions(userId);
         const activeSubscription = await _getUsersActiveSubscription(userId);
+        const activePlan = await SaaSPlan.findById(activeSubscription.planId);
+        if(!activePlan) {
+            console.error("Invalid state. Active plan not found.");
+            res.status(500).json({ message: "Active plan not found" });
+            return;
+        }
         res.json({
             activeSubscription,
             todaysConsumptions,
-            thisWeeksConsumptions
+            thisWeeksConsumptions,
+            dailyRateLimit: activePlan.dailyRateLimit,
+            weeklyRateLimit: activePlan.weeklyRateLimit
         });
 
     } catch (err) {
@@ -432,7 +440,6 @@ export const getUsersSubscriptionStatus = async (req: Request, res: Response, ne
 export const initiatePlanPurchase = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = resolveUserId(req);
-        const activeSubscription = await _getUsersActiveSubscription(userId);
         const { provider, planId } = req.body as { provider: 'paypal' | 'stripe', planId: string };
         const plan = await SaaSPlan.findById(planId);
         if (!plan) {
@@ -483,12 +490,12 @@ export async function checkUserCanDoOperation(userId: string) {
             canOperate: false,
             reason: "No active plan"
         }
-    } if (todaysConsumptions.length >= activePlan.dailyRateLimit) {
+    } if (todaysConsumptions >= activePlan.dailyRateLimit) {
         return {
             canOperate: false,
             reason: "Daily limit reached"
         }
-    } if (thisWeeksConsumptions.length >= activePlan.weeklyRateLimit) {
+    } if (thisWeeksConsumptions >= activePlan.weeklyRateLimit) {
         return {
             canOperate: false,
             reason: "Weekly limit reached"

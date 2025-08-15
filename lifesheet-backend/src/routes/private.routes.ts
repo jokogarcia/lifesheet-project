@@ -58,4 +58,7 @@ router.get('/picture/:id', async (req, res) => {
     }
 });
 router.use('/cv-printer', express.static(path.join(__dirname, '../cv-printer')));
+router.all('/{*any}', (req, res) => {
+  res.status(404).json({ status: 'error', message: 'API endpoint not found' });
+});
 export default router;
