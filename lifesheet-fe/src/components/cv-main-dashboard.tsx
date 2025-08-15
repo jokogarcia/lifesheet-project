@@ -200,6 +200,10 @@ export function CVMainDashboard() {
                 <Briefcase className="h-4 w-4 mr-2" />
                 Tailor to a Job
               </Button>
+              <Button onClick={() => navigate("/plans")} variant="outline" className="btn-custom">
+                <Award className="h-4 w-4 mr-2" />
+                Subscription Plans
+              </Button>
             </>
           )}
           <LogoutButton />

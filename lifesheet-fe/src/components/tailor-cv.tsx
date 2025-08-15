@@ -9,6 +9,7 @@ import ReactMarkdown from "react-markdown"
 import cvsService from "@/services/cvs-service"
 import userService from "@/services/user-service"
 import { SecureImg } from "@/components/ui/secure-img"
+import { useSaaSActiveSubscription, useSaasPlans } from "@/hooks/use-saas"
 
 export function TailorCV() {
   const { cv, isLoading } = useUserCV()
@@ -20,7 +21,7 @@ export function TailorCV() {
   const [pictures, setPictures] = useState<string[]>([])
   const [selectedPictureId, setSelectedPictureId] = useState<string | null>(null)
   const [isLoadingPictures, setIsLoadingPictures] = useState(false)
-
+  const {canUseAI, isLoading: isLoadingSubscription} = useSaaSActiveSubscription();
   // Load user pictures
   useEffect(() => {
     const loadPictures = async () => {
@@ -38,6 +39,11 @@ export function TailorCV() {
   }, [])
 
   const handleTailorCV = async () => {
+    if(!canUseAI) {
+      alert("You have reached your usage limits for this feature.");
+      navigate("/plans");
+      return;
+    }
     if (!jobDescription.trim()) return
 
     setIsTailoring(true)
@@ -101,7 +107,7 @@ export function TailorCV() {
                   <FileText className="h-5 w-5" />
                   <h3 className="font-semibold text-lg">Job Description</h3>
                 </div>
-                <div className="flex gap-2">
+                {/* <div className="flex gap-2">
                   <Button
                     onClick={() => setPreviewMode(!previewMode)}
                     variant="outline"
@@ -110,7 +116,7 @@ export function TailorCV() {
                   >
                     {previewMode ? "Edit" : "Preview"}
                   </Button>
-                </div>
+                </div> */}
               </div>
 
               {previewMode ? (
@@ -227,7 +233,7 @@ export function TailorCV() {
               
               <Button
                 onClick={handleTailorCV}
-                disabled={!jobDescription.trim() || isTailoring}
+                disabled={!jobDescription.trim() || isTailoring || isLoadingSubscription}
                 className="w-full"
               >
                 {isTailoring ? (
@@ -276,7 +282,13 @@ export function TailorCV() {
 
                  
 
-                  <Button className="w-full">
+                  <Button className="w-full" onClick={() => {
+                    const url = URL.createObjectURL(tailoredCVPDF);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "tailored_cv.pdf";
+                    a.click();
+                  }}>
                     Download Tailored CV
                   </Button>
                 </div>

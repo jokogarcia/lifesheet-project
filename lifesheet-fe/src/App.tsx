@@ -9,9 +9,11 @@ import { useEffect, useState } from 'react'
 import cvsService from './services/cvs-service'
 import userService from './services/user-service'
 import { TailorCV } from './components/tailor-cv'
+import { PlansPage } from './components/plans/plans-page'
+import { CheckoutPage } from './components/plans/checkout-page'
 
 function App() {
-  const { isAuthenticated, getAccessTokenSilently, isLoading:isAuthLoading } = useAuth0()
+  const { isAuthenticated, getAccessTokenSilently, isLoading:isAuthLoading, logout } = useAuth0()
   const [hasToken, setHasToken] = useState(false)
   useEffect(() => {
     if (isAuthenticated) {
@@ -24,7 +26,8 @@ function App() {
           setHasToken(true)
         })
         .catch(error => {
-          console.error('Error getting access token:', error)
+          console.warn('Error getting access token. Logging out...', error)
+          logout({ logoutParams: { returnTo: window.location.origin } });
         })
         
     }
@@ -41,6 +44,8 @@ if( isAuthenticated && !hasToken || isAuthLoading) {
     <Routes>
       <Route path="/" element={<CVMainDashboard />} />
       <Route path="/tailor-cv" element={<TailorCV />} />
+      <Route path="/plans" element={<PlansPage />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
     </Routes>
   )
  
