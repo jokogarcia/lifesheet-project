@@ -114,18 +114,7 @@ function computeStyleOverrides(styleOverrides){
             document.documentElement.style.setProperty('--text-color', styleOverrides.textColor);
         if(styleOverrides.textColor2)
             document.documentElement.style.setProperty('--text-color-2', styleOverrides.textColor2);
-        if(styleOverrides.pageMarginTop)
-            document.documentElement.style.setProperty('--page-margin-top', styleOverrides.pageMarginTop);
-        if(styleOverrides.pageMarginRight)
-            document.documentElement.style.setProperty('--page-margin-right', styleOverrides.pageMarginRight);
-        if(styleOverrides.pageMarginBottom)
-            document.documentElement.style.setProperty('--page-margin-bottom', styleOverrides.pageMarginBottom);
-        if(styleOverrides.pageMarginLeft)
-            document.documentElement.style.setProperty('--page-margin-left', styleOverrides.pageMarginLeft);
-        if(styleOverrides.pageWidth)
-            document.documentElement.style.setProperty('--page-width', styleOverrides.pageWidth);
-        if(styleOverrides.pageHeight)
-            document.documentElement.style.setProperty('--page-height', styleOverrides.pageHeight);
+      
     }
 }
 async function renderTwoColumns(cvdata, printmode = true, cssfile = "two-column-1.css", styleOverrides = {}) {
@@ -176,7 +165,7 @@ async function renderTwoColumns(cvdata, printmode = true, cssfile = "two-column-
     rightColumn.appendChild(headerSection);
     rightColumn.appendChild(skillsSection);
     const workExperienceSection = document.createElement('div');
-    workExperienceSection.className = 'section';
+    workExperienceSection.className = 'section breakable'; // Added breakable class for page breaks
     rightColumn.appendChild(workExperienceSection);
 
     headerSection.innerHTML = `
@@ -196,18 +185,14 @@ async function renderTwoColumns(cvdata, printmode = true, cssfile = "two-column-
         <h2>${cvdata.summaryTitle}</h2>
         <p>${cvdata.summary}</p>
     `;
-    if (overflowsPage(summarySection, paperHeight)) {
-        addPageBreak(summarySection, paperHeight);
-    }
+    
     skillsSection.innerHTML = `
         <h2>${cvdata.skillsTitle}</h2>
         <ul class="skills-list">
             ${cvdata.skills.map(skill => `<li>${skill}</li>`).join('')}
         </ul>
     `;
-    if (overflowsPage(skillsSection, paperHeight)) {
-        addPageBreak(skillsSection, paperHeight);
-    }
+    
     educationSection.innerHTML = `
         <h2>${cvdata.educationTitle}</h2>
         
@@ -223,18 +208,14 @@ async function renderTwoColumns(cvdata, printmode = true, cssfile = "two-column-
             
         
     `;
-    if (overflowsPage(educationSection, paperHeight)) {
-        addPageBreak(educationSection, paperHeight);
-    }
+    
     languageSkillsSection.innerHTML = `
         <h2>${cvdata.languageSkillsTitle}</h2>
         <ul class="language-skills-list">
             ${cvdata.languageSkills.map(lang => `<li>${lang.language} - ${lang.level}</li>`).join('')}
         </ul>
     `;
-    if (overflowsPage(languageSkillsSection, paperHeight)) {
-        addPageBreak(languageSkillsSection, paperHeight);
-    }
+    
     workExperienceSection.innerHTML = `
         <h2>${cvdata.workExperienceTitle}</h2>
 
@@ -254,9 +235,7 @@ async function renderTwoColumns(cvdata, printmode = true, cssfile = "two-column-
         
     `;
     for (let workExpItem of workExperienceSection.children) {
-        if (overflowsPage(workExpItem, paperHeight)) {
-            addPageBreak(workExpItem, paperHeight);
-        }
+        // page break logic removed
     }
     // Add a filler div to the left column to ensure it fills the page
     const fillerDiv = document.createElement('div');
@@ -265,8 +244,7 @@ async function renderTwoColumns(cvdata, printmode = true, cssfile = "two-column-
     const fillerTop = fillerDiv.getBoundingClientRect().top;
     const fillerHeight = paperHeight - (fillerTop % paperHeight) - 40; // 50px for the bottom margin
     fillerDiv.style.height = fillerHeight + 'px';
-    if (!printmode || true)
-        drawPageLimits(paperHeight);
+    
 
 }
 export async function renderSingleColumn(cvdata, printmode = true, cssfile = "single-column-1.css") {
@@ -283,18 +261,7 @@ export async function renderSingleColumn(cvdata, printmode = true, cssfile = "si
             document.documentElement.style.setProperty('--text-color', styleOverrides.textColor);
         if(styleOverrides.textColor2)
             document.documentElement.style.setProperty('--text-color-2', styleOverrides.textColor2);
-        if(styleOverrides.pageMarginTop)
-            document.documentElement.style.setProperty('--page-margin-top', styleOverrides.pageMarginTop);
-        if(styleOverrides.pageMarginRight)
-            document.documentElement.style.setProperty('--page-margin-right', styleOverrides.pageMarginRight);
-        if(styleOverrides.pageMarginBottom)
-            document.documentElement.style.setProperty('--page-margin-bottom', styleOverrides.pageMarginBottom);
-        if(styleOverrides.pageMarginLeft)
-            document.documentElement.style.setProperty('--page-margin-left', styleOverrides.pageMarginLeft);
-        if(styleOverrides.pageWidth)
-            document.documentElement.style.setProperty('--page-width', styleOverrides.pageWidth);
-        if(styleOverrides.pageHeight)
-            document.documentElement.style.setProperty('--page-height', styleOverrides.pageHeight);
+      
     }
     const body = document.querySelector('body');
     body.innerHTML = '';
@@ -327,7 +294,7 @@ export async function renderSingleColumn(cvdata, printmode = true, cssfile = "si
 
     container.appendChild(skillsSection);
     const workExperienceSection = document.createElement('div');
-    workExperienceSection.className = 'section';
+    workExperienceSection.className = 'section breakable'; // Added breakable class for page breaks
     container.appendChild(workExperienceSection);
     const educationSection = document.createElement('div');
     educationSection.className = 'section';
@@ -360,18 +327,14 @@ export async function renderSingleColumn(cvdata, printmode = true, cssfile = "si
         <h2>${cvdata.summaryTitle}</h2>
         <p>${cvdata.summary}</p>
     `;
-    if (overflowsPage(summarySection, paperHeight)) {
-        addPageBreak(summarySection, paperHeight);
-    }
+   
     skillsSection.innerHTML = `
         <h2>${cvdata.skillsTitle}</h2>
         <ul class="skills-list">
             ${cvdata.skills.map(skill => `<li>${skill}</li>`).join('')}
         </ul>
     `;
-    if (overflowsPage(skillsSection, paperHeight)) {
-        addPageBreak(skillsSection, paperHeight);
-    }
+    
 
     workExperienceSection.innerHTML = `
         <h2>${cvdata.workExperienceTitle}</h2>
@@ -387,12 +350,9 @@ export async function renderSingleColumn(cvdata, printmode = true, cssfile = "si
                     </p>
                 </div>
             `).join('')}
+            
         `;
-    for (let workExpItem of workExperienceSection.children) {
-        if (overflowsPage(workExpItem, paperHeight)) {
-            addPageBreak(workExpItem, paperHeight);
-        }
-    }
+    
     educationSection.innerHTML = `
         <h2>${cvdata.educationTitle}</h2>
         
@@ -407,59 +367,19 @@ export async function renderSingleColumn(cvdata, printmode = true, cssfile = "si
             `).join('')}
         
     `;
-    if (overflowsPage(educationSection, paperHeight)) {
-        addPageBreak(educationSection, paperHeight);
-    }
+    
     languageSkillsSection.innerHTML = `
         <h2>${cvdata.languageSkillsTitle}</h2>
         <ul class="language-skills-list">
             ${cvdata.languageSkills.map(lang => `<li>${lang.language} - ${lang.level}</li>`).join('')}
         </ul>
     `;
-    if (overflowsPage(languageSkillsSection, paperHeight)) {
-        addPageBreak(languageSkillsSection, paperHeight);
-    }
-    if (!printmode || true)
-        drawPageLimits(paperHeight);
+    
 
 }
 
-/**
- * Checks if an element overflows a page based on its height.
- * @param {HTMLElement} element - The element to check.
- * @param {number} pageHeight - The height of the page in pixels.
- * @returns {boolean} True if the element overflows the page, false otherwise.
- */
-function overflowsPage(element, pageHeight) {
-    const rect = element.getBoundingClientRect();
-    const pageTop = Math.ceil(rect.top / pageHeight);
-    const pageBottom = Math.ceil((rect.top + rect.height) / pageHeight);
-    return pageTop != pageBottom
-}
 
-/**
- * Adds the padding on top of an element to ensure it starts on a new page.
- * @param {HTMLElement} element 
- * @param {number} pageHeight 
- */
-function addPageBreak(element, pageHeight) {
-    if (element.previousElementSibling && element.previousElementSibling.classList.contains('page-break')) {
-        return;
-    }
 
-    const elementTop = element.getBoundingClientRect().top + window.scrollY;
-    const topInPage = elementTop % pageHeight;
-    const rest = pageHeight - topInPage;
-
-    const pageBreak = document.createElement('div');
-    document.querySelector(':root');
-
-    pageBreak.className = 'page-break';
-    pageBreak.style.height = rest + 'px';
-    pageBreak.style.backgroundColor = 'transparent';
-    element.classList.add('first-element')
-    element.parentNode.insertBefore(pageBreak, element);
-}
 function phoneNumberFormatter(phoneNumber) {
     // Remove all non-digit characters
     const digits = phoneNumber.replace(/\D/g, '');
@@ -485,19 +405,6 @@ function phoneNumberFormatter(phoneNumber) {
 }
 
 
-function drawPageLimits(pageHeightPx) {
-    const bodyHeightPx = document.body.scrollHeight;
-    for (let y = pageHeightPx; y < bodyHeightPx; y += pageHeightPx) {
-        const line = document.createElement('div');
-        line.style.height = '1px';
-        line.style.backgroundColor = 'blue';
-        line.style.width = '100%';
-        line.style.position = 'absolute';
-        line.className = 'page-limit';
-        line.style.top = y + 'px';
-        document.body.appendChild(line);
-    }
-}
 
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -510,12 +417,7 @@ styleOverrides.secondaryColor = urlParams.get('secondary-color') || undefined; /
 styleOverrides.backgroundColor = urlParams.get('background-color') || undefined; // No default
 styleOverrides.textColor = urlParams.get('text-color') || undefined; // No default
 styleOverrides.textColor2 = urlParams.get('text-color-2') || undefined; // No default
-styleOverrides.pageMarginTop = urlParams.get('page-margin-top') || undefined; // No default
-styleOverrides.pageMarginRight = urlParams.get('page-margin-right') || undefined; // No default
-styleOverrides.pageMarginBottom = urlParams.get('page-margin-bottom') || undefined; // No default
-styleOverrides.pageMarginLeft = urlParams.get('page-margin-left') || undefined; // No default
-styleOverrides.pageWidth = urlParams.get('page-width') || undefined; // No default
-styleOverrides.pageHeight = urlParams.get('page-height') || undefined; // No default
+
 
 
 loadcv(jsonUrl).then(cvdata => {
