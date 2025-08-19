@@ -3,7 +3,6 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="stylesheet" href="./index.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Joaquín García Mercado Luna</title>
 </head>
@@ -12,28 +11,7 @@
   <h1>Hello there</h1>
   <p>This should go away</p>
   <script type="module" src="./loadcv.js"></script>
-  <script type="module">
-    import { loadcv, render } from './loadcv.js';
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const jsonUrl = urlParams.get('cv') || './cv-2.json'; // Default to cv-2.json if no param
-    const printMode = urlParams.get('printmode') !== 'false'; // Check for print mode. Print mode sets the background to pure white and no padding or borders
-    
-    console.log('Loading CV from:', jsonUrl, 'Print mode:', printMode);
-    loadcv(jsonUrl).then(cvdata => {
-      
-      console.log("CV data loaded:", cvdata);
-      try{
-        render(cvdata, printMode);
-      }catch(error){
-        console.error('Error rendering CV:', error);
-        document.body.innerHTML = '<h1>Error rendering CV</h1>';
-      }
-    }).catch(error => {
-      console.error('Error loading CV data:', error);   
-      document.body.innerHTML = '<h1>Error loading CV data</h1>';
-    });
-  </script>
+ 
 </body>
 
 </html>

@@ -1,0 +1,147 @@
+{
+    "name": "Joaquín García",
+    "title": "Senior Software Developer",
+    "workExperienceTitle": "WORK EXPERIENCE",
+    "educationTitle": "EDUCATION",
+    "summaryTitle": "PROFESSIONAL SUMMARY",
+    "skillsTitle": "TECHNICAL SKILLS",
+    "languageSkillsTitle": "LANGUAGE SKILLS",
+    "summary": "Experienced software developer with over 8 years of experience in <b>Full Stack</b> development and Dev-Ops. Specialized in Node.JS with Typescript and React.JS. Passionate about creating efficient, scalable, and user-friendly applications.",
+    "profilePictureUrl": "https://github.com/jokogarcia/jokogarcia/blob/main/assets/Perfil.png?raw=true",
+    "contactInfo": {
+        "email": "joaquin.garciaml@hotmail.com",
+        "phone": "+491573906833",
+        "address": "Merkststraße 12C. 82405 Wessobrunn, Germany",
+        "linkedin": "www.linkedin.com/in/joaquin-garcia-ml",
+        "github": "www.github.com/jokogarcia",
+        "dateOfBirth": "1983-07-29",
+        "website": ""
+    },
+    "education": [
+        {
+            "institution": "Universidad Tecnológica Nacional (UTN)",
+            "degree": "Electronic Engineer (<i>Ingeniero en Electrónica</i>)",
+            "startDate": "2002-03",
+            "endDate": "2015-12",
+            "description": "ANABIM Equivalence: 'Studienrichtung: Ingenieurwessen (Elektronik). Abschlussklasse: A5'",
+            "location": "La Rioja, Argentina"
+        },
+        {
+            "institution": "Colegio Provincial Número 1 'Joaquín V. González'",
+            "degree": "High School Diploma with a Specialization in Physics and Mathematics",
+            "startDate": "2000-03",
+            "endDate": "2001-12",
+            "description": "Graduated with honors. Minor in Physics and Mathematics.",
+            "location": "La Rioja, Argentina"
+        }
+    ],
+    "workExperience": [
+        {
+            "company": "Edugo.AI",
+            "position": "Senior Backend Engineer",
+            "startDate": "2024-01",
+            "location": "Wessobrunn, Germany (remote)",
+            "endDate": "2025-07",
+            "achievements": [
+                "Improved stability by migrating from a monolith to a microservices-based architecture orchestrated with Kubernetes.",
+                "Enhanced data security by implementing recommendations from an independent security audit.",
+                "Increased developer productivity by implementing <b>CI/CD pipelines</b>.",
+                "Improved availability and stability of in-platform video calls.",
+                "Developed an in-house, multi-user feature for live-annotating PDF documents during video calls",
+                "Increased code quality and reliability by advocating for and implementing unit testing with Jest and Playwright.",
+                "Conducted stress and load tests on the backend to ensure readiness for increased user demand, identifying and addressing bottlenecks.",
+                "Served as Point of Contact to Key Customers."
+            ],
+            "description": "Sole Backend Specialist in a team of 5, focusing on the development of AI-driven educational platforms. Had Full Stack participation in several projects, including Video Call integration and Video Call recording review with custom widgets overlay"
+        },
+        {
+            "company": "Anuvu",
+            "position": "NOC Technician",
+            "startDate": "2021-10*",
+            "endDate": "2023-12",
+            "location": "Raisting, Germany",
+            "achievements": [
+                "Maintained a high level of customer satisfaction by effectively communicating with customers and third-party vendors.",
+                "Provided support for Field Engineers, ensuring smooth operations and quick resolution of technical issues.",
+                "Ensured high level of documentation and knowledge sharing, on a diverse technical stack"
+            ],
+            "description": "<i>*Note: <b>Also from 2016 to 2018 in Argentina.</b></i> Technical support of maritime satellite communications systems. Real time troubleshooting of complex technical solutions in a fast paced environment."
+        },
+        {
+            "company": "Accenture",
+            "position": ".NET Developer",
+            "startDate": "2021-04",
+            "endDate": "2021-09",
+            "location": "La Rioja, Argentina (remote)",
+            "achievements": [
+                "Developed the feature 'Adaptive View' reducing development time for new features by eliminating the need to create new views for each feature."
+            ],
+            "description": "Assigned to customer Banco Galicia (https://www.bancogalicia.com.ar/), working on the e-bank portal for businesses."
+        },
+        {
+            "company": "TPS S.A.",
+            "position": "Semi-Senior Software Developer",
+            "startDate": "2019-10",
+            "endDate": "2021-04",
+            "location": "La Rioja, Argentina (remote)",
+            "description": "Started as a Junior Mobile Developer and transitioned to a more senior, Full Stack position and customer Point of Contact.",
+            "achievements": [
+                "Created a <b>Cross-Platform Mobile Application</b> for loyalty points tracking  for customer Intermex (intermexonline.com).",
+                "Succesfully integrated with the client's backend based on SQL Server Stored Procedures and with their Auth Service based on IdentityServer 4.",
+                "Migrated the Frontend of the internal tool 'CheckDirect' (for the same custommer) from a Delphi-based Windows Application to an Angular-based Web Application."
+            ]
+        },
+        {
+            "company": "Quanta Iluminación",
+            "position": "Embedded Systems Designer",
+            "startDate": "2013-01",
+            "endDate": "2016-04",
+            "location": "La Rioja, Argentina",
+            "description": "Power electronics design and Embedded Software development for LED lighting systems.",
+            "achievements": [
+                "Designed and implemented a variety of digital and analog RGB light controllers for LED lights.",
+                "Created a robust communication protocol based on DMX512 for synchronizing and addressing individual Lamps, supporting Wireless, Wired and Hybrid networks.",
+                "Developed GUIs for programming and live control of RGB lights."
+            ]
+        }
+    ],
+    "skills": [
+        "React",
+        "TypeScript",
+        "JavaScript",
+        "Node.js",
+        "Express.js",
+        "Jest",
+        "CI/CD",
+        "Github Actions",
+        "Kubernetes",
+        "MongoDB",
+        "PostgreSQL",
+        "Docker",
+        "Git",
+        "Mobile applications",
+        "Agile/Scrum",
+        "C#",
+        "Google Cloud Platform",
+        "Python",
+        "RESTful APIs",
+        "SQL Server",
+        "SQLite",
+        "Unit Testing",
+        "Automated UI Testing"
+    ],
+    "languageSkills": [
+        {
+            "language": "Spanish",
+            "level": "Native"
+        },
+        {
+            "language": "English",
+            "level": "C2"
+        },
+        {
+            "language": "German",
+            "level": "Coursing A2"
+        }
+    ]
+}
