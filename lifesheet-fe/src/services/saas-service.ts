@@ -1,7 +1,6 @@
 import type { Axios } from "axios";
 import { constants } from "../constants";
 import axios from "axios";
-import { Body } from "@radix-ui/themes/components/table";
 
 export interface SaaSSubscription {
     _id: string;
