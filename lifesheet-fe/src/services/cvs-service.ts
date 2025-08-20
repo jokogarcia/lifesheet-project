@@ -7,6 +7,7 @@ export interface PersonalInfo {
   title?: string
   email: string
   phone?: string
+  dateOfBirth?:string
   location?: string
   linkedIn?: string
   website?: string
@@ -70,7 +71,19 @@ export interface CreateOrUpdateCVRequest {
 }
 
 // No need for mock data anymore, we're using real API calls
-
+export interface CVToPDFOptions {
+        pictureId?: string
+        template?: string
+        primaryColorOverride?: string
+        secondaryColorOverride?: string
+        textColorOverride?: string
+        text2ColorOverride?: string
+        backgroundColorOverride?: string
+        includeEmail?: boolean
+        includeAddress?: boolean
+        includeDateOfBirth?: boolean
+        includePhone?: boolean
+    }
 class CVsService {
   private client:Axios
 
@@ -146,11 +159,22 @@ class CVsService {
     console.log("File to upload:", file.name);
     throw new Error("Method not implemented.");
   }
+  
   // Get CV PDF
-  async getCVPDF(cvId: string, pictureId?: string): Promise<Blob> {
+  async getCVPDF(cvId: string, options?: CVToPDFOptions): Promise<Blob> {
+    const { pictureId, template, primaryColorOverride, secondaryColorOverride, textColorOverride, text2ColorOverride, backgroundColorOverride } = options || {};
+
     console.log("🔄 CVsService: Fetching CV PDF...")
-    const url = pictureId ? `/user/me/cv/${cvId}/pdf?pictureId=${pictureId}` : `/user/me/cv/${cvId}/pdf`;
-    const response = await this.client.get(url, {
+    const url = new URL(`/user/me/cv/${cvId}/pdf`);
+    if (pictureId) url.searchParams.append("pictureId", pictureId);
+    if (template) url.searchParams.append("template", template);
+    if (primaryColorOverride) url.searchParams.append("primaryColor", primaryColorOverride);
+    if (secondaryColorOverride) url.searchParams.append("secondaryColor", secondaryColorOverride);
+    if (textColorOverride) url.searchParams.append("textColor", textColorOverride);
+    if (text2ColorOverride) url.searchParams.append("text2Color", text2ColorOverride);
+    if (backgroundColorOverride) url.searchParams.append("backgroundColor", backgroundColorOverride);
+
+    const response = await this.client.get(url.toString(), {
       responseType: 'blob' // Important for binary data
     })
     
@@ -159,6 +183,7 @@ class CVsService {
     }
     return response.data;
   }
+
 }
 
 // Export a singleton instance

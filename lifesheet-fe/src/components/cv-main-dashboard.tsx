@@ -10,6 +10,7 @@ import {
   Edit,
   AlertCircle,
   Plus,
+  FileDown,
 } from "lucide-react"
 import { useUserCV } from "../hooks/use-cv"
 import type { PersonalInfo, WorkExperience, Education, Skill, LanguageSkill } from "../services/cvs-service"
@@ -199,6 +200,10 @@ export function CVMainDashboard() {
               <Button onClick={() => navigate("/tailor-cv")} variant="outline" className="btn-custom">
                 <Briefcase className="h-4 w-4 mr-2" />
                 Tailor to a Job
+              </Button>
+               <Button onClick={() => navigate("/export-pdf")} variant="outline" className="btn-custom">
+                <FileDown className="h-4 w-4 mr-2" />
+                Export as PDF
               </Button>
               <Button onClick={() => navigate("/plans")} variant="outline" className="btn-custom">
                 <Award className="h-4 w-4 mr-2" />

@@ -1,6 +1,15 @@
 import puppeteer, { Browser, Page } from 'puppeteer';
 import { ApiError } from '../middleware/errorHandler';
 import { constants } from '../constants'; // Import constants for API URL
+interface CVToPDFOptions {
+        pictureId?: string
+        template?: string
+        primaryColorOverride?: string
+        secondaryColorOverride?: string
+        textColorOverride?: string
+        text2ColorOverride?: string
+        backgroundColorOverride?: string
+    }
 export class PDFService {
     private static browser: Browser | null = null;
 
@@ -65,16 +74,25 @@ export class PDFService {
             }
         }
     }
-    static async cvToPDF(cvId:string, pictureId?:string){
-        
+    
+
+    static async cvToPDF(cvId:string, options?: CVToPDFOptions){
+        const { pictureId, template, primaryColorOverride, secondaryColorOverride, textColorOverride, text2ColorOverride, backgroundColorOverride } = options || {};
+
         try {
             const browser = await this.getBrowser();
             const page = await browser.newPage();
             let jsonurl = new URL(`private/cv-toprint/${cvId}`, constants.PRIVATE_API_URL).toString();
             if(pictureId) jsonurl += `?pictureId=${pictureId}`;
-            const fullurl = new URL(`private/cv-printer/index.html?cv=${encodeURIComponent(jsonurl)}`, constants.PRIVATE_API_URL).toString();
+            const fullurl = new URL(`private/cv-printer/index.html?cv=${encodeURIComponent(jsonurl)}`, constants.PRIVATE_API_URL);
+            if (template) fullurl.searchParams.append('template', template);
+            if (primaryColorOverride) fullurl.searchParams.append('primaryColor', primaryColorOverride);
+            if (secondaryColorOverride) fullurl.searchParams.append('secondaryColor', secondaryColorOverride);
+            if (textColorOverride) fullurl.searchParams.append('textColor', textColorOverride);
+            if (text2ColorOverride) fullurl.searchParams.append('text2Color', text2ColorOverride);
+            if (backgroundColorOverride) fullurl.searchParams.append('backgroundColor', backgroundColorOverride);
             console.log('Navigating to:', fullurl);
-            await page.goto(fullurl, { waitUntil: 'networkidle0' });
+            await page.goto(fullurl.toString(), { waitUntil: 'networkidle0' });
             const pdfBuffer = await page.pdf({
                 format: 'A4',
                 landscape: false,

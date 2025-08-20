@@ -6,21 +6,21 @@ import { ArrowLeft, FileText, Wand2, Maximize, Printer, User, Check } from "luci
 import { useUserCV } from "@/hooks/use-cv"
 import { useNavigate } from "react-router-dom"
 import ReactMarkdown from "react-markdown"
-import cvsService from "@/services/cvs-service"
+import cvsService, { type CVToPDFOptions } from "@/services/cvs-service"
 import userService from "@/services/user-service"
 import { SecureImg } from "@/components/ui/secure-img"
-import { useSaaSActiveSubscription, useSaasPlans } from "@/hooks/use-saas"
+import { useSaaSActiveSubscription } from "@/hooks/use-saas"
 
 export function TailorCV() {
   const { cv, isLoading } = useUserCV()
   const navigate = useNavigate()
   const [jobDescription, setJobDescription] = useState("")
-  const [previewMode, setPreviewMode] = useState(false)
+  const [previewMode] = useState(false)
   const [tailoredCVPDF, setTailoredCVPDF] = useState<Blob | null>(null)
   const [isTailoring, setIsTailoring] = useState(false)
   const [pictures, setPictures] = useState<string[]>([])
-  const [selectedPictureId, setSelectedPictureId] = useState<string | null>(null)
   const [isLoadingPictures, setIsLoadingPictures] = useState(false)
+  const [pdfOptions,setPdfOptions] =  useState<CVToPDFOptions>({})
   const {canUseAI, isLoading: isLoadingSubscription} = useSaaSActiveSubscription();
   // Load user pictures
   useEffect(() => {
@@ -50,8 +50,8 @@ export function TailorCV() {
 
     try {
       // Call the real API endpoint to tailor the CV
-      const tailoredResult = await cvsService.tailorCV(jobDescription, selectedPictureId || undefined);
-      const pdfBlob = await cvsService.getCVPDF(tailoredResult.cvId, selectedPictureId || undefined);
+      const tailoredResult = await cvsService.tailorCV(jobDescription, pdfOptions.pictureId);
+      const pdfBlob = await cvsService.getCVPDF(tailoredResult.cvId, pdfOptions);
       setTailoredCVPDF(pdfBlob);
     } catch (error) {
       console.error("Error tailoring CV:", error);
@@ -166,9 +166,9 @@ export function TailorCV() {
                   
                   {/* No Picture Option */}
                   <div
-                    onClick={() => setSelectedPictureId(null)}
+                    onClick={() => setPdfOptions({ ...pdfOptions, pictureId: undefined })}
                     className={`flex items-center p-3 border rounded-lg cursor-pointer transition-all ${
-                      selectedPictureId === null
+                      pdfOptions.pictureId === undefined
                         ? "border-blue-500 bg-blue-50"
                         : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                     }`}
@@ -180,7 +180,7 @@ export function TailorCV() {
                       <p className="font-medium">No picture</p>
                       <p className="text-sm text-muted-foreground">Don't include a profile picture</p>
                     </div>
-                    {selectedPictureId === null && (
+                    {pdfOptions.pictureId === null && (
                       <Check className="h-5 w-5 text-blue-500" />
                     )}
                   </div>
@@ -190,9 +190,9 @@ export function TailorCV() {
                     {pictures.map((pictureId, index) => (
                       <div
                         key={pictureId}
-                        onClick={() => setSelectedPictureId(pictureId)}
+                        onClick={() => setPdfOptions({ ...pdfOptions, pictureId })}
                         className={`flex items-center p-3 border rounded-lg cursor-pointer transition-all ${
-                          selectedPictureId === pictureId
+                          pdfOptions.pictureId === pictureId
                             ? "border-blue-500 bg-blue-50"
                             : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                         }`}
@@ -208,7 +208,7 @@ export function TailorCV() {
                           <p className="font-medium">Picture {index + 1}</p>
                           <p className="text-sm text-muted-foreground">Profile picture option</p>
                         </div>
-                        {selectedPictureId === pictureId && (
+                        {pdfOptions.pictureId === pictureId && (
                           <Check className="h-5 w-5 text-blue-500" />
                         )}
                       </div>
@@ -218,37 +218,131 @@ export function TailorCV() {
               )}
             </div>
 
-            {/* Tailor Button */}
-            <div className="space-y-3">
-              {/* Summary of selected options */}
-              <div className="bg-gray-50 rounded-lg p-3">
-                <h4 className="font-medium text-sm mb-2">CV Configuration:</h4>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <User className="h-4 w-4" />
-                  <span>
-                    Picture: {selectedPictureId ? `Picture ${pictures.indexOf(selectedPictureId) + 1}` : "No picture"}
-                  </span>
+              {/* Tailor Button */}
+              <div className="space-y-3">
+                {/* Summary of selected options */}
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <h4 className="font-medium text-sm mb-2">CV Configuration:</h4>
+                  <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      <span>
+                        Picture: {pdfOptions.pictureId ? `Picture ${pictures.indexOf(pdfOptions.pictureId) + 1}` : "No picture"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      <span>Template: {pdfOptions.template || 'default'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">Colors:</span>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          <div className="w-4 h-4 rounded-sm" style={{ background: pdfOptions.primaryColorOverride || 'transparent', border: '1px solid #e5e7eb' }} />
+                          <span className="text-xs">primary</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-4 h-4 rounded-sm" style={{ background: pdfOptions.secondaryColorOverride || 'transparent', border: '1px solid #e5e7eb' }} />
+                          <span className="text-xs">secondary</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-4 h-4 rounded-sm" style={{ background: pdfOptions.textColorOverride || 'transparent', border: '1px solid #e5e7eb' }} />
+                          <span className="text-xs">text</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Template & Colors controls */}
+                <div className="border rounded-lg p-4 space-y-3 card-hover bg-gradient-subtle">
+                  <h4 className="font-medium">Template & Appearance</h4>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Template</label>
+                    <div className="flex gap-2">
+                      <label className={`px-3 py-2 border rounded cursor-pointer ${pdfOptions.template === 'one-column' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
+                        <input
+                          type="radio"
+                          name="template"
+                          value="one-column"
+                          checked={pdfOptions.template === 'one-column'}
+                          onChange={() => setPdfOptions({ ...pdfOptions, template: 'one-column' })}
+                          className="mr-2"
+                        />
+                        One column
+                      </label>
+                      <label className={`px-3 py-2 border rounded cursor-pointer ${pdfOptions.template === 'two-column' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
+                        <input
+                          type="radio"
+                          name="template"
+                          value="two-column"
+                          checked={pdfOptions.template === 'two-column'}
+                          onChange={() => setPdfOptions({ ...pdfOptions, template: 'two-column' })}
+                          className="mr-2"
+                        />
+                        Two column
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-sm">Primary color</label>
+                      <input
+                        type="color"
+                        value={pdfOptions.primaryColorOverride || '#2563eb'}
+                        onChange={(e) => setPdfOptions({ ...pdfOptions, primaryColorOverride: e.target.value })}
+                        className="w-14 h-9 p-0 border rounded"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-sm">Secondary color</label>
+                      <input
+                        type="color"
+                        value={pdfOptions.secondaryColorOverride || '#10b981'}
+                        onChange={(e) => setPdfOptions({ ...pdfOptions, secondaryColorOverride: e.target.value })}
+                        className="w-14 h-9 p-0 border rounded"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-sm">Text color</label>
+                      <input
+                        type="color"
+                        value={pdfOptions.textColorOverride || '#111827'}
+                        onChange={(e) => setPdfOptions({ ...pdfOptions, textColorOverride: e.target.value })}
+                        className="w-14 h-9 p-0 border rounded"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-sm">Background</label>
+                      <input
+                        type="color"
+                        value={pdfOptions.backgroundColorOverride || '#ffffff'}
+                        onChange={(e) => setPdfOptions({ ...pdfOptions, backgroundColorOverride: e.target.value })}
+                        className="w-14 h-9 p-0 border rounded"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={handleTailorCV}
+                  disabled={!jobDescription.trim() || isTailoring || isLoadingSubscription}
+                  className="w-full"
+                >
+                  {isTailoring ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Tailoring...
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="h-4 w-4 mr-2" />
+                      Tailor My CV
+                    </>
+                  )}
+                </Button>
               </div>
-              
-              <Button
-                onClick={handleTailorCV}
-                disabled={!jobDescription.trim() || isTailoring || isLoadingSubscription}
-                className="w-full"
-              >
-                {isTailoring ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Tailoring...
-                  </>
-                ) : (
-                  <>
-                    <Wand2 className="h-4 w-4 mr-2" />
-                    Tailor My CV
-                  </>
-                )}
-              </Button>
-            </div>
           </div>
 
           <div className="space-y-4">

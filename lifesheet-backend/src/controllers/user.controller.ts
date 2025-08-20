@@ -254,9 +254,18 @@ export const renderCVAsPDF = async (req: Request, res: Response, next: NextFunct
     try {
         const userId = resolveUserId(req);
         const cvId = req.params.cvId;
-        const pictureId = req.query.pictureId as string;
+        const options = {
+            pictureId: req.query.pictureId as string | undefined,
+            template: req.query.template as string | undefined,
+            primaryColorOverride: req.query.primaryColor as string | undefined,
+            secondaryColorOverride: req.query.secondaryColor as string | undefined,
+            textColorOverride: req.query.textColor as string | undefined,
+            text2ColorOverride: req.query.text2Color as string | undefined,
+            backgroundColorOverride: req.query.backgroundColor as string | undefined
+        }
 
-        const pdfBuffer = await PDFService.cvToPDF(cvId, pictureId);
+
+        const pdfBuffer = await PDFService.cvToPDF(cvId, options);
         res.setHeader('Content-Type', 'application/pdf');
         res.send(pdfBuffer);
     } catch (err) {

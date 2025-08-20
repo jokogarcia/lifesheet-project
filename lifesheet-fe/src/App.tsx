@@ -11,6 +11,7 @@ import userService from './services/user-service'
 import { TailorCV } from './components/tailor-cv'
 import { PlansPage } from './components/plans/plans-page'
 import { CheckoutPage } from './components/plans/checkout-page'
+import { ExportPdf } from './components/export-pdf'
 
 function App() {
   const { isAuthenticated, getAccessTokenSilently, isLoading:isAuthLoading, logout } = useAuth0()
@@ -46,6 +47,7 @@ if( isAuthenticated && !hasToken || isAuthLoading) {
       <Route path="/tailor-cv" element={<TailorCV />} />
       <Route path="/plans" element={<PlansPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/export-pdf" element={<ExportPdf />} />
     </Routes>
   )
  
