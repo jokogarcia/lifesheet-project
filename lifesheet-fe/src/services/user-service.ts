@@ -96,6 +96,11 @@ class UserService {
     
     return blobUrl
   }
+  async getPictureShareLink(pictureId: string): Promise<string> {
+    console.log("🔄 UserService: Fetching picture share link...")
+    const response = await this.client.get<{ shareLink: string }>(`/user/me/picture/${pictureId}/share-link`)
+    return response.data.shareLink
+  }
 }
 
 // Export a singleton instance

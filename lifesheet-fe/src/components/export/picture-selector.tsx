@@ -2,15 +2,38 @@ import * as React from "react"
 import { Check, User } from "lucide-react"
 import { SecureImg } from "@/components/ui/secure-img"
 import type { CVToPDFOptions } from "@/services/cvs-service"
+import { useEffect } from "react"
+import userService from "@/services/user-service"
 
 interface PictureSelectorProps {
-  pictures: string[]
-  isLoadingPictures: boolean
-  pdfOptions: CVToPDFOptions
-  setPdfOptions: React.Dispatch<React.SetStateAction<CVToPDFOptions>>
+  onPictureSelected: (pictureId: string | undefined) => void
 }
 
-export function PictureSelector({ pictures, isLoadingPictures, pdfOptions, setPdfOptions }: PictureSelectorProps) {
+export function PictureSelector({onPictureSelected}:PictureSelectorProps) {
+    const [pictures, setPictures] = React.useState<string[]>([])
+    const [isLoadingPictures, setIsLoadingPictures] = React.useState(true)
+    const [error, setError] = React.useState<string>("")
+    const [selectedPicture, setSelectedPicture] = React.useState<string>("")
+
+   useEffect(() => {
+    const loadPictures = async () => {
+      setIsLoadingPictures(true)
+      try {
+        const userPictures = await userService.getUserPictures()
+        setPictures(userPictures)
+        console.log("Pictures:", userPictures)
+      } catch (error) {
+        console.error("Error loading pictures:", error)
+        setError("Failed to load pictures. Please try again later.")
+      } finally {
+        setIsLoadingPictures(false)
+      }
+    }
+    loadPictures()
+  }, [])
+  // Call the parent callback directly when the user selects an item to avoid
+  // re-running an effect when the parent's handler identity changes.
+
   return (
     <>
       {isLoadingPictures ? (
@@ -24,15 +47,19 @@ export function PictureSelector({ pictures, isLoadingPictures, pdfOptions, setPd
           <p className="text-muted-foreground">No pictures uploaded yet</p>
           <p className="text-sm text-muted-foreground">Upload pictures in your CV dashboard first</p>
         </div>
+      ) : !!error ? (
+        <div className="text-center py-8">
+          <p className="text-sm text-red-500">{error}</p>
+        </div>
       ) : (
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">Choose a picture to include in your tailored CV</p>
 
           {/* No Picture Option */}
           <div
-            onClick={() => setPdfOptions({ ...pdfOptions, pictureId: undefined })}
+            onClick={() => { setSelectedPicture(""); onPictureSelected(undefined); }}
             className={`flex items-center p-3 border rounded-lg cursor-pointer transition-all ${
-              pdfOptions.pictureId === undefined ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+              selectedPicture === "" ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
             }`}
           >
             <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
@@ -42,7 +69,7 @@ export function PictureSelector({ pictures, isLoadingPictures, pdfOptions, setPd
               <p className="font-medium">No picture</p>
               <p className="text-sm text-muted-foreground">Don't include a profile picture</p>
             </div>
-            {pdfOptions.pictureId === undefined && <Check className="h-5 w-5 text-blue-500" />}
+            {selectedPicture === "" && <Check className="h-5 w-5 text-blue-500" />}
           </div>
 
           {/* Picture Options */}
@@ -50,9 +77,9 @@ export function PictureSelector({ pictures, isLoadingPictures, pdfOptions, setPd
             {pictures.map((pictureId, index) => (
               <div
                 key={pictureId}
-                onClick={() => setPdfOptions({ ...pdfOptions, pictureId })}
+                onClick={() => { setSelectedPicture(pictureId); onPictureSelected(pictureId); }}
                 className={`flex items-center p-3 border rounded-lg cursor-pointer transition-all ${
-                  pdfOptions.pictureId === pictureId ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                  selectedPicture === pictureId ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                 }`}
               >
                 <div className="w-12 h-12 rounded-lg overflow-hidden mr-3 bg-gray-100">
@@ -62,7 +89,7 @@ export function PictureSelector({ pictures, isLoadingPictures, pdfOptions, setPd
                   <p className="font-medium">Picture {index + 1}</p>
                   <p className="text-sm text-muted-foreground">Profile picture option</p>
                 </div>
-                {pdfOptions.pictureId === pictureId && <Check className="h-5 w-5 text-blue-500" />}
+                {selectedPicture === pictureId && <Check className="h-5 w-5 text-blue-500" />}
               </div>
             ))}
           </div>

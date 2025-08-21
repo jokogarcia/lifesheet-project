@@ -64,7 +64,7 @@ div.profile-photo {
     height: 150px;
     overflow: hidden;
     margin-bottom: 25px;
-    margin-top: auto;
+    border-radius: 50%;
     border: 3px solid var(--secondary-color);
     /* Borde alrededor de la foto */
 }

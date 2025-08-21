@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import UserRouter from './user/user.routes';
 import { SaaSPlan } from '../../models/saaS-plan.model';
+import UtilsRouter from './utils';
 const router = Router();
 
 router.use('/user', UserRouter);
@@ -20,6 +21,7 @@ router.get('/saas/plans', async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch SaaS plans' });
   }
 });
+router.use('/utils', UtilsRouter);
 router.all('/{*any}', (req, res) => {
   res.status(404).json({ status: 'error', message: 'API endpoint not found' });
 });

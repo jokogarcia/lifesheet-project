@@ -4,7 +4,7 @@ import multer from 'multer';
 const upload = multer({ storage: multer.memoryStorage() });
 
 import { jwtCheck, extractUserFromToken } from '../../../middleware/auth0.middleware';
-import { getUserProfile, updateUserProfile, deleteUserProfile, getUserCV, upsertUserTailoredCV, deleteUserCV, getUserTailoredCV, tailorCV, updateUsersMainCV, renderCVAsPDF, uploadPicture, getUserPicture, deleteUserPicture, getUserPictures, initiatePlanPurchase, getUsersActiveSubscription, getAllUsersSubscriptions, getUsersSubscriptionStatus } from '../../../controllers/user.controller';
+import { getUserProfile, updateUserProfile, deleteUserProfile, getUserCV, upsertUserTailoredCV, deleteUserCV, getUserTailoredCV, tailorCV, updateUsersMainCV, renderCVAsPDF, uploadPicture, getUserPicture, deleteUserPicture, getUserPictures, initiatePlanPurchase, getUsersActiveSubscription, getAllUsersSubscriptions, getUsersSubscriptionStatus, getUserPictureShareLink } from '../../../controllers/user.controller';
 const router = express.Router();
 router.use([jwtCheck, extractUserFromToken]);
 router.get('/:id/',getUserProfile);
@@ -25,6 +25,7 @@ router.post('/:id/picture', upload.single('picture'), uploadPicture);
 router.get('/:id/pictures', getUserPictures);
 router.get('/:id/picture/:pictureId', getUserPicture);
 router.delete('/:id/picture/:pictureId', deleteUserPicture);
+router.get('/:id/picture/:pictureId/share-link', getUserPictureShareLink);
 
 
 router.get("/:id/saas/subscriptions", getAllUsersSubscriptions)

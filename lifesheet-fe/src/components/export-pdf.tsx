@@ -1,30 +1,55 @@
 import { useUserCV } from "@/hooks/use-cv"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "./ui/button"
 import { ArrowLeft, Settings } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
-import { cvsService, type CVToPDFOptions } from "@/services/cvs-service"
+import { cvsService, type CV, type CVToPDFOptions } from "@/services/cvs-service"
 import PictureSelector from "@/components/export/picture-selector"
 import { CVPreviewer } from "@/cv-printer/cv-previewer"
+import userService from "@/services/user-service"
+import { useWhenRendered } from "@/hooks/use-when-rendered"
 export function ExportPdf() {
-    const { cv, isLoading } = useUserCV()
+    const { cv: originalCV, isLoading } = useUserCV()
     const navigate = useNavigate()
-    const [pictures] = useState<string[]>([])
-    const [isLoadingPictures] = useState(false)
+    const [cv, setCV] = useState<CV | null>(originalCV)
+    const [printMode, setPrintMode] = useState(false)
     const [pdfOptions, setPdfOptions] = useState<CVToPDFOptions>({
-        primaryColorOverride:"#3b82f6",
-        secondaryColorOverride:"#f97316",
-        textColorOverride:"#111827",
-        text2ColorOverride:"#4b5563",
-        backgroundColorOverride:"#ffffff",
+        primaryColorOverride: "#3b82f6",
+        secondaryColorOverride: "#f97316",
+        textColorOverride: "#111827",
+        text2ColorOverride: "#4b5563",
+        backgroundColorOverride: "#ffffff",
+        template: "single-column-1",
         includeAddress: true,
         includePhone: true,
 
     })
-    
+    useEffect(() => {
+        setCV(originalCV);
+    }, [originalCV]);
     const previewRef = useRef<HTMLDivElement>(null)
-    
 
+    async function handleSave() {
+        setPrintMode(true);
+        try{
+            const html = document.getElementById("rendered-cv-container")?.outerHTML;
+            if(!html) throw new Error("Error getting raw HTML")
+            const pdfBlob = await cvsService.getPDFv2(html, pdfOptions.pictureId);
+            const url = URL.createObjectURL(pdfBlob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "cv.pdf";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+        }catch (error) {
+            console.error("Error generating PDF:", error);
+        }
+        finally {
+            setPrintMode(false);
+        }
+    }
     if (isLoading || !cv) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -35,8 +60,17 @@ export function ExportPdf() {
             </div>
         )
     }
+    async function handlePictureSelected(pictureId: string | undefined): Promise<void> {
+        setPdfOptions({ pictureId, ...pdfOptions });
+        if (cv) {
+            const shareUrl = pictureId ? await userService.getPictureShareLink(pictureId) : "";
+            setCV({ ...cv, personal_info: { ...cv.personal_info, profilePictureUrl: shareUrl } });
+            console.log("Got picture URL:", shareUrl)
+        }
+    }
+
     return (
-        <div className="max-w-6xl mx-auto p-6 space-y-6">
+        <div className="max-w-6xl mx-auto p-6 space-y-6 text-align-left">
             {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
@@ -48,150 +82,83 @@ export function ExportPdf() {
                         Back to Dashboard
                     </Button>
                 </div>
+                <div className="flex gap-2">
+                    <Button onClick={handleSave} variant="default" className="btn-custom">
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Download
+                    </Button>
+                </div>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="border rounded-lg p-6 space-y-4 card-hover bg-gradient-subtle">
-                    <div className="flex items-center justify-between">
-                        {/* Cusomize form */}
-                        <div className="flex  gap-2 flex-col">
-                            <div className="flex items-align-center"><Settings className="h-3 w-3 mr-2" />
-                            <h4 className="font-semibold text-lg">Customize</h4>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-xs" style={{ textAlign: "left" }}>
+                <div className="border rounded-lg p-4 card-hover bg-gradient-subtle">
+                    <div className="flex items-center gap-3 mb-2">
+                        <Settings className="h-5 w-5 text-gray-600" />
+                        <h3 className="text-base font-medium">Customize</h3>
+                    </div>
+                    <div className="space-y-3 ">
+                        <div>
+                            <div className="mb-1 font-medium">Template</div>
+                            <div className="flex gap-3 ml-5">
+                                <label className="inline-flex items-center ">
+                                    <input type="radio" name="template" value="two-column-1" checked={pdfOptions.template === "two-column-1"} onChange={() => setPdfOptions({ ...pdfOptions, template: "two-column-1" })} className="form-radio" />
+                                    <span className="ml-2">Two column</span>
+                                </label>
+                                <label className="inline-flex items-center ">
+                                    <input type="radio" name="template" value="single-column-1" checked={pdfOptions.template === "single-column-1"} onChange={() => setPdfOptions({ ...pdfOptions, template: "single-column-1" })} className="form-radio" />
+                                    <span className="ml-2">Single column</span>
+                                </label>
                             </div>
-                            <div className="mt-4 space-y-4">
-                                <div className="space-y-2">
-                                    <h4 className="font-medium">Template Style</h4>
-                                    <div className="flex gap-4">
-                                        <label className="flex items-center space-x-2 cursor-pointer">
-                                            <input
-                                                type="radio"
-                                                name="template"
-                                                value="two-column-1"
-                                                checked={pdfOptions.template === "two-column-1"}
-                                                onChange={() => setPdfOptions({ ...pdfOptions, template: "two-column-1" })}
-                                                className="form-radio"
-                                            />
-                                            <span>Two Column</span>
-                                        </label>
-                                        <label className="flex items-center space-x-2 cursor-pointer">
-                                            <input
-                                                type="radio"
-                                                name="template"
-                                                value="single-column-1"
-                                                checked={pdfOptions.template === "single-column-1"}
-                                                onChange={() => setPdfOptions({ ...pdfOptions, template: "single-column-1" })}
-                                                className="form-radio"
-                                            />
-                                            <span>Single Column</span>
-                                        </label>
-                                    </div>
-                                </div>
+                        </div>
+                        <PictureSelector onPictureSelected={handlePictureSelected} />
 
-                                <div className="space-y-2">
-                                    <h4 className="font-medium">Color Scheme</h4>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label className="text-sm">Primary Color</label>
-                                            <input
-                                                type="color"
-                                                value={pdfOptions.primaryColorOverride}
-                                                onChange={(e) => setPdfOptions({ ...pdfOptions, primaryColorOverride: e.target.value })}
-                                                className="block w-full h-8 mt-1 rounded cursor-pointer"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="text-sm">Secondary Color</label>
-                                            <input
-                                                type="color"
-                                                value={pdfOptions.secondaryColorOverride}
-                                                onChange={(e) => setPdfOptions({ ...pdfOptions, secondaryColorOverride: e.target.value })}
-                                                className="block w-full h-8 mt-1 rounded cursor-pointer"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="text-sm">Text Color</label>
-                                            <input
-                                                type="color"
-                                                value={pdfOptions.textColorOverride}
-                                                onChange={(e) => setPdfOptions({ ...pdfOptions, textColorOverride: e.target.value })}
-                                                className="block w-full h-8 mt-1 rounded cursor-pointer"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="text-sm">Background Color</label>
-                                            <input
-                                                type="color"
-                                                value={pdfOptions.backgroundColorOverride}
-                                                onChange={(e) => setPdfOptions({ ...pdfOptions, backgroundColorOverride: e.target.value })}
-                                                className="block w-full h-8 mt-1 rounded cursor-pointer"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="text-sm">Accent Color</label>
-                                            <input
-                                                type="color"
-                                                value={pdfOptions.text2ColorOverride}
-                                                onChange={(e) => setPdfOptions({ ...pdfOptions, text2ColorOverride: e.target.value })}
-                                                className="block w-full h-8 mt-1 rounded cursor-pointer"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <h3>Personal Information</h3>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <label className="flex items-center space-x-2 cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                checked={!!cv?.personal_info.email && (pdfOptions.includeEmail ?? true)}
-                                                disabled={!cv?.personal_info.email}
-                                                onChange={(e) => setPdfOptions({ ...pdfOptions, includeEmail: e.target.checked })}
-                                                className="form-checkbox"
-                                            />
-                                            <span>Include Email</span>
-                                        </label>
 
-                                        <label className="flex items-center space-x-2 cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                checked={!!cv?.personal_info.phone && (pdfOptions.includePhone ?? true)}
-                                                disabled={!cv?.personal_info.phone}
-                                                onChange={(e) => setPdfOptions({ ...pdfOptions, includePhone: e.target.checked })}
-                                                className="form-checkbox"
-                                            />
-                                            <span>Include Phone Number</span>
-                                        </label>
-
-                                        <label className="flex items-center space-x-2 cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                checked={!!cv?.personal_info.location && (pdfOptions.includeAddress ?? true)}
-                                                disabled={!cv?.personal_info.location}
-                                                onChange={(e) => setPdfOptions({ ...pdfOptions, includeAddress: e.target.checked })}
-                                                className="form-checkbox"
-                                            />
-                                            <span>Include Address</span>
-                                        </label>
-
-                                        <label className="flex items-center space-x-2 cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                checked={!!cv?.personal_info.dateOfBirth && (pdfOptions.includeDateOfBirth ?? true)}
-                                                disabled={!cv?.personal_info.dateOfBirth}
-                                                onChange={(e) => setPdfOptions({ ...pdfOptions, includeDateOfBirth: e.target.checked })}
-                                                className="form-checkbox"
-                                            />
-                                            <span>Include Date of Birth</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <PictureSelector
-                                    pictures={pictures}
-                                    isLoadingPictures={isLoadingPictures}
-                                    pdfOptions={pdfOptions}
-                                    setPdfOptions={setPdfOptions}
-                                />
+                        <div>
+                            <div className="mb-1 font-medium">Personal info</div>
+                            <div className="grid grid-cols-2 gap-2 ml-5">
+                                <label className="inline-flex items-center gap-2">
+                                    <input type="checkbox" checked={!!cv?.personal_info.email && (pdfOptions.includeEmail ?? true)} disabled={!cv?.personal_info.email} onChange={(e) => setPdfOptions({ ...pdfOptions, includeEmail: e.target.checked })} className="form-checkbox" />
+                                    <span>Include email</span>
+                                </label>
+                                <label className="inline-flex items-center gap-2">
+                                    <input type="checkbox" checked={!!cv?.personal_info.phone && (pdfOptions.includePhone ?? true)} disabled={!cv?.personal_info.phone} onChange={(e) => setPdfOptions({ ...pdfOptions, includePhone: e.target.checked })} className="form-checkbox" />
+                                    <span>Include phone</span>
+                                </label>
+                                <label className="inline-flex items-center gap-2">
+                                    <input type="checkbox" checked={!!cv?.personal_info.location && (pdfOptions.includeAddress ?? true)} disabled={!cv?.personal_info.location} onChange={(e) => setPdfOptions({ ...pdfOptions, includeAddress: e.target.checked })} className="form-checkbox" />
+                                    <span>Include address</span>
+                                </label>
+                                <label className="inline-flex items-center gap-2">
+                                    <input type="checkbox" checked={!!cv?.personal_info.dateOfBirth && (pdfOptions.includeDateOfBirth ?? true)} disabled={!cv?.personal_info.dateOfBirth} onChange={(e) => setPdfOptions({ ...pdfOptions, includeDateOfBirth: e.target.checked })} className="form-checkbox" />
+                                    <span>Include DOB</span>
+                                </label>
                             </div>
-                        </div> {/* END Cusomize form */}
+                        </div>
+                        <div>
+                            <div className="mb-1 font-medium">Colors</div>
+                            <div className="grid grid-cols-2 gap-2 ml-5">
+                                <div className="flex ">
+                                    <input type="color" value={pdfOptions.primaryColorOverride} onChange={(e) => setPdfOptions({ ...pdfOptions, primaryColorOverride: e.target.value })} className="h-6 w-6 p-0" />
+                                    <span className="ml-2">Primary</span>
+
+                                </div>
+                                <div className="flex ">
+                                    <input type="color" value={pdfOptions.secondaryColorOverride} onChange={(e) => setPdfOptions({ ...pdfOptions, secondaryColorOverride: e.target.value })} className="h-6 w-6 p-0" />
+                                    <span className="ml-2">Secondary</span>
+
+                                </div>
+                                <div className="flex ">
+                                    <input type="color" value={pdfOptions.textColorOverride} onChange={(e) => setPdfOptions({ ...pdfOptions, textColorOverride: e.target.value })} className="h-6 w-6 p-0" />
+                                    <span className="ml-2">Text</span>
+
+                                </div>
+                                <div className="flex ">
+                                    <input type="color" value={pdfOptions.backgroundColorOverride} onChange={(e) => setPdfOptions({ ...pdfOptions, backgroundColorOverride: e.target.value })} className="h-6 w-6 p-0" />
+                                    <span className="ml-2">Background</span>
+
+                                </div>
+                            </div>
+                        </div>
+
 
                     </div>
                 </div>
@@ -212,12 +179,35 @@ export function ExportPdf() {
                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
                                 <p className="mt-2">Loading preview...</p>
                             </div>
-                        ) : <CVPreviewer cvData={cv!} options={pdfOptions} printMode={false} />}
+                        ) : <CVPreviewer cvData={cv!} options={pdfOptions} printMode={printMode} />}
                         </div>
                     </div>
                 </div>
             </div>
+            
         </div>
     )
+
+}
+
+
+
+export function FullScreenDoc() {
+    const location = useLocation();
+    const state = location.state as { cvData?: CV; pdfOptions?: CVToPDFOptions } | null
+    const cvData = state?.cvData
+    const options = state?.pdfOptions
+    if (!cvData || !options) {
+        return <div>No CV data available</div>
+    }
+    const previewRef = useRef<HTMLDivElement | null>(null);
+    
+    useWhenRendered(previewRef, [cvData, options], () => {
+        // call the browsers print function
+        window.print();
+    });
+    return <div ref={previewRef}>
+        <CVPreviewer cvData={cvData} options={options} printMode={true} />
+    </div>
 
 }
