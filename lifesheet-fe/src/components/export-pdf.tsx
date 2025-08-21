@@ -1,13 +1,12 @@
 import { useUserCV } from "@/hooks/use-cv"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "./ui/button"
-import { ArrowLeft, Settings } from "lucide-react"
+import { ArrowDown, ArrowLeft, Settings } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { cvsService, type CV, type CVToPDFOptions } from "@/services/cvs-service"
 import PictureSelector from "@/components/export/picture-selector"
 import { CVPreviewer } from "@/cv-printer/cv-previewer"
 import userService from "@/services/user-service"
-import { useWhenRendered } from "@/hooks/use-when-rendered"
 export function ExportPdf() {
     const { cv: originalCV, isLoading } = useUserCV()
     const navigate = useNavigate()
@@ -84,7 +83,7 @@ export function ExportPdf() {
                 </div>
                 <div className="flex gap-2">
                     <Button onClick={handleSave} variant="default" className="btn-custom">
-                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        <ArrowDown className="h-4 w-4 mr-2" />
                         Download
                     </Button>
                 </div>
@@ -192,22 +191,3 @@ export function ExportPdf() {
 
 
 
-export function FullScreenDoc() {
-    const location = useLocation();
-    const state = location.state as { cvData?: CV; pdfOptions?: CVToPDFOptions } | null
-    const cvData = state?.cvData
-    const options = state?.pdfOptions
-    if (!cvData || !options) {
-        return <div>No CV data available</div>
-    }
-    const previewRef = useRef<HTMLDivElement | null>(null);
-    
-    useWhenRendered(previewRef, [cvData, options], () => {
-        // call the browsers print function
-        window.print();
-    });
-    return <div ref={previewRef}>
-        <CVPreviewer cvData={cvData} options={options} printMode={true} />
-    </div>
-
-}

@@ -190,7 +190,7 @@ export function CVMainDashboard() {
           <h1 className="text-3xl text-gradient">My CV Data</h1>
           <p className="text-muted-foreground">Welcome back, {user?.name || user?.email}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 ">
           {!isEditing && cv && (
             <>
               <Button onClick={handleStartEditing} variant="outline" className="btn-custom">
@@ -267,7 +267,7 @@ export function CVMainDashboard() {
             </div>
           )}
 
-          <div className="w-full">
+          <div className="w-full text-left">
             <div className="grid grid-cols-5 mb-4">
               <div onClick={() => setActiveTab("personal")} className="flex items-center gap-2 cursor-pointer">
                 <GraduationCap className="h-4 w-4" />
