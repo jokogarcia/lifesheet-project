@@ -59,8 +59,15 @@ export interface CV {
   language_skills:LanguageSkill[]
   created_at: string
   updated_at: string
-  user_id: string
+  user_id: string,
+  coverLetter?:string
 }
+export interface CVListItem{
+    _id: string,
+    createdAt: string,
+    hasCoverLetter: boolean,
+    companyName: string
+  }
 
 export interface CreateOrUpdateCVRequest {
   personal_info: PersonalInfo
@@ -111,11 +118,16 @@ class CVsService {
 
   
   // Get user's CV (single CV per user)
-  async getUserCV(): Promise<CV | null> {
-    console.log("🔄 CVsService: Fetching user CV...")
-    const response = await this.client.get<CV>('/user/me/cv')
+  async getUserCV(cvId?: string): Promise<CV | null> {
+    console.log("🔄 CVsService: Fetching user CV ", cvId || '');
+    const response = await this.client.get<CV>(`/user/me/cv${cvId ? `/${cvId}` : ''}`)
     return response.data;
     
+  }
+
+  async getUsersTailoredCvs(): Promise<CVListItem[]> {
+    const response = await this.client.get<CVListItem[]>('/user/me/cv/tailored-list')
+    return response.data;
   }
   // Method to set the authentication token from your React component
   setAuthToken(token: string) {
@@ -140,11 +152,12 @@ class CVsService {
   }
   
   // Tailor CV to job description
-  async tailorCV(jobDescription: string, pictureId?: string): Promise<{cvId: string}> {
+  async tailorCV(jobDescription: string, companyName:string, includeCoverLetter:boolean): Promise<{cvId: string}> {
     console.log("🔄 CVsService: Tailoring CV to job description...")
     const response = await this.client.post<{cvId: string}>('/user/me/cv/tailor', { 
       jobDescription,
-      pictureId 
+      companyName,
+      includeCoverLetter 
     })
     if (!response.data) {
       throw new Error("Failed to tailor CV")

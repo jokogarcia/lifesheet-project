@@ -1,0 +1,69 @@
+import { useNavigate } from "react-router-dom"
+import { useUsersTailoredCVs } from "@/hooks/use-users-tailored-cvs"
+import { Button } from "./ui/button"
+import { ArrowLeft } from "lucide-react"
+
+export default function TailoredCVs() {
+    const navigate = useNavigate()
+    const { tailoredCVs, isLoading, error } = useUsersTailoredCVs()
+
+    function formatCompany(item: Partial<Record<string, any>>) {
+        return (
+            // try several common property names
+            (item as any).company || (item as any).company_name || (item as any).targetCompany || "Unknown"
+        )
+    }
+
+    function formatDate(item: Partial<Record<string, any>>) {
+        const d = (item as any).created_at || (item as any).createdAt || (item as any).created || (item as any).date
+        if (!d) return "Unknown date"
+        try {
+            const dt = new Date(d)
+            return dt.toLocaleString()
+        } catch {
+            return String(d)
+        }
+    }
+
+    return (
+        <div className="max-w-4xl mx-auto p-6">
+            {/* Header */}
+            <div className="flex justify-between items-center">
+                <div>
+                    <h2 className="text-2xl font-semibold mb-4">Tailored CVs</h2>
+                </div>
+                <div className="flex gap-2">
+                    <Button onClick={() => navigate("/")} variant="outline" className="btn-custom">
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Dashboard
+                    </Button>
+                </div>
+
+            </div>
+            {isLoading ? (
+                <div className="text-sm text-muted-foreground">Loading tailored CVs…</div>
+            ) : error ? (
+                <div className="text-sm text-red-500">{error}</div>
+            ) : tailoredCVs.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No tailored CVs found.</div>
+            ) : (
+                <ul className="space-y-2">
+                    {tailoredCVs.map((item) => (
+                        <li key={item._id}>
+                            <button
+                                onClick={() => navigate(`/exportPdf?cvId=${encodeURIComponent(String(item._id))}`)}
+                                className="w-full text-left p-3 border rounded hover:bg-gray-50 flex justify-between items-center"
+                                aria-label={`Open tailored CV ${item._id}`}>
+                                <div>
+                                    <div className="font-medium">CV tailored for {item.companyName}</div>
+                                    <div className="text-xs text-muted-foreground">on {new Date(item.createdAt).toLocaleString()}</div>
+                                </div>
+                                <div className="text-xs text-gray-500">Open</div>
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    )
+}

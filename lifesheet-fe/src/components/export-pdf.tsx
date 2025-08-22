@@ -9,8 +9,9 @@ import { CVPreviewer } from "@/cv-printer/cv-previewer"
 import userService from "@/services/user-service"
 
 export function ExportPdf() {
-    const [isSettingsVisible, setIsSettingsVisible] = useState(false)
-    const { cv: originalCV, isLoading } = useUserCV()
+    const queryParams = new URLSearchParams(useLocation().search);
+    const [isSettingsVisible, setIsSettingsVisible] = useState(true)
+    const { cv: originalCV, isLoading } = useUserCV(queryParams.get("cvId") || undefined)
     const navigate = useNavigate()
     const [cv, setCV] = useState<CV | null>(originalCV)
     const [printMode, setPrintMode] = useState(false)
