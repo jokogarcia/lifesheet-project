@@ -15,7 +15,7 @@ Routes:
 import { Request, Response, NextFunction } from 'express';
 import User, { IUser } from '../models/user.model';
 import CV, { ICV } from '../models/cv.model';
-import JobDescription from '../models/job-description';
+import JobDescription, { IJobDescription } from '../models/job-description';
 import { ApiError } from '../middleware/errorHandler';
 import fs from 'fs';
 import * as cvTailoringService from '../services/cv-tailoring-service'
@@ -23,7 +23,7 @@ import * as cvTailoringService from '../services/cv-tailoring-service'
 import { PDFService } from '../services/pdf-service';
 import { constants } from '../constants';
 import Picture, { IPicture } from '../models/picture.model';
-import PictureShare, {IPictureShare} from '../models/picture-share.model'
+import PictureShare, { IPictureShare } from '../models/picture-share.model'
 import { Consumption } from '../models/consumption.model';
 import { SaaSPlan, SaaSSubscription } from '../models/saaS-plan.model';
 import { getSecondsUntilNextWeek, getSecondsUntilTomorrow } from '../utils/utils';
@@ -94,6 +94,30 @@ export const getUserCV = async (req: Request, res: Response, next: NextFunction)
             cv = await CV.create(newcv);
         }
         res.json(cv);
+    } catch (err) {
+        next(err);
+    }
+};
+export const getUsersTailoredCvs = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = resolveUserId(req);
+        const userInfo = await User.findById(userId);
+        if (!userInfo) {
+            throw new ApiError(404, "User Not Found")
+        }
+        let cvs = await CV.find({ user_id: userId, deletedAt: null, tailored: { $exists: true } }).populate('tailored.jobDescription_id', 'companyName');
+        const response = cvs.map(cv => {
+            // Safely handle populated document or string ID
+            let jobDescription: any = cv.tailored!.jobDescription_id;
+            const companyName = jobDescription.companyName as string || 'Unknown Company';
+            return {
+                _id: cv._id,
+                createdAt: cv.created_at,
+                hasCoverLetter: !!(cv.tailored!.coverLetter),
+                companyName
+            };
+        });
+        res.json(response);
     } catch (err) {
         next(err);
     }
@@ -185,6 +209,11 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
     // for now, it just returns the main CV's ID
     try {
         const userId = resolveUserId(req);
+        const companyName = req.body.companyName || "";
+        if(!companyName) {
+            throw new ApiError(400, 'Company name is required.');
+        }
+        const includeCoverLetter = !!req.body.includeCoverLetter;
         const canDo = await checkUserCanDoOperation(userId);
         if (!canDo.canOperate) {
             const retryAfter = canDo.reason === "Daily limit reached" ? getSecondsUntilTomorrow() : getSecondsUntilNextWeek();
@@ -194,10 +223,11 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
                     message: `${canDo.reason}. Try again in ${retryAfter} seconds.`,
                     retryAfter
                 });
-                return;
+            return;
         }
         let jobDescription = req.body.jobDescription || "";
         let jobDescriptionId = req.body.jobDescriptionId || "";
+        
         const pictureId = req.body.pictureId || "";
         if (!jobDescription && !jobDescriptionId) {
             throw new ApiError(400, 'Job description is required. Provide one or a valid job description ID.');
@@ -217,8 +247,9 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
 
         } else {
             //No jobDescriptionId, but jobDescription is provided
-            const r = await JobDescription.create({ content: jobDescription, userId });
+            const r = await JobDescription.create({ content: jobDescription, userId, companyName });
             jobDescriptionId = r._id;
+            console.log("Created job description for", userId, companyName);
         }
         const userInfo = await User.findById(userId);
         if (!userInfo) {
@@ -229,6 +260,10 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
         const r = await cvTailoringService.tailorCV(mainCv, jobDescription);
         if (!r || !r.tailored_cv) {
             throw new ApiError(500, 'Failed to tailor CV');
+        }
+        if (includeCoverLetter) {
+            const coverLetter = await cvTailoringService.generateCoverLetter(r.tailored_cv, jobDescription, userId, companyName);
+            r.tailored_cv.tailored!.coverLetter = coverLetter;
         }
         const tailoredCv = r.tailored_cv;
         tailoredCv.tailored = {
@@ -330,8 +365,8 @@ export const getUserPicture = async (req:
         next(err);
     }
 };
-export const getUserPictureShareLink = async (req: Request, res:Response, next:NextFunction)=>{
-    try{
+export const getUserPictureShareLink = async (req: Request, res: Response, next: NextFunction) => {
+    try {
         const userId = resolveUserId(req);
         const pictureId = req.params.pictureId;
         const picture = await Picture.findOne({ user_id: userId, _id: pictureId, deletedAt: null });
@@ -424,7 +459,7 @@ export const getUsersActiveSubscription = async (req: Request, res: Response, ne
         const { usersConsumptions, todaysConsumptions, thisWeeksConsumptions } = await getUsersConsumptions(userId);
         const activeSubscription = await _getUsersActiveSubscription(userId);
         const activePlan = await SaaSPlan.findById(activeSubscription.planId);
-        if(!activePlan) {
+        if (!activePlan) {
             console.error("Invalid state. Active plan not found.");
             res.status(500).json({ message: "Active plan not found" });
             return;
@@ -459,11 +494,11 @@ export const getUsersSubscriptionStatus = async (req: Request, res: Response, ne
         return;
     }
     const subscription = await SaaSSubscription.findOne({ userId, _id: subscriptionId })
-    if(!subscription) {
+    if (!subscription) {
         res.status(404).json({ message: "Subscription not found" });
         return;
     }
-    res.json({status: subscription?.status});
+    res.json({ status: subscription?.status });
 }
 export const initiatePlanPurchase = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -482,7 +517,7 @@ export const initiatePlanPurchase = async (req: Request, res: Response, next: Ne
             endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
             status: 'payment-pending'
         });
-       
+
         {
             //TODO: Initiate payment process with the selected provider
             // Getting price and currency from plan
@@ -500,10 +535,10 @@ export const initiatePlanPurchase = async (req: Request, res: Response, next: Ne
             }, 5000);
         }
         // Proceed with the plan purchase
-        res.json({ 
+        res.json({
             message: "Plan purchase initiated",
             subscriptionId: s._id
-         });
+        });
     } catch (err) {
         next(err);
     }
