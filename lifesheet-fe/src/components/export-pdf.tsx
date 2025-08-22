@@ -93,7 +93,7 @@ export function ExportPdf() {
                         <h3 className="text-base font-medium">Customize</h3>
                         <ChevronDown className={`h-5 w-5 text-gray-600 transition-transform ${isSettingsVisible ? "rotate-180" : ""}`} />
                     </div>
-                    <div className={`space-y-3 ${isSettingsVisible ? "block" : "hidden"}`}>{/*accordion content*/}
+                    <div className={`space-y-3 border-b-2 overflow-hidden transition-[height] ${isSettingsVisible ? "h-110 overflow-visible" : "h-0"}`}>{/*accordion content*/}
                         <div>
                             <div className="mb-1 font-medium">Template</div>
                             <div className="flex gap-3 ml-5">
