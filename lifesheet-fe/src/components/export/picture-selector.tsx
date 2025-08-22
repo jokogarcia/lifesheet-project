@@ -21,7 +21,14 @@ export function PictureSelector({onPictureSelected}:PictureSelectorProps) {
       try {
         const userPictures = await userService.getUserPictures()
         setPictures(userPictures)
-        console.log("Pictures:", userPictures)
+        if (userPictures.length > 0) {
+          // Set the first picture as selected by default
+          setSelectedPicture(userPictures[0])
+          onPictureSelected(userPictures[0])
+        } else {
+          onPictureSelected(undefined)
+        }
+        
       } catch (error) {
         console.error("Error loading pictures:", error)
         setError("Failed to load pictures. Please try again later.")
