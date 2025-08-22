@@ -30,9 +30,9 @@ export function ExportPdf() {
 
     async function handleSave() {
         setPrintMode(true);
-        try{
+        try {
             const html = document.getElementById("rendered-cv-container")?.outerHTML;
-            if(!html) throw new Error("Error getting raw HTML")
+            if (!html) throw new Error("Error getting raw HTML")
             const pdfBlob = await cvsService.getPDFv2(html, pdfOptions.pictureId);
             const url = URL.createObjectURL(pdfBlob);
             const a = document.createElement("a");
@@ -42,7 +42,7 @@ export function ExportPdf() {
             a.click();
             document.body.removeChild(a);
 
-        }catch (error) {
+        } catch (error) {
             console.error("Error generating PDF:", error);
         }
         finally {
@@ -81,12 +81,7 @@ export function ExportPdf() {
                         Back to Dashboard
                     </Button>
                 </div>
-                <div className="flex gap-2">
-                    <Button onClick={handleSave} variant="default" className="btn-custom">
-                        <ArrowDown className="h-4 w-4 mr-2" />
-                        Download
-                    </Button>
-                </div>
+
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-xs" style={{ textAlign: "left" }}>
                 <div className="border rounded-lg p-4 card-hover bg-gradient-subtle">
@@ -163,7 +158,12 @@ export function ExportPdf() {
                 </div>
                 {/* Preview */}
                 <div className="border rounded-lg p-6 space-y-4 card-hover bg-gradient-subtle">
-                    <h3 className="text-lg font-medium">Preview</h3>
+                    <div className="flex justify-between items-center">
+                        <h3 className="text-lg font-medium">Preview</h3> <Button onClick={handleSave} variant="default" className="btn-custom h-8">
+                            <ArrowDown className="h-4 w-4 mr-2" />
+                            Download
+                        </Button>
+                    </div>
                     <div style={{ width: '115mm', height: `${297 / 2}mm`, overflowY: 'visible', overflowX: 'hidden', border: '1px solid lightgray' }}>
                         <div ref={previewRef} style={{
                             border: '1px solid #eee',
@@ -183,7 +183,7 @@ export function ExportPdf() {
                     </div>
                 </div>
             </div>
-            
+
         </div>
     )
 

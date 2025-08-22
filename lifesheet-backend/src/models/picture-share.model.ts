@@ -24,7 +24,7 @@ export function deleteExpiredLinks() {
 }
 
 console.log('Scheduled task for deleting expired picture share links');
-cron.schedule('@daily', () => {
+cron.schedule('0 0 * * *', () => {
     deleteExpiredLinks();
 });
 export default model;
