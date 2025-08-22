@@ -1,13 +1,15 @@
 import { useUserCV } from "@/hooks/use-cv"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "./ui/button"
-import { ArrowDown, ArrowLeft, Settings } from "lucide-react"
+import { ArrowDown, ArrowLeft, ChevronDown, Settings } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { cvsService, type CV, type CVToPDFOptions } from "@/services/cvs-service"
 import PictureSelector from "@/components/export/picture-selector"
 import { CVPreviewer } from "@/cv-printer/cv-previewer"
 import userService from "@/services/user-service"
+
 export function ExportPdf() {
+    const [isSettingsVisible, setIsSettingsVisible] = useState(false)
     const { cv: originalCV, isLoading } = useUserCV()
     const navigate = useNavigate()
     const [cv, setCV] = useState<CV | null>(originalCV)
@@ -33,11 +35,11 @@ export function ExportPdf() {
         try {
             const html = document.getElementById("rendered-cv-container")?.outerHTML;
             if (!html) throw new Error("Error getting raw HTML")
-            const pdfBlob = await cvsService.getPDFv2(html, pdfOptions.pictureId);
+            const pdfBlob = await cvsService.getPDFv2(html, pdfOptions.pictureId, originalCV?.personal_info.fullName + "- CV");
             const url = URL.createObjectURL(pdfBlob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = "cv.pdf";
+            //a.download = "cv.pdf";
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -85,11 +87,13 @@ export function ExportPdf() {
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-xs" style={{ textAlign: "left" }}>
                 <div className="border rounded-lg p-4 card-hover bg-gradient-subtle">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center gap-3 mb-2 hover:cursor-pointer hover:bg-gray-100"
+                            onClick={() => setIsSettingsVisible(!isSettingsVisible)}>
                         <Settings className="h-5 w-5 text-gray-600" />
                         <h3 className="text-base font-medium">Customize</h3>
+                        <ChevronDown className={`h-5 w-5 text-gray-600 transition-transform ${isSettingsVisible ? "rotate-180" : ""}`} />
                     </div>
-                    <div className="space-y-3 ">
+                    <div className={`space-y-3 ${isSettingsVisible ? "block" : "hidden"}`}>{/*accordion content*/}
                         <div>
                             <div className="mb-1 font-medium">Template</div>
                             <div className="flex gap-3 ml-5">

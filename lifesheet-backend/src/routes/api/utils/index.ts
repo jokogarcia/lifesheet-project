@@ -5,10 +5,13 @@ import { JSDOM } from 'jsdom';
 import PictureShare from '../../../models/picture-share.model';
 const router = express.Router();
 import fs from 'fs';
+import path from 'path'
 import Picture from '../../../models/picture.model';
 router.post("/generate-pdf", async (req, res) => {
-    const { html, imageId } = req.body as { html: string, imageId?: string };
+    const { html, imageId, docTitle } = req.body as { html: string, imageId?: string, docTitle?: string };
+    const filename=docTitle?.replace(/\s+/g, '-') || 'CV';
     let fullPage = `<html><head>
+    <title>${docTitle || 'CV'}</title>
     <link rel="stylesheet" href="${constants.API_URL}/private/cv-printer/styles.css">
     </head><body>${html}</body></html>`;
     if (imageId) {
@@ -23,6 +26,7 @@ router.post("/generate-pdf", async (req, res) => {
     try {
         const pdfBuffer = await PDFService.htmlToPDF(fullPage);
         res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}.pdf"`);
         res.send(pdfBuffer);
     } catch (error) {
         console.error('Error generating PDF:', error);

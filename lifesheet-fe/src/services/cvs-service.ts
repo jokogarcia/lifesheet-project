@@ -183,8 +183,8 @@ class CVsService {
     }
     return response.data;
   }
-  async getPDFv2(html:string, pictureId?:string){
-    const response = await this.client.post('/utils/generate-pdf', { html, pictureId },
+  async getPDFv2(html:string, pictureId?:string, docTitle?:string){
+    const response = await this.client.post('/utils/generate-pdf', { html, pictureId, docTitle },
       {responseType: 'blob'}
     )
     if (!response.data) {
