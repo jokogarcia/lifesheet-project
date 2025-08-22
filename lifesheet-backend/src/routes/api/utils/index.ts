@@ -20,7 +20,6 @@ router.post("/generate-pdf", async (req, res) => {
             }
         });
     }
-    fs.writeFileSync('temp.html', fullPage);
     try {
         const pdfBuffer = await PDFService.htmlToPDF(fullPage);
         res.setHeader('Content-Type', 'application/pdf');
