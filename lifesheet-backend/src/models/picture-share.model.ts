@@ -1,4 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import cron from 'node-cron';
+
 
 export interface IPictureShare extends Document {
     userId: mongoose.Types.ObjectId;
@@ -14,4 +16,15 @@ const PictureShareSchema: Schema = new Schema({
     expiresAt: { type: Date, required: true, default: new Date(Date.now() + 60 * 60 * 1000) }, // 1 hour
 }, { timestamps: true });
 
-export default mongoose.model<IPictureShare>('PictureShare', PictureShareSchema);
+const model = mongoose.model<IPictureShare>('PictureShare', PictureShareSchema);
+export function deleteExpiredLinks() {
+    model.deleteMany({ expiresAt: { $lt: new Date() } })
+        .then(() => console.log('Expired picture share links deleted'))
+        .catch(err => console.error('Error deleting expired picture share links:', err));
+}
+
+console.log('Scheduled task for deleting expired picture share links');
+cron.schedule('@daily', () => {
+    deleteExpiredLinks();
+});
+export default model;
