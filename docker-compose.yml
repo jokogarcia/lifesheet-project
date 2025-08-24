@@ -10,10 +10,8 @@ services:
       - NEXT_PUBLIC_API_URL=http://backend:3001
     depends_on:
       - backend
-      - cv-agent
     networks:
       - lifesheet-network
-
   backend:
     build:
       context: ./lifesheet-backend
@@ -35,15 +33,6 @@ services:
 
     volumes:
       - mongo-data:/data/db
-    networks:
-      - lifesheet-network
-  cv-agent:
-    build:
-      context: ./agents/cv-agent
-
-    environment:
-      - PORT=8000
-      - HOST=127.0.0.1
     networks:
       - lifesheet-network
 
