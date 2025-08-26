@@ -7,6 +7,7 @@ export interface PersonalInfo {
   title?: string
   email: string
   phone?: string
+  dateOfBirth?:string
   location?: string
   linkedIn?: string
   website?: string
@@ -58,8 +59,15 @@ export interface CV {
   language_skills:LanguageSkill[]
   created_at: string
   updated_at: string
-  user_id: string
+  user_id: string,
+  coverLetter?:string
 }
+export interface CVListItem{
+    _id: string,
+    createdAt: string,
+    hasCoverLetter: boolean,
+    companyName: string
+  }
 
 export interface CreateOrUpdateCVRequest {
   personal_info: PersonalInfo
@@ -70,7 +78,19 @@ export interface CreateOrUpdateCVRequest {
 }
 
 // No need for mock data anymore, we're using real API calls
-
+export interface CVToPDFOptions {
+        pictureId?: string
+        template?: string
+        primaryColorOverride?: string
+        secondaryColorOverride?: string
+        textColorOverride?: string
+        text2ColorOverride?: string
+        backgroundColorOverride?: string
+        includeEmail?: boolean
+        includeAddress?: boolean
+        includeDateOfBirth?: boolean
+        includePhone?: boolean
+    }
 class CVsService {
   private client:Axios
 
@@ -98,11 +118,16 @@ class CVsService {
 
   
   // Get user's CV (single CV per user)
-  async getUserCV(): Promise<CV | null> {
-    console.log("🔄 CVsService: Fetching user CV...")
-    const response = await this.client.get<CV>('/user/me/cv')
+  async getUserCV(cvId?: string): Promise<CV | null> {
+    console.log("🔄 CVsService: Fetching user CV ", cvId || '');
+    const response = await this.client.get<CV>(`/user/me/cv${cvId ? `/${cvId}` : ''}`)
     return response.data;
     
+  }
+
+  async getUsersTailoredCvs(): Promise<CVListItem[]> {
+    const response = await this.client.get<CVListItem[]>('/user/me/cv/tailored-list')
+    return response.data;
   }
   // Method to set the authentication token from your React component
   setAuthToken(token: string) {
@@ -127,11 +152,12 @@ class CVsService {
   }
   
   // Tailor CV to job description
-  async tailorCV(jobDescription: string, pictureId?: string): Promise<{cvId: string}> {
+  async tailorCV(jobDescription: string, companyName:string, includeCoverLetter:boolean): Promise<{cvId: string}> {
     console.log("🔄 CVsService: Tailoring CV to job description...")
     const response = await this.client.post<{cvId: string}>('/user/me/cv/tailor', { 
       jobDescription,
-      pictureId 
+      companyName,
+      includeCoverLetter 
     })
     if (!response.data) {
       throw new Error("Failed to tailor CV")
@@ -146,11 +172,22 @@ class CVsService {
     console.log("File to upload:", file.name);
     throw new Error("Method not implemented.");
   }
+  
   // Get CV PDF
-  async getCVPDF(cvId: string, pictureId?: string): Promise<Blob> {
+  async getCVPDF(cvId: string, options?: CVToPDFOptions): Promise<Blob> {
+    const { pictureId, template, primaryColorOverride, secondaryColorOverride, textColorOverride, text2ColorOverride, backgroundColorOverride } = options || {};
+
     console.log("🔄 CVsService: Fetching CV PDF...")
-    const url = pictureId ? `/user/me/cv/${cvId}/pdf?pictureId=${pictureId}` : `/user/me/cv/${cvId}/pdf`;
-    const response = await this.client.get(url, {
+    const url = new URL(`/user/me/cv/${cvId}/pdf`);
+    if (pictureId) url.searchParams.append("pictureId", pictureId);
+    if (template) url.searchParams.append("template", template);
+    if (primaryColorOverride) url.searchParams.append("primaryColor", primaryColorOverride);
+    if (secondaryColorOverride) url.searchParams.append("secondaryColor", secondaryColorOverride);
+    if (textColorOverride) url.searchParams.append("textColor", textColorOverride);
+    if (text2ColorOverride) url.searchParams.append("text2Color", text2ColorOverride);
+    if (backgroundColorOverride) url.searchParams.append("backgroundColor", backgroundColorOverride);
+
+    const response = await this.client.get(url.toString(), {
       responseType: 'blob' // Important for binary data
     })
     
@@ -159,6 +196,16 @@ class CVsService {
     }
     return response.data;
   }
+  async getPDFv2(html:string, pictureId?:string, docTitle?:string){
+    const response = await this.client.post('/utils/generate-pdf', { html, pictureId, docTitle },
+      {responseType: 'blob'}
+    )
+    if (!response.data) {
+      throw new Error("Failed to generate PDF")
+    }
+    return response.data;
+  }
+
 }
 
 // Export a singleton instance

@@ -86,6 +86,7 @@ export interface ICV extends Document {
   // Field to store tailored content
   tailored?: {
     jobDescription_id: string;
+    coverLetter?: string;
     tailoredDate: Date;
     updatedByUser: boolean;
   };

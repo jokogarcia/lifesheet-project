@@ -10,6 +10,7 @@ import {
   Edit,
   AlertCircle,
   Plus,
+  FileDown,
 } from "lucide-react"
 import { useUserCV } from "../hooks/use-cv"
 import type { PersonalInfo, WorkExperience, Education, Skill, LanguageSkill } from "../services/cvs-service"
@@ -189,7 +190,7 @@ export function CVMainDashboard() {
           <h1 className="text-3xl text-gradient">My CV Data</h1>
           <p className="text-muted-foreground">Welcome back, {user?.name || user?.email}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 ">
           {!isEditing && cv && (
             <>
               <Button onClick={handleStartEditing} variant="outline" className="btn-custom">
@@ -199,6 +200,14 @@ export function CVMainDashboard() {
               <Button onClick={() => navigate("/tailor-cv")} variant="outline" className="btn-custom">
                 <Briefcase className="h-4 w-4 mr-2" />
                 Tailor to a Job
+              </Button>
+               <Button onClick={() => navigate("/export-pdf")} variant="outline" className="btn-custom">
+                <FileDown className="h-4 w-4 mr-2" />
+                Export as PDF
+              </Button>
+              <Button onClick={() => navigate("/plans")} variant="outline" className="btn-custom">
+                <Award className="h-4 w-4 mr-2" />
+                Subscription Plans
               </Button>
             </>
           )}
@@ -258,7 +267,7 @@ export function CVMainDashboard() {
             </div>
           )}
 
-          <div className="w-full">
+          <div className="w-full text-left">
             <div className="grid grid-cols-5 mb-4">
               <div onClick={() => setActiveTab("personal")} className="flex items-center gap-2 cursor-pointer">
                 <GraduationCap className="h-4 w-4" />

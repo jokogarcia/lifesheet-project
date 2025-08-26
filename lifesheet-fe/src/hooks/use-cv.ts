@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import cvsService, { type CV, type CreateOrUpdateCVRequest } from "../services/cvs-service"
 
-export function useUserCV() {
+export function useUserCV(cvId?:string) {
   const [cv, setCV] = useState<CV | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -13,7 +13,7 @@ export function useUserCV() {
     try {
       setIsLoading(true)
       setError(null)
-      const fetchedCV = await cvsService.getUserCV()
+      const fetchedCV = await cvsService.getUserCV(cvId)
       setCV(fetchedCV)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to fetch CV"
