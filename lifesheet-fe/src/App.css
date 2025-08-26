@@ -40,3 +40,10 @@
 .read-the-docs {
   color: #888;
 }
+input:user-invalid{
+  border-color: red;
+  border-width: 2px;
+}
+input:invalid {
+  border-color: darkred;
+}

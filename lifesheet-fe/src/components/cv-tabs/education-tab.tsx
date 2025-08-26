@@ -56,8 +56,10 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label>Institution</label>
+                      <label htmlFor={`institution-${edu.id}`}>Institution*</label>
                       <input
+                        id={`institution-${edu.id}`}
+                        required
                         value={edu.institution}
                         onChange={(e) => updateEducation(edu.id, "institution", e.target.value)}
                         placeholder="University Name"
@@ -65,8 +67,10 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                       />
                     </div>
                     <div className="space-y-2">
-                      <label>Degree</label>
+                      <label htmlFor={`degree-${edu.id}`}>Degree*</label>
                       <input
+                        id={`degree-${edu.id}`}
+                        required
                         value={edu.degree}
                         onChange={(e) => updateEducation(edu.id, "degree", e.target.value)}
                         placeholder="Bachelor's, Master's, etc."
@@ -74,8 +78,9 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                       />
                     </div>
                     <div className="space-y-2">
-                      <label>Field of Study</label>
+                      <label htmlFor={`field-${edu.id}`}>Field of Study</label>
                       <input
+                        id={`field-${edu.id}`}
                         value={edu.field}
                         onChange={(e) => updateEducation(edu.id, "field", e.target.value)}
                         placeholder="Computer Science, Business, etc."
@@ -83,8 +88,10 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                       />
                     </div>
                     <div className="space-y-2">
-                      <label>GPA (Optional)</label>
+                      <label htmlFor={`gpa-${edu.id}`}>GPA</label>
                       <input
+                        id={`gpa-${edu.id}`}
+                        type="number"
                         value={edu.gpa}
                         onChange={(e) => updateEducation(edu.id, "gpa", e.target.value)}
                         placeholder="3.8/4.0"
@@ -92,8 +99,10 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                       />
                     </div>
                     <div className="space-y-2">
-                      <label>Location</label>
+                      <label htmlFor={`location-${edu.id}`}>Location*</label>
                       <input
+                        id={`location-${edu.id}`}
+                        required
                         value={edu.location}
                         onChange={(e) => updateEducation(edu.id, "location", e.target.value)}
                         placeholder="City, State/Country"
@@ -101,8 +110,10 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                       />
                     </div>
                     <div className="space-y-2">
-                      <label>Start Date</label>
+                      <label htmlFor={`startDate-${edu.id}`}>Start Date*</label>
                       <input
+                        id={`startDate-${edu.id}`}
+                        required
                         type="date"
                         value={edu.startDate}
                         onChange={(e) => updateEducation(edu.id, "startDate", e.target.value)}
@@ -110,8 +121,9 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                       />
                     </div>
                     <div className="space-y-2">
-                      <label>End Date</label>
+                      <label htmlFor={`endDate-${edu.id}`}>End Date</label>
                       <input
+                        id={`endDate-${edu.id}`}
                         type="date"
                         value={edu.endDate}
                         onChange={(e) => updateEducation(edu.id, "endDate", e.target.value)}

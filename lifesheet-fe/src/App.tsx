@@ -13,6 +13,7 @@ import { PlansPage } from './components/plans/plans-page'
 import { CheckoutPage } from './components/plans/checkout-page'
 import { ExportPdf } from './components/export-pdf'
 import TailoredCVs from './components/tailored-cvs'
+import { Onboarding } from './components/onboarding'
 
 function App() {
   const { isAuthenticated, getAccessTokenSilently, isLoading:isAuthLoading, logout } = useAuth0()
@@ -50,6 +51,7 @@ if( isAuthenticated && !hasToken || isAuthLoading) {
       <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/export-pdf" element={<ExportPdf />} />
       <Route path="/tailored-cvs" element={<TailoredCVs />} />
+      <Route path="/onboarding" element={<Onboarding />} />
     </Routes>
   )
  

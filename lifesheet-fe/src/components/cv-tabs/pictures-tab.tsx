@@ -1,5 +1,7 @@
 import { FileText, Upload, Trash2 } from "lucide-react"
 import { SecureImg } from "../ui/secure-img"
+import { useState } from "react"
+
 interface PicturesTabProps {
   pictures: string[]
   isUploadingPicture: boolean
@@ -13,6 +15,39 @@ export function PicturesTab({
   handlePictureUpload,
   handleDeletePicture
 }: PicturesTabProps) {
+  const [isDraggingOver, setIsDraggingOver] = useState(false)
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+  }
+
+  const handleDragEnter = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    setIsDraggingOver(true)
+  }
+
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    setIsDraggingOver(false)
+  }
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    setIsDraggingOver(false)
+
+    const files = event.dataTransfer.files
+    if (files && files.length > 0) {
+      const syntheticEvent = {
+        target: { files },
+      } as unknown as React.ChangeEvent<HTMLInputElement>
+      handlePictureUpload(syntheticEvent)
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="border rounded-lg p-6 card-hover bg-gradient-subtle">
@@ -22,7 +57,15 @@ export function PicturesTab({
         </div>
 
         {/* Upload Section */}
-        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center mb-6">
+        <div
+          onDragOver={handleDragOver}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`border-2 border-dashed rounded-lg p-8 text-center mb-6 transition-colors ${
+            isDraggingOver ? "border-primary bg-primary/10" : "border-muted-foreground/25"
+          }`}
+        >
           <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
           <div className="space-y-2">
             <label htmlFor="picture-upload" className="cursor-pointer">

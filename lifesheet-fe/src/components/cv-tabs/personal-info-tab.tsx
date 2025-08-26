@@ -19,10 +19,11 @@ export function PersonalInfoTab({ isEditing, personalInfo, setPersonalInfo, cv }
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label htmlFor="fullName">Full Name</label>
+              <label htmlFor="fullName">Full Name*</label>
               {isEditing ? (
                 <input
                   id="fullName"
+                  required
                   value={personalInfo.fullName}
                   onChange={(e) => setPersonalInfo({ ...personalInfo, fullName: e.target.value })}
                   placeholder="John Doe"
@@ -33,7 +34,7 @@ export function PersonalInfoTab({ isEditing, personalInfo, setPersonalInfo, cv }
               )}
             </div>
             <div className="space-y-2">
-              <label htmlFor="title">Title (Optional)</label>
+              <label htmlFor="title">Title</label>
               {isEditing ? (
                 <input
                   id="title"
@@ -47,11 +48,12 @@ export function PersonalInfoTab({ isEditing, personalInfo, setPersonalInfo, cv }
               )}
             </div>
             <div className="space-y-2">
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">Email*</label>
               {isEditing ? (
                 <input
                   id="email"
                   type="email"
+                  required
                   value={personalInfo.email}
                   onChange={(e) => setPersonalInfo({ ...personalInfo, email: e.target.value })}
                   placeholder="john@example.com"

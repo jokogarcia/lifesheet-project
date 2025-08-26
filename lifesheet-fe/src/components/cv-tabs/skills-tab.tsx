@@ -71,6 +71,7 @@ export function SkillsTab({
               <div className="flex gap-2">
                 <input
                   value={newSkill.name}
+                  required
                   onChange={(e) => setNewSkill({ ...newSkill, name: e.target.value })}
                   placeholder="Skill name (e.g., JavaScript, Project Management)"
                   className="flex-1 border rounded-lg p-2 placeholder-gray-500"
@@ -111,6 +112,7 @@ export function SkillsTab({
                 <h4 className="font-semibold text-lg mb-4">Language Skills</h4>
                 <div className="flex gap-2 mb-4">
                   <input
+                    required
                     value={newLanguageSkill.language}
                     onChange={(e) => setNewLanguageSkill({ ...newLanguageSkill, language: e.target.value })}
                     placeholder="Language (e.g., English, Spanish, French)"

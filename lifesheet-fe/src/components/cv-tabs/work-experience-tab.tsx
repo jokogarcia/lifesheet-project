@@ -90,26 +90,31 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label>Company</label>
+                      <label htmlFor={`company-${exp.id}`}>Company*</label>
                       <input
+                        id={`company-${exp.id}`}
                         value={exp.company}
+                        required
                         onChange={(e) => updateWorkExperience(exp.id, "company", e.target.value)}
                         placeholder="Company Name"
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label>Position</label>
+                      <label htmlFor={`position-${exp.id}`}>Position*</label>
                       <input
+                        id={`position-${exp.id}`}
                         value={exp.position}
+                        required
                         onChange={(e) => updateWorkExperience(exp.id, "position", e.target.value)}
                         placeholder="Job Title"
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label>Location</label>
+                      <label htmlFor={`location-${exp.id}`}>Location</label>
                       <input
+                        id={`location-${exp.id}`}
                         value={exp.location || ""}
                         onChange={(e) => updateWorkExperience(exp.id, "location", e.target.value)}
                         placeholder="City, State/Country"
@@ -117,8 +122,10 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                       />
                     </div>
                     <div className="space-y-2">
-                      <label>Start Date</label>
+                      <label htmlFor={`startDate-${exp.id}`}>Start Date*</label>
                       <input
+                        id={`startDate-${exp.id}`}
+                        required
                         type="date"
                         value={exp.startDate}
                         onChange={(e) => updateWorkExperience(exp.id, "startDate", e.target.value)}
@@ -126,8 +133,9 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                       />
                     </div>
                     <div className="space-y-2">
-                      <label>End Date</label>
+                      <label htmlFor={`endDate-${exp.id}`}>End Date</label>
                       <input
+                        id={`endDate-${exp.id}`}
                         type="date"
                         value={exp.endDate}
                         onChange={(e) => updateWorkExperience(exp.id, "endDate", e.target.value)}
@@ -146,8 +154,9 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                     <label htmlFor={`current-${exp.id}`}>Currently working here</label>
                   </div>
                   <div className="space-y-2">
-                    <label>Job Description</label>
+                    <label htmlFor={`description-${exp.id}`}>Job Description</label>
                     <textarea
+                      id={`description-${exp.id}`}
                       value={exp.description}
                       onChange={(e) => updateWorkExperience(exp.id, "description", e.target.value)}
                       placeholder="Describe your responsibilities and achievements..."
@@ -156,7 +165,7 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                     />
                   </div>
                   <div className="space-y-2">
-                    <label>Key Achievements (Optional)</label>
+                    <label>Key Achievements</label>
                     <div className="space-y-2">
                       {(exp.achievements || []).map((achievement, achIndex) => (
                         <div key={achIndex} className="flex gap-2">
