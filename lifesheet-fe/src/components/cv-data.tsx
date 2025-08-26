@@ -26,7 +26,7 @@ import {
   PicturesTab
 } from "./cv-tabs"
 
-export function CVMainDashboard() {
+export function CVData() {
   const { user } = useAuth0()
   const navigate = useNavigate()
 
@@ -195,26 +195,7 @@ export function CVMainDashboard() {
             <p className="text-muted-foreground">Welcome back, {user?.name || user?.email}</p>
           </div>
           <div className="flex gap-2 ">
-            {!isEditing && cv && (
-              <>
-                <Button onClick={handleStartEditing} variant="outline" className="btn-custom">
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit CV
-                </Button>
-                <Button onClick={() => navigate("/tailor-cv")} variant="outline" className="btn-custom">
-                  <Briefcase className="h-4 w-4 mr-2" />
-                  Tailor to a Job
-                </Button>
-                <Button onClick={() => navigate("/export-pdf")} variant="outline" className="btn-custom">
-                  <FileDown className="h-4 w-4 mr-2" />
-                  Export as PDF
-                </Button>
-                <Button onClick={() => navigate("/plans")} variant="outline" className="btn-custom">
-                  <Award className="h-4 w-4 mr-2" />
-                  Subscription Plans
-                </Button>
-              </>
-            )}
+            
             <LogoutButton />
           </div>
         </div>

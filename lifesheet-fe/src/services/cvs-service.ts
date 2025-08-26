@@ -64,7 +64,7 @@ export interface CV {
 }
 export interface CVListItem{
     _id: string,
-    createdAt: string,
+    updatedAt: string,
     hasCoverLetter: boolean,
     companyName: string
   }

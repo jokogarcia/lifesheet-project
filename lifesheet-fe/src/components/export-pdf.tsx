@@ -11,7 +11,7 @@ import userService from "@/services/user-service"
 export function ExportPdf() {
     const queryParams = new URLSearchParams(useLocation().search);
     const [isSettingsVisible, setIsSettingsVisible] = useState(true)
-    const { cv: originalCV, isLoading } = useUserCV(queryParams.get("cvId") || undefined)
+    const { cv: originalCV, isLoading , error:cvError} = useUserCV(queryParams.get("cvId") || undefined)
     const navigate = useNavigate()
     const [cv, setCV] = useState<CV | null>(originalCV)
     const [printMode, setPrintMode] = useState(false)
@@ -52,6 +52,24 @@ export function ExportPdf() {
             setPrintMode(false);
         }
     }
+    
+    async function handlePictureSelected(pictureId: string | undefined): Promise<void> {
+        setPdfOptions({ pictureId, ...pdfOptions });
+        if (cv) {
+            const shareUrl = pictureId ? await userService.getPictureShareLink(pictureId) : "";
+            setCV({ ...cv, personal_info: { ...cv.personal_info, profilePictureUrl: shareUrl } });
+            console.log("Got picture URL:", shareUrl)
+        }
+    }
+    if(cvError){
+        return (
+        <div ><div className="text-sm text-red-500">Unable to load this CV</div>
+        <Button onClick={() => navigate("/")} variant="outline" className="btn-custom">
+            Go back
+        </Button>
+        </div>
+        )
+    }
     if (isLoading || !cv) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -62,15 +80,6 @@ export function ExportPdf() {
             </div>
         )
     }
-    async function handlePictureSelected(pictureId: string | undefined): Promise<void> {
-        setPdfOptions({ pictureId, ...pdfOptions });
-        if (cv) {
-            const shareUrl = pictureId ? await userService.getPictureShareLink(pictureId) : "";
-            setCV({ ...cv, personal_info: { ...cv.personal_info, profilePictureUrl: shareUrl } });
-            console.log("Got picture URL:", shareUrl)
-        }
-    }
-
     return (
         <div className="max-w-6xl mx-auto p-6 space-y-6 text-align-left">
             {/* Header */}

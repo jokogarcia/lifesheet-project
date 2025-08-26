@@ -3,7 +3,7 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { Routes, Route } from 'react-router-dom'
 
 import './App.css'
-import { CVMainDashboard } from './components/cv-main-dashboard'
+import { CVData } from './components/cv-data'
 import { Welcome } from './components/welcome'
 import { useEffect, useState } from 'react'
 import cvsService from './services/cvs-service'
@@ -14,6 +14,7 @@ import { CheckoutPage } from './components/plans/checkout-page'
 import { ExportPdf } from './components/export-pdf'
 import TailoredCVs from './components/tailored-cvs'
 import { Onboarding } from './components/onboarding'
+import { Dashboard } from './components/dashboard'
 
 function App() {
   const { isAuthenticated, getAccessTokenSilently, isLoading:isAuthLoading, logout } = useAuth0()
@@ -45,7 +46,8 @@ if( isAuthenticated && !hasToken || isAuthLoading) {
   
   return (
     <Routes>
-      <Route path="/" element={<CVMainDashboard />} />
+      <Route path="/" element={<Dashboard />} />
+      <Route path="/cv-data" element={<CVData />} />
       <Route path="/tailor-cv" element={<TailorCV />} />
       <Route path="/plans" element={<PlansPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
