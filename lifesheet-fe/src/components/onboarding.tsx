@@ -30,7 +30,7 @@ export const Onboarding = () => {
       setCurrentStep(currentStep + 1);
     } else {
       await handleSave();
-      await navigate("/dashboard");
+      await navigate("/plans");
     }
   };
   // Form state
