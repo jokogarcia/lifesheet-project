@@ -105,14 +105,14 @@ export const getUsersTailoredCvs = async (req: Request, res: Response, next: Nex
         if (!userInfo) {
             throw new ApiError(404, "User Not Found")
         }
-        let cvs = await CV.find({ user_id: userId, deletedAt: null, tailored: { $exists: true } }).populate('tailored.jobDescription_id', 'companyName');
+        let cvs = await CV.find({ user_id: userId, deletedAt: null, tailored: { $exists: true } }).populate('tailored.jobDescription_id');
         const response = cvs.map(cv => {
             // Safely handle populated document or string ID
             let jobDescription: any = cv.tailored!.jobDescription_id;
             const companyName = jobDescription.companyName as string || 'Unknown Company';
             return {
                 _id: cv._id,
-                createdAt: cv.created_at,
+                updatedAt: cv.updated_at,
                 hasCoverLetter: !!(cv.tailored!.coverLetter),
                 companyName
             };
@@ -261,16 +261,17 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
         if (!r || !r.tailored_cv) {
             throw new ApiError(500, 'Failed to tailor CV');
         }
-        if (includeCoverLetter) {
-            const coverLetter = await cvTailoringService.generateCoverLetter(r.tailored_cv, jobDescription, userId, companyName);
-            r.tailored_cv.tailored!.coverLetter = coverLetter;
-        }
+        
         const tailoredCv = r.tailored_cv;
         tailoredCv.tailored = {
             jobDescription_id: jobDescriptionId,
             tailoredDate: new Date(),
             updatedByUser: false
         };
+        if (includeCoverLetter) {
+            const coverLetter = await cvTailoringService.generateCoverLetter(r.tailored_cv, jobDescription, userId, companyName);
+            tailoredCv.tailored.coverLetter = coverLetter;
+        }
         const { _id: tailoredCvId } = await CV.create(tailoredCv);
         const { _id: consumptionId } = await Consumption.create({
             userId,

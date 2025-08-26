@@ -192,7 +192,7 @@ const cvSchema = new Schema(
       fontSize: String,
     },
     tailored: {
-      jobDescription_id: String,
+      jobDescription_id:  { type: Schema.Types.ObjectId, ref: 'JobDescription' },
       tailoredDate: Date,
       updatedByUser: Boolean,
     },

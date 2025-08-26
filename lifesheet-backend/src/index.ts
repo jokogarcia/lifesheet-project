@@ -12,12 +12,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { PDFService } from './services/pdf-service';
 import { constants } from './constants'
-//TODO:
-// consolidate all constants in a constants.ts file [DONE]
-// replace uses of hardcoded localhost:3000 api url [DONE]
-// configure docker compose with nginx reverse proxy
-// test that everything works
-// design api contract with agent
+
 const app: Express = express();
 
 // Graceful shutdown handlers
