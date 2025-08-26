@@ -144,9 +144,9 @@ const cvSchema = new Schema(
       {
         // client supplies a stable id for front-end tracking
         id: String,
-        company: String,
-        position: String,
-        startDate: String,
+        company: { type: String, required: true },
+        position: { type: String, required: true },
+        startDate: { type: String, required: true },
         endDate: String,
         current: Boolean,
         description: String,
