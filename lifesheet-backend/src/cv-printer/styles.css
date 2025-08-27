@@ -1,7 +1,6 @@
 /*!IMPORTANT: this file needs to be synchronized with
 the file cv-previewer.module.css in the frontend. 
 They should be identical*/
-
 :root {
     --primary-color: black;
     /* Azul para el nombre */
@@ -28,7 +27,6 @@ div.rootContainer {
     margin: 0;
     padding: 20px;
     background-color: white;
-    display: flex;
     justify-content: center;
     align-items: center;
     width: 210mm;
@@ -289,4 +287,25 @@ div.work-experience {
     width: 65%;
     /* Ancho del panel derecho */
     padding: 30px;
+}
+div.coverLetter {
+    width: 210mm;
+    padding: 1cm;
+    height:297mm;
+    background-color: var(--background-color);
+    break-after: always;
+    text-align: justify;
+    line-height: 1.5;
+    p {
+        margin-bottom: 0.5em;
+        font-size: 12pt;
+        font-family: 'Times New Roman', Times, serif;
+    }
+    p:first-child {
+        margin-bottom: 1em;
+    }
+    p:last-child {
+        margin-bottom: 0;
+        margin-top: 1em;
+    }
 }
