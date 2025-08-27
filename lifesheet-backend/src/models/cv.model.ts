@@ -193,6 +193,7 @@ const cvSchema = new Schema(
     },
     tailored: {
       jobDescription_id:  { type: Schema.Types.ObjectId, ref: 'JobDescription' },
+      coverLetter: String,
       tailoredDate: Date,
       updatedByUser: Boolean,
     },
