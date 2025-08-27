@@ -152,12 +152,13 @@ class CVsService {
   }
   
   // Tailor CV to job description
-  async tailorCV(jobDescription: string, companyName:string, includeCoverLetter:boolean): Promise<{cvId: string}> {
+  async tailorCV(jobDescription: string, companyName:string, includeCoverLetter:boolean, useAiTailoring:boolean): Promise<{cvId: string}> {
     console.log("🔄 CVsService: Tailoring CV to job description...")
     const response = await this.client.post<{cvId: string}>('/user/me/cv/tailor', { 
       jobDescription,
       companyName,
-      includeCoverLetter 
+      includeCoverLetter,
+      useAiTailoring
     })
     if (!response.data) {
       throw new Error("Failed to tailor CV")

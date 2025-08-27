@@ -214,6 +214,7 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
             throw new ApiError(400, 'Company name is required.');
         }
         const includeCoverLetter = !!req.body.includeCoverLetter;
+        const useAiTailoring = !!req.body.useAiTailoring
         const canDo = await checkUserCanDoOperation(userId);
         if (!canDo.canOperate) {
             const retryAfter = canDo.reason === "Daily limit reached" ? getSecondsUntilTomorrow() : getSecondsUntilNextWeek();
@@ -257,7 +258,7 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
         }
         let mainCv = await CV.findOne({ user_id: userId, deletedAt: null, tailored: { $exists: false } });
         if (!mainCv) throw new ApiError(500, 'Main CV not found');
-        const r = await cvTailoringService.tailorCV(mainCv, jobDescription);
+        const r = await cvTailoringService.tailorCV(mainCv, jobDescription, useAiTailoring);
         if (!r || !r.tailored_cv) {
             throw new ApiError(500, 'Failed to tailor CV');
         }

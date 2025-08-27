@@ -19,11 +19,12 @@ export function TailorCV() {
   const [tailoredCVPDF, setTailoredCVPDF] = useState<Blob | null>(null)
   const [isTailoring, setIsTailoring] = useState(false)
   const [includeCoverLetter, setIncludeCoverLetter] = useState(false)
+  const [useAiTailoring, setUseAiTailoring] = useState(false)
   const [companyName, setCompanyName] = useState("")
   const [pictures, setPictures] = useState<string[]>([])
   const [isLoadingPictures, setIsLoadingPictures] = useState(false)
-  const [pdfOptions,setPdfOptions] =  useState<CVToPDFOptions>({})
-  const {canUseAI, isLoading: isLoadingSubscription} = useSaaSActiveSubscription();
+  const [pdfOptions, setPdfOptions] = useState<CVToPDFOptions>({})
+  const { canUseAI, isLoading: isLoadingSubscription } = useSaaSActiveSubscription();
   // Load user pictures
   useEffect(() => {
     const loadPictures = async () => {
@@ -41,7 +42,7 @@ export function TailorCV() {
   }, [])
 
   const handleTailorCV = async () => {
-    if(!canUseAI) {
+    if (!canUseAI) {
       alert("You have reached your usage limits for this feature.");
       navigate("/plans");
       return;
@@ -52,7 +53,7 @@ export function TailorCV() {
 
     try {
       // Call the real API endpoint to tailor the CV
-      const {cvId:tailoredCVId} = await cvsService.tailorCV(jobDescription, companyName, includeCoverLetter);
+      const { cvId: tailoredCVId } = await cvsService.tailorCV(jobDescription, companyName, includeCoverLetter, useAiTailoring);
       await navigate(`/export-pdf?cvId=${tailoredCVId}`);
 
     } catch (error) {
@@ -111,14 +112,23 @@ export function TailorCV() {
                 </div>
               </div>
               <input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Company Name" className="w-full border rounded-lg p-4 font-mono" />
-              <p className="text-left"><input type="checkbox" checked={includeCoverLetter} onChange={(e) => setIncludeCoverLetter(e.target.checked)} className="mt-4" /> Include Cover Letter</p>
+              <div className="flex items-center gap-6">
+                <span>
+                  <input type="checkbox" checked={includeCoverLetter} onChange={(e) => setIncludeCoverLetter(e.target.checked)} className="mt-4 mr-2" />
+                  Include Cover Letter
+                </span>
+                <span>
+                  <input type="checkbox" checked={useAiTailoring} onChange={(e) => setUseAiTailoring(e.target.checked)} className="mt-4 mr-2" />
+                  Tailor using AI
+                </span>
+              </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
                   <h3 className="font-semibold text-lg">Job Description</h3>
                 </div>
               </div>
-              <RichTextEditor content={jobDescription} onContentUpdate={setJobDescription} style={{height:'12em'}}/>
+              <RichTextEditor content={jobDescription} onContentUpdate={setJobDescription} style={{ height: '12em' }} />
 
               <div className="pt-2">
                 <p className="text-sm text-muted-foreground mb-2">
@@ -129,15 +139,15 @@ export function TailorCV() {
 
 
 
-             
+
           </div>
 
           <div className="space-y-4">
             <div className="border rounded-lg p-6 card-hover">
               <p className="mb-6">Click the button below to tailor your CV. You will be able to further customize it in the next step.</p>
-               {/* Tailor Button */}
+              {/* Tailor Button */}
               <div className="space-y-3">
-               
+
 
                 <Button
                   onClick={handleTailorCV}

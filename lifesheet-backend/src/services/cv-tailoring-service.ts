@@ -9,11 +9,18 @@ const systemPrompt = `You are a helpful assistant that tailors a candidate's CV 
 Focus on relevance, highlight matching skills/experience, and trim unrelated content.
 Preserve the original JSON structure and field naming when possible.`;
 
+type PlainCV = Omit<ICV, keyof Document>;
 
 export async function tailorCV(
     inputCV: ICV,
-    jobDescription: string
-): Promise<{ tailored_cv: ICV; tokens_used: number }> {
+    jobDescription: string,
+    useAiTailoring: boolean
+): Promise<{ tailored_cv: PlainCV; tokens_used: number }> {
+    if (!useAiTailoring) {
+        // If not using AI tailoring, return the original CV
+        const cvObject = inputCV.toObject();
+        return { tailored_cv: { ...cvObject, created_at: new Date(), updated_at: new Date(), _id: undefined }, tokens_used: 0 };
+    }
     // Require API key to be present
     if (!GEMINI_API_KEY) {
         throw new Error('GEMINI_API_KEY is not set. Configure constants.GEMINI_API_KEY before calling tailorCV.');
@@ -33,21 +40,21 @@ export async function tailorCV(
         text = text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1);
 
         if (!text) throw new Error('No text returned from model');
-        
+
         let tailored: any;
         try {
             tailored = JSON.parse(text);
             // Validate tailored CV structure
             if (!isValidCV(tailored)) {
-                if(attempts++>=2)
+                if (attempts++ >= 2)
                     throw new Error('Invalid CV structure returned from model');
                 const newPrompt = `The tailored CV is invalid. Please fix the following issues:\n\n${JSON.stringify(tailored, null, 2)}\n\nOriginal CV (JSON):\n${JSON.stringify(inputCV)}\n\nOutput ONLY valid JSON. Do not include backticks or any commentary.`;
                 throw new Error("Alternative path not implemented")
             }
         } catch (e) {
-            if(e instanceof SyntaxError) {
+            if (e instanceof SyntaxError) {
                 console.error('Syntax error in model output:', e);
-                console.error("Attempted to parse: ",text)
+                console.error("Attempted to parse: ", text)
 
             }
             throw new Error('Failed to parse JSON from model output: ' + String(e));
