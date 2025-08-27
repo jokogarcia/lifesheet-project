@@ -2,13 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, FileText, Wand2, Maximize, Printer, User, Check } from "lucide-react"
+import { ArrowLeft, FileText, Wand2 } from "lucide-react"
 import { useUserCV } from "@/hooks/use-cv"
 import { useNavigate } from "react-router-dom"
-import ReactMarkdown from "react-markdown"
 import cvsService, { type CVToPDFOptions } from "@/services/cvs-service"
 import userService from "@/services/user-service"
-import { SecureImg } from "@/components/ui/secure-img"
 import { useSaaSActiveSubscription } from "@/hooks/use-saas"
 import RichTextEditor from "./ui/editor"
 
