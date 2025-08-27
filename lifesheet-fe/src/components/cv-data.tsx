@@ -7,17 +7,15 @@ import {
   Award,
   FileText,
   Save,
-  Edit,
   AlertCircle,
   Plus,
-  FileDown,
+  ArrowLeft,
 } from "lucide-react"
 import { useUserCV } from "../hooks/use-cv"
 import type { PersonalInfo, WorkExperience, Education, Skill, LanguageSkill } from "../services/cvs-service"
 import { useAuth0 } from "@auth0/auth0-react"
 import { useNavigate } from "react-router-dom"
 import userService from "../services/user-service"
-import LogoutButton from "./logout-button"
 import {
   PersonalInfoTab,
   WorkExperienceTab,
@@ -194,10 +192,12 @@ export function CVData() {
             <h1 className="text-3xl text-gradient">My CV Data</h1>
             <p className="text-muted-foreground">Welcome back, {user?.name || user?.email}</p>
           </div>
-          <div className="flex gap-2 ">
-            
-            <LogoutButton />
-          </div>
+          <div className="flex gap-2">
+          <Button onClick={() => navigate("/")} variant="outline" className="btn-custom">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Dashboard
+          </Button>
+        </div>
         </div>
 
         {/* Messages */}
