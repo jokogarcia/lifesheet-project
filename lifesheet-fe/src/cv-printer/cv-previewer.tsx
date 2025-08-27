@@ -30,8 +30,11 @@ export function CVPreviewer({ cvData, options, printMode, onHtmlUpdate }: CVPrev
     const cssVars = getStyleOverrides(options);
 
     return <div className={moduleStyles.reset}>
-        <div  id="rendered-cv-container" className={`${moduleStyles.rootContainer} ${printMode ? moduleStyles.printable : ""}`}
+        
+        <div  id="rendered-cv-container" 
+        className={`${moduleStyles.rootContainer} ${printMode ? moduleStyles.printable : ""}`}
             style={cssVars}>
+                <CoverLetter text={cvData.tailored?.coverLetter || ""} />
             {template.startsWith("two-column") && renderTwoColumns({ cvData, options, printMode })}
             {template.startsWith("single-column") && renderOneColumn({ cvData, options, printMode })}
         </div>
@@ -126,7 +129,9 @@ export function renderTwoColumns({ cvData, options, printMode }: CVPreviewerProp
 }
 export function renderOneColumn({ cvData, options, printMode }: CVPreviewerProps) {
     
-    return (<div
+    return (
+    
+    <div
         className={`container one-column ${printMode?'printable':''} ${moduleStyles.container} ${moduleStyles['one-column']} ${printMode ? moduleStyles.printable : ''}`}>
         
         <div className={`${moduleStyles.header} header`}>
@@ -198,4 +203,15 @@ export function renderOneColumn({ cvData, options, printMode }: CVPreviewerProps
 
     </div>)
 
+}
+const CoverLetter = ({text}: {text: string})=>{
+    const lines = text.split('\n').filter(line => line.trim() !== '');
+    if(!lines.length) return null;
+    return (
+        <div className={`${moduleStyles.coverLetter} coverLetter`}>
+            {lines.map((line, index) => (
+                <p key={index}>{line}</p>
+            ))}
+        </div>
+    )
 }

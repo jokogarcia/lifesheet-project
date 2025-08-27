@@ -1,20 +1,22 @@
 import { useUserCV } from "@/hooks/use-cv"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "./ui/button"
-import { ArrowDown, ArrowLeft, ChevronDown, Settings } from "lucide-react"
+import { ArrowDown, ArrowLeft, ChevronDown, File, FileX, Settings, Sheet } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { cvsService, type CV, type CVToPDFOptions } from "@/services/cvs-service"
 import PictureSelector from "@/components/export/picture-selector"
 import { CVPreviewer } from "@/cv-printer/cv-previewer"
 import userService from "@/services/user-service"
-
+import RichTextEditor from "./ui/editor"
 export function ExportPdf() {
     const queryParams = new URLSearchParams(useLocation().search);
     const [isSettingsVisible, setIsSettingsVisible] = useState(true)
-    const { cv: originalCV, isLoading , error:cvError} = useUserCV(queryParams.get("cvId") || undefined)
+    const { cv: originalCV, isLoading, error: cvError } = useUserCV(queryParams.get("cvId") || undefined)
     const navigate = useNavigate()
     const [cv, setCV] = useState<CV | null>(originalCV)
     const [printMode, setPrintMode] = useState(false)
+    const [coverLetter, setCoverLetter] = useState("")
+    const [isCoverLetterVisible, setIsCoverLetterVisible] = useState(true)
     const [pdfOptions, setPdfOptions] = useState<CVToPDFOptions>({
         primaryColorOverride: "#3b82f6",
         secondaryColorOverride: "#f97316",
@@ -27,11 +29,26 @@ export function ExportPdf() {
 
     })
     useEffect(() => {
+        if(!originalCV) return;
         setCV(originalCV);
+        if (originalCV.tailored?.coverLetter) {
+            setCoverLetter(originalCV.tailored.coverLetter);
+
+        }
+        else {
+            setIsCoverLetterVisible(false);
+        }
     }, [originalCV]);
+
+    useEffect(() => {
+        if (cv?.tailored) {
+            setCV({ ...cv, tailored: { ...cv.tailored, coverLetter: isCoverLetterVisible ? coverLetter : "" } });
+        }
+    }, [coverLetter, isCoverLetterVisible]);
     const previewRef = useRef<HTMLDivElement>(null)
 
     async function handleSave() {
+
         setPrintMode(true);
         try {
             const html = document.getElementById("rendered-cv-container")?.outerHTML;
@@ -52,7 +69,7 @@ export function ExportPdf() {
             setPrintMode(false);
         }
     }
-    
+
     async function handlePictureSelected(pictureId: string | undefined): Promise<void> {
         setPdfOptions({ pictureId, ...pdfOptions });
         if (cv) {
@@ -61,13 +78,13 @@ export function ExportPdf() {
             console.log("Got picture URL:", shareUrl)
         }
     }
-    if(cvError){
+    if (cvError) {
         return (
-        <div ><div className="text-sm text-red-500">Unable to load this CV</div>
-        <Button onClick={() => navigate("/")} variant="outline" className="btn-custom">
-            Go back
-        </Button>
-        </div>
+            <div ><div className="text-sm text-red-500">Unable to load this CV</div>
+                <Button onClick={() => navigate("/")} variant="outline" className="btn-custom">
+                    Go back
+                </Button>
+            </div>
         )
     }
     if (isLoading || !cv) {
@@ -96,9 +113,17 @@ export function ExportPdf() {
 
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-xs" style={{ textAlign: "left" }}>
-                <div className="border rounded-lg p-4 card-hover bg-gradient-subtle">
+                <div className="card-hover bg-gradient-subtle">
                     <div className="flex items-center gap-3 mb-2 hover:cursor-pointer hover:bg-gray-100"
-                            onClick={() => setIsSettingsVisible(!isSettingsVisible)}>
+                        onClick={() => setIsCoverLetterVisible(!isCoverLetterVisible)}>
+                        {isCoverLetterVisible ? <File className="h-5 w-5 text-gray-600" /> : <FileX className="h-5 w-5 text-gray-600" />}
+                        <h3 className="text-base font-medium" style={{ opacity: isCoverLetterVisible ? 1 : 0.5 }}>Cover Letter</h3>
+                        <ChevronDown className={`h-5 w-5 text-gray-600 transition-transform ${isCoverLetterVisible ? "rotate-180" : ""}`} />
+                    </div>
+                    <RichTextEditor content={coverLetter} onContentUpdate={setCoverLetter} style={{ height: isCoverLetterVisible ? "500px" : "0px", display: isCoverLetterVisible ? "block" : "none" }} />
+
+                    <div className="flex items-center gap-3 mb-2 hover:cursor-pointer hover:bg-gray-100"
+                        onClick={() => setIsSettingsVisible(!isSettingsVisible)}>
                         <Settings className="h-5 w-5 text-gray-600" />
                         <h3 className="text-base font-medium">Customize</h3>
                         <ChevronDown className={`h-5 w-5 text-gray-600 transition-transform ${isSettingsVisible ? "rotate-180" : ""}`} />

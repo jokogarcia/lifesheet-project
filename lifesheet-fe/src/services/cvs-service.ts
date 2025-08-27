@@ -60,7 +60,12 @@ export interface CV {
   created_at: string
   updated_at: string
   user_id: string,
-  coverLetter?:string
+  tailored?:{
+    coverLetter?: string
+    jobDescription_id?: string
+    tailoredDate?: string
+    updatedByUser?: string
+  }
 }
 export interface CVListItem{
     _id: string,
