@@ -147,7 +147,7 @@ export const getUserTailoredCV = async (req: Request, res: Response, next: NextF
     try {
         const userId = resolveUserId(req);
         const cvId = req.params.cvId;
-        const cv = await CV.findOne({ user_id: userId, deletedAt: null, _id: cvId, tailored: { $exists: true } });
+        const cv = await CV.findOne({ user_id: userId, deletedAt: null, _id: cvId, tailored: { $exists: true } }).populate('tailored.jobDescription_id');
         if (!cv) throw new ApiError(404, 'CV not found');
         res.json(cv);
     } catch (err) {
