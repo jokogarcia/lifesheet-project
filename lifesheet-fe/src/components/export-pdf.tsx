@@ -3,11 +3,12 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "./ui/button"
 import { ArrowDown, ArrowLeft, ChevronDown, File, FileX, Settings, Sheet } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
-import { cvsService, type CV, type CVToPDFOptions } from "@/services/cvs-service"
+import { cvsService, type CV, type CVToPDFOptions, type TailoredData } from "@/services/cvs-service"
 import PictureSelector from "@/components/export/picture-selector"
 import { CVPreviewer } from "@/cv-printer/cv-previewer"
 import userService from "@/services/user-service"
 import RichTextEditor from "./ui/editor"
+import ReactMarkdown from "react-markdown"
 export function ExportPdf() {
     const queryParams = new URLSearchParams(useLocation().search);
     const [isSettingsVisible, setIsSettingsVisible] = useState(true)
@@ -222,11 +223,23 @@ export function ExportPdf() {
                     </div>
                 </div>
             </div>
-
+            {cv.tailored && <TailoredForSection data={cv.tailored}></TailoredForSection>}
         </div>
     )
 
 }
 
-
-
+function TailoredForSection({ data }: { data: TailoredData }) {
+    if (!data || !data.jobDescription_id || typeof data.jobDescription_id === "string") return null;
+    return (
+        <div className="border-t border-gray-200 pt-4 text-left">
+            <h3 className="text-lg font-medium">Tailored For {data.jobDescription_id.companyName}</h3>
+            <p className="text-sm text-muted-foreground">On {new Date(data.tailoredDate).toLocaleDateString()}</p>
+            <p className="text-sm text-muted-foreground">Job Description:</p>
+            <div className="border-l-2 border-gray-200 pl-4">
+                <ReactMarkdown>{data.jobDescription_id.content}</ReactMarkdown>
+            </div>
+            
+        </div>
+    )
+}

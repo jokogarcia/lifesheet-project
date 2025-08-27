@@ -60,12 +60,7 @@ export interface CV {
   created_at: string
   updated_at: string
   user_id: string,
-  tailored?:{
-    coverLetter?: string
-    jobDescription_id?: string
-    tailoredDate?: string
-    updatedByUser?: string
-  }
+  tailored?: TailoredData
 }
 export interface CVListItem{
     _id: string,
@@ -216,3 +211,21 @@ class CVsService {
 // Export a singleton instance
 export const cvsService = new CVsService()
 export default cvsService
+
+export interface JobDescription {
+  _id: string;
+  userId: string;
+  content: string;
+  companyName: string;
+  deletedAt: Date | null;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export interface TailoredData {
+  jobDescription_id: JobDescription | string;
+  coverLetter: string;
+  tailoredDate: string;
+  updatedByUser: boolean;
+}
