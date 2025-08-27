@@ -10,6 +10,7 @@ import cvsService, { type CVToPDFOptions } from "@/services/cvs-service"
 import userService from "@/services/user-service"
 import { SecureImg } from "@/components/ui/secure-img"
 import { useSaaSActiveSubscription } from "@/hooks/use-saas"
+import RichTextEditor from "./ui/editor"
 
 export function TailorCV() {
   const { cv, isLoading } = useUserCV()
@@ -117,15 +118,7 @@ export function TailorCV() {
                   <h3 className="font-semibold text-lg">Job Description</h3>
                 </div>
               </div>
-
-              <textarea
-                value={jobDescription}
-                onChange={(e) => setJobDescription(e.target.value)}
-                placeholder="Paste the job description here... Markdown formatting is supported."
-                rows={12}
-                  className="w-full border rounded-lg p-4 font-mono"
-                />
-              
+              <RichTextEditor content={jobDescription} onContentUpdate={setJobDescription} style={{height:'12em'}}/>
 
               <div className="pt-2">
                 <p className="text-sm text-muted-foreground mb-2">
