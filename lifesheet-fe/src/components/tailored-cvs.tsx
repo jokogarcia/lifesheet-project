@@ -1,29 +1,11 @@
 import { useNavigate } from "react-router-dom"
 import { useUsersTailoredCVs } from "@/hooks/use-users-tailored-cvs"
 import { Button } from "./ui/button"
-import { ArrowLeft, Plus, UserRoundPen } from "lucide-react"
+import { Plus } from "lucide-react"
 
 export default function TailoredCVs() {
     const navigate = useNavigate()
     const { tailoredCVs, isLoading, error } = useUsersTailoredCVs()
-
-    function formatCompany(item: Partial<Record<string, any>>) {
-        return (
-            // try several common property names
-            (item as any).company || (item as any).company_name || (item as any).targetCompany || "Unknown"
-        )
-    }
-
-    function formatDate(item: Partial<Record<string, any>>) {
-        const d = (item as any).created_at || (item as any).createdAt || (item as any).created || (item as any).date
-        if (!d) return "Unknown date"
-        try {
-            const dt = new Date(d)
-            return dt.toLocaleString()
-        } catch {
-            return String(d)
-        }
-    }
 
     return (
         <div className="max-w-4xl mx-auto p-6">

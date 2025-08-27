@@ -1,7 +1,6 @@
 import * as React from "react"
 import { Check, User } from "lucide-react"
 import { SecureImg } from "@/components/ui/secure-img"
-import type { CVToPDFOptions } from "@/services/cvs-service"
 import { useEffect } from "react"
 import userService from "@/services/user-service"
 
@@ -54,7 +53,7 @@ export function PictureSelector({onPictureSelected}:PictureSelectorProps) {
           <p className="text-muted-foreground">No pictures uploaded yet</p>
           <p className="text-sm text-muted-foreground">Upload pictures in your CV dashboard first</p>
         </div>
-      ) : !!error ? (
+      ) : error ? (
         <div className="text-center py-8">
           <p className="text-sm text-red-500">{error}</p>
         </div>

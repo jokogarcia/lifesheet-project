@@ -35,7 +35,7 @@ function App() {
         })
         
     }
-  }, [isAuthenticated, getAccessTokenSilently])
+  }, [isAuthenticated, getAccessTokenSilently, logout])
 
 if( isAuthenticated && !hasToken || isAuthLoading) {
   return <div>Authenticating...</div>

@@ -1,7 +1,7 @@
 import { useUserCV } from "@/hooks/use-cv"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "./ui/button"
-import { ArrowDown, ArrowLeft, ChevronDown, File, FileX, Settings, Sheet } from "lucide-react"
+import { ArrowDown, ArrowLeft, ChevronDown, File, FileX, Settings } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { cvsService, type CV, type CVToPDFOptions, type TailoredData } from "@/services/cvs-service"
 import PictureSelector from "@/components/export/picture-selector"

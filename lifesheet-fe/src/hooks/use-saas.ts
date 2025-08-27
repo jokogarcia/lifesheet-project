@@ -16,7 +16,7 @@ export function useSaasPlans() {
         const plans = await SaasService.getSaaSPlans(token)
         setSaasPlans(plans)
         setIsLoading(false)
-    }, [])
+    }, [auth])
 
     useEffect(() => {
         fetchSaaSPlans()
@@ -42,7 +42,7 @@ export function useSaaSActiveSubscription(){
         setThisWeeksConsumptions(thisWeeksConsumptions)
         setCanUseAI((dailyRateLimit !== -1 && todaysConsumptions < dailyRateLimit) && (weeklyRateLimit === -1 || thisWeeksConsumptions < weeklyRateLimit))
         setIsLoading(false)
-    }, [])
+    }, [auth])
 
     useEffect(() => {
         fetchActiveSubscription()

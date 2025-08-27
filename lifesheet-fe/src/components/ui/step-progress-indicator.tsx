@@ -12,7 +12,7 @@ export const StepProgressIndicator = (props: StepProgressIndicatorProps) => {
       <ul className={moduleStyles.progressbar}>
         {steps.map((step, index) => {
             let className ="";
-            if(!!onStepClick) className = moduleStyles.interactive;
+            if(onStepClick) className = moduleStyles.interactive;
             if(index < currentStep) className = moduleStyles.previous;
             if(index === currentStep) className = moduleStyles.active;
           return (

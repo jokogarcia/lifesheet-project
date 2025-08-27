@@ -1,12 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, FileText, Wand2 } from "lucide-react"
 import { useUserCV } from "@/hooks/use-cv"
 import { useNavigate } from "react-router-dom"
-import cvsService, { type CVToPDFOptions } from "@/services/cvs-service"
-import userService from "@/services/user-service"
+import cvsService from "@/services/cvs-service"
 import { useSaaSActiveSubscription } from "@/hooks/use-saas"
 import RichTextEditor from "./ui/editor"
 
@@ -14,30 +13,13 @@ export function TailorCV() {
   const { cv, isLoading } = useUserCV()
   const navigate = useNavigate()
   const [jobDescription, setJobDescription] = useState("")
-  const [tailoredCVPDF, setTailoredCVPDF] = useState<Blob | null>(null)
   const [isTailoring, setIsTailoring] = useState(false)
   const [includeCoverLetter, setIncludeCoverLetter] = useState(false)
   const [useAiTailoring, setUseAiTailoring] = useState(false)
   const [companyName, setCompanyName] = useState("")
-  const [pictures, setPictures] = useState<string[]>([])
-  const [isLoadingPictures, setIsLoadingPictures] = useState(false)
-  const [pdfOptions, setPdfOptions] = useState<CVToPDFOptions>({})
+
   const { canUseAI, isLoading: isLoadingSubscription } = useSaaSActiveSubscription();
-  // Load user pictures
-  useEffect(() => {
-    const loadPictures = async () => {
-      setIsLoadingPictures(true)
-      try {
-        const userPictures = await userService.getUserPictures()
-        setPictures(userPictures)
-      } catch (error) {
-        console.error("Error loading pictures:", error)
-      } finally {
-        setIsLoadingPictures(false)
-      }
-    }
-    loadPictures()
-  }, [])
+  
 
   const handleTailorCV = async () => {
     if (!canUseAI) {

@@ -85,7 +85,7 @@ export function CheckoutPage() {
             setError("Error occurred while initiating purchase");
         }
     }
-    if (!!purchasedSubscriptionId) {
+    if (purchasedSubscriptionId) {
         switch (purchasedSubscriptionState) {
             case "payment-pending":
                 return <h2>Processing payment</h2>
@@ -109,7 +109,7 @@ export function CheckoutPage() {
     if (isLoadingPlans || !selectedPlan) {
         return <div>Loading plans...</div>;
     }
-    if (!!error) {
+    if (error) {
         return <><div className="text-red-500">{error}</div>
             <div>
                 <Button onClick={() => navigate("/plans")}>Try again</Button>

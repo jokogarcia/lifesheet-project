@@ -53,7 +53,7 @@ function getStyleOverrides(options: CVToPDFOptions) {
 
     return cssVars;
 }
-export function renderTwoColumns({ cvData, options, printMode }: CVPreviewerProps) {
+export function renderTwoColumns({ cvData,  printMode }: CVPreviewerProps) {
 
     return (<div
         className={`two-column container ${printMode? 'printable':''} ${moduleStyles.container} ${moduleStyles['two-column']} ${printMode ? moduleStyles.printable : ""}`}>

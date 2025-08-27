@@ -22,7 +22,7 @@ export function useUserCV(cvId?:string) {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [cvId])
 
   const saveCV = async (cvData: CreateOrUpdateCVRequest): Promise<CV> => {
     try {

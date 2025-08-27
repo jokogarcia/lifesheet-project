@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { EditorState, convertToRaw, convertFromRaw, ContentState } from 'draft-js';
+import { EditorState, convertToRaw, convertFromRaw } from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
 import { markdownToDraft, draftToMarkdown } from 'markdown-draft-js';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
