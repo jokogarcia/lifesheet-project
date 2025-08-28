@@ -2,11 +2,11 @@ import { useNavigate } from "react-router-dom";
 import TailoredCVs from "./tailored-cvs";
 import { Button } from "./ui/button";
 import { Award, Download, LogOut, UserRoundPen } from "lucide-react";
-import { useAuth0 } from "@auth0/auth0-react";
+import { useAuth } from "@/hooks/auth-hook";
 
 export function Dashboard() {
     const navigate = useNavigate();
-    const { logout } = useAuth0();
+    const { logout } = useAuth();
     return (<>
         <div className="flex flex-row-reverse">
             <Button onClick={() => logout()} variant="outline" className="btn-custom">

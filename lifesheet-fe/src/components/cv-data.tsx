@@ -13,7 +13,7 @@ import {
 } from "lucide-react"
 import { useUserCV } from "../hooks/use-cv"
 import type { PersonalInfo, WorkExperience, Education, Skill, LanguageSkill } from "../services/cvs-service"
-import { useAuth0 } from "@auth0/auth0-react"
+import { useAuth } from "@/hooks/auth-hook";
 import { useNavigate } from "react-router-dom"
 import userService from "../services/user-service"
 import {
@@ -25,7 +25,7 @@ import {
 } from "./cv-tabs"
 
 export function CVData() {
-  const { user } = useAuth0()
+  const { user } = useAuth()
   const navigate = useNavigate()
 
   const { cv, isLoading, isSaving, error, saveCV } = useUserCV()

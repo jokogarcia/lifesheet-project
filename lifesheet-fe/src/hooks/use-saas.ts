@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react"
 import SaasService, { type SaaSSubscription, type SaaSPlan } from "@/services/saas-service"
-import { useAuth0 } from "@auth0/auth0-react"
+import { useAuth } from "@/hooks/auth-hook";
 export function useSaasPlans() {
     const [saasPlans, setSaasPlans] = useState<SaaSPlan[]>([])
     const [isLoading, setIsLoading] = useState(true)
-    const auth = useAuth0()
+    const auth = useAuth()
 
 
 
@@ -31,7 +31,7 @@ export function useSaaSActiveSubscription(){
     const [todaysConsumptions, setTodaysConsumptions] = useState(0);
     const [thisWeeksConsumptions, setThisWeeksConsumptions] = useState(0);
     const [canUseAI, setCanUseAI] = useState(false);
-    const auth = useAuth0()
+    const auth = useAuth()
 
     const fetchActiveSubscription = useCallback(async () => {
         setIsLoading(true)

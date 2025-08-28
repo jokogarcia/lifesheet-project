@@ -1,17 +1,16 @@
-import { useAuth0 } from "@auth0/auth0-react";
+import { useKeycloak } from "@react-keycloak/web";
 
 const Profile = () => {
-  const { user, isAuthenticated, isLoading } = useAuth0();
-
-  if (isLoading) {
+  const { keycloak, initialized } = useKeycloak();
+  if (!initialized) {
     return <div>Loading ...</div>;
   }
-
+  const user = keycloak?.tokenParsed;
   return (
-    isAuthenticated && !!user && (
+    keycloak?.authenticated && user && (
       <div>
-        <img src={user.picture} alt={user.name} />
-        <h2>{user.name}</h2>
+        {user.picture && <img src={user.picture} alt={user.name || user.preferred_username} />}
+        <h2>{user.name || user.preferred_username}</h2>
         <p>{user.email}</p>
       </div>
     )

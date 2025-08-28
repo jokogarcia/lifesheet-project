@@ -5,7 +5,7 @@ import { useSaasPlans } from '@/hooks/use-saas';
 import { PlanCard } from './plan-card';
 import { useEffect, useRef, useState } from 'react';
 import saasService, { type SaaSPlan } from '@/services/saas-service';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useAuth } from '@/hooks/auth-hook';
 
 export function CheckoutPage() {
     const location = useLocation();
@@ -13,7 +13,7 @@ export function CheckoutPage() {
     const [purchasedSubscriptionId, setPurchasedSubscriptionId] = useState('');
     const [purchasedSubscriptionState, setPurchasedSubscriptionState] = useState('');
     const [selectedPlan, setSelectedPlan] = useState<SaaSPlan | null>(null)
-    const auth = useAuth0();
+    const auth = useAuth();
     const planId = searchParams.get('planId');
     const navigate = useNavigate();
     const { saasPlans, isLoading: isLoadingPlans } = useSaasPlans();

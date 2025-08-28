@@ -51,7 +51,6 @@ mongoose.connect(constants.MONGODB_URI as string)
     process.exit(1);
   });
 
-// Auth0 routes - these don't need JWT validation
 app.use('/api', apiRouter);
 app.use('/private', privateRoutes);
 
