@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 export interface IUser extends Document {
   name: string;
   email: string;
-  auth0sub: string;
+  sub: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
@@ -29,9 +29,9 @@ const userSchema: Schema = new Schema(
         'Please add a valid email',
       ],
     },
-    auth0sub: {
+    sub: {
       type: String,
-      required: [true, 'auth0sub is required'],
+      required: [true, 'sub is required'],
       unique: true,
       select: false,
     },

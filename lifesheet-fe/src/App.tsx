@@ -1,5 +1,5 @@
 
-import { useAuth0 } from '@auth0/auth0-react'
+import { useKeycloak } from '@react-keycloak/web'
 import { Routes, Route } from 'react-router-dom'
 
 import './App.css'
@@ -17,31 +17,25 @@ import { Onboarding } from './components/onboarding'
 import { Dashboard } from './components/dashboard'
 
 function App() {
-  const { isAuthenticated, getAccessTokenSilently, isLoading:isAuthLoading, logout } = useAuth0()
-  const [hasToken, setHasToken] = useState(false)
+  const { keycloak, initialized } = useKeycloak();
+  const [hasToken, setHasToken] = useState(false);
   useEffect(() => {
-    if (isAuthenticated) {
-      setHasToken(false)
-      getAccessTokenSilently()
-        .then(token => {
-          console.log('Access token received:', token)
-          cvsService.setAuthToken(token)
-          userService.setAuthToken(token)
-          setHasToken(true)
-        })
-        .catch(error => {
-          console.warn('Error getting access token. Logging out...', error)
-          logout({ logoutParams: { returnTo: window.location.origin } });
-        })
-        
+    if (initialized && keycloak?.authenticated) {
+      setHasToken(false);
+      const token = keycloak.token;
+      if (token) {
+        cvsService.setAuthToken(token);
+        userService.setAuthToken(token);
+        setHasToken(true);
+      }
     }
-  }, [isAuthenticated, getAccessTokenSilently, logout])
+  }, [initialized, keycloak]);
 
-if( isAuthenticated && !hasToken || isAuthLoading) {
-  return <div>Authenticating...</div>
-}
-  if(!hasToken) {
-    return (<Welcome />)
+  if (!initialized) {
+    return <div>Authenticating...</div>;
+  }
+  if (!keycloak?.authenticated || !hasToken) {
+    return (<Welcome />);
   }
   
   return (

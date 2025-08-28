@@ -43,7 +43,7 @@ function resolveUserId(req: Request): string {
 export const getUserProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = resolveUserId(req);
-        const user = await User.findById(userId).select('-auth0sub -__v');
+        const user = await User.findById(userId).select('-sub -__v');
         if (!user || user.deletedAt) throw new ApiError(404, 'User not found');
         res.json(user);
     } catch (err) {
@@ -57,8 +57,8 @@ export const updateUserProfile = async (req: Request, res: Response, next: NextF
         const userId = resolveUserId(req);
         const updates = { ...req.body, updatedAt: new Date() } as any;
         delete updates.email;
-        delete updates.auth0sub;
-        const user = await User.findByIdAndUpdate(userId, updates, { new: true, runValidators: true }).select('-auth0sub -__v');
+        delete updates.sub;
+        const user = await User.findByIdAndUpdate(userId, updates, { new: true, runValidators: true }).select('-sub -__v');
         if (!user) throw new ApiError(404, 'User not found');
         res.json(user);
     } catch (err) {

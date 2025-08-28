@@ -3,7 +3,7 @@ import multer from 'multer';
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-import { jwtCheck, extractUserFromToken } from '../../../middleware/auth0.middleware';
+import { jwtCheck, extractUserFromToken } from '../../../middleware/auth.middleware';
 import { getUserProfile, updateUserProfile, deleteUserProfile, getUserCV, upsertUserTailoredCV, deleteUserCV, getUserTailoredCV, tailorCV, updateUsersMainCV, renderCVAsPDF, uploadPicture, getUserPicture, deleteUserPicture, getUserPictures, initiatePlanPurchase, getUsersActiveSubscription, getAllUsersSubscriptions, getUsersSubscriptionStatus, getUserPictureShareLink, getUsersTailoredCvs } from '../../../controllers/user.controller';
 const router = express.Router();
 router.use([jwtCheck, extractUserFromToken]);
