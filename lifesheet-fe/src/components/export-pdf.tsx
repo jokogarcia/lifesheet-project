@@ -45,7 +45,7 @@ export function ExportPdf() {
         if (cv?.tailored) {
             setCV({ ...cv, tailored: { ...cv.tailored, coverLetter: isCoverLetterVisible ? coverLetter : "" } });
         }
-    }, [coverLetter, isCoverLetterVisible]);
+    }, [coverLetter, isCoverLetterVisible,cv]);
     const previewRef = useRef<HTMLDivElement>(null)
 
     async function handleSave() {
