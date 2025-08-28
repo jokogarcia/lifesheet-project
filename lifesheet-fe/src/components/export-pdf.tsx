@@ -42,10 +42,18 @@ export function ExportPdf() {
     }, [originalCV]);
 
     useEffect(() => {
-        if (cv?.tailored) {
-            setCV({ ...cv, tailored: { ...cv.tailored, coverLetter: isCoverLetterVisible ? coverLetter : "" } });
-        }
-    }, [coverLetter, isCoverLetterVisible,cv]);
+        setCV(prevCv => {
+            if (prevCv?.tailored) {
+                // Avoid a re-render if the cover letter content hasn't actually changed
+                const newCoverLetter = isCoverLetterVisible ? coverLetter : "";
+                if (prevCv.tailored.coverLetter === newCoverLetter) {
+                    return prevCv;
+                }
+                return { ...prevCv, tailored: { ...prevCv.tailored, coverLetter: newCoverLetter } };
+            }
+            return prevCv;
+        });
+    }, [coverLetter, isCoverLetterVisible]);
     const previewRef = useRef<HTMLDivElement>(null)
 
     async function handleSave() {
