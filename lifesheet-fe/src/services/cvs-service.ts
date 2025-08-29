@@ -1,7 +1,6 @@
 import axios, { Axios } from "axios"
 import { constants } from "../constants"
-import { se } from "react-day-picker/locale"
-import { set } from "immutable"
+
 // Types for our CV data
 export interface PersonalInfo {
   fullName: string
