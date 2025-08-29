@@ -18,8 +18,6 @@ import CV, { ICV } from '../models/cv.model';
 import JobDescription, { IJobDescription } from '../models/job-description';
 import { ApiError } from '../middleware/errorHandler';
 import fs from 'fs';
-import * as cvTailoringService from '../services/cv-tailoring-service'
-
 import { PDFService } from '../services/pdf-service';
 import { constants } from '../constants';
 import Picture, { IPicture } from '../models/picture.model';
@@ -28,6 +26,9 @@ import { Consumption } from '../models/consumption.model';
 import { SaaSPlan, SaaSSubscription } from '../models/saaS-plan.model';
 import { getSecondsUntilNextWeek, getSecondsUntilTomorrow } from '../utils/utils';
 import path from 'path';
+import { checkUserCanDoOperation, getUsersConsumptions } from '../services/saas';
+import TailorCVQueue from '../q/tailorcv';
+import { JobState } from 'bullmq';
 
 // Helper to resolve 'me' to the authenticated user's id
 function resolveUserId(req: Request): string {
@@ -203,10 +204,15 @@ export const deleteUserCV = async (req: Request, res: Response, next: NextFuncti
         next(err);
     }
 };
-
+/**
+ * Begins the operation of tailoring a CV and/or generating a cover letter
+ * It returns a job ID for tracking the progress of the operation.
+ * @param req 
+ * @param res 
+ * @param next 
+ */
 export const tailorCV = async (req: Request, res: Response, next: NextFunction) => {
-    //runs the agent to tailor the CV and returns the tailored CV ID. 
-    // for now, it just returns the main CV's ID
+    
     try {
         const userId = resolveUserId(req);
         const companyName = req.body.companyName || "";
@@ -215,17 +221,7 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
         }
         const includeCoverLetter = !!req.body.includeCoverLetter;
         const useAiTailoring = !!req.body.useAiTailoring
-        const canDo = await checkUserCanDoOperation(userId);
-        if (!canDo.canOperate) {
-            const retryAfter = canDo.reason === "Daily limit reached" ? getSecondsUntilTomorrow() : getSecondsUntilNextWeek();
-            res.status(429)
-                .header('Retry-After', retryAfter.toString())
-                .json({
-                    message: `${canDo.reason}. Try again in ${retryAfter} seconds.`,
-                    retryAfter
-                });
-            return;
-        }
+        
         let jobDescription = req.body.jobDescription || "";
         let jobDescriptionId = req.body.jobDescriptionId || "";
         
@@ -252,42 +248,51 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
             jobDescriptionId = r._id;
             console.log("Created job description for", userId, companyName);
         }
-        const userInfo = await User.findById(userId);
-        if (!userInfo) {
-            throw new ApiError(404, "User Not Found")
-        }
-        let mainCv = await CV.findOne({ user_id: userId, deletedAt: null, tailored: { $exists: false } });
-        if (!mainCv) throw new ApiError(500, 'Main CV not found');
-        const r = await cvTailoringService.tailorCV(mainCv, jobDescription, useAiTailoring);
-        if (!r || !r.tailored_cv) {
-            throw new ApiError(500, 'Failed to tailor CV');
-        }
+        const j = await TailorCVQueue.add(
+            `${jobDescriptionId}-${Date.now()}`,
+            {
+                userId,
+                jobDescriptionId,
+                companyName,
+                includeCoverLetter,
+                useAiTailoring,
+                pictureId
+            }
+        );
         
-        const tailoredCv = r.tailored_cv;
-        tailoredCv.tailored = {
-            jobDescription_id: jobDescriptionId,
-            tailoredDate: new Date(),
-            updatedByUser: false
-        };
-        if (includeCoverLetter) {
-            const coverLetter = await cvTailoringService.generateCoverLetter(r.tailored_cv, jobDescription, userId, companyName);
-            tailoredCv.tailored.coverLetter = coverLetter;
-        }
-        const { _id: tailoredCvId } = await CV.create(tailoredCv);
-        const { _id: consumptionId } = await Consumption.create({
-            userId,
-            jobDescriptionId,
-            cvId: tailoredCvId,
-            createdAt: new Date(),
-            tokens: r.tokens_used
-        });
         res.json({
-            cvId: tailoredCvId
+            bullId: j.id
         });
     } catch (err) {
         next(err);
     }
 }
+
+export const checkTailoringStatus = async (req: Request, res: Response, next: NextFunction) => {
+    const bullId = req.params.bullId;
+    try {
+        const job = await TailorCVQueue.getJob(bullId);
+        if (!job) {
+            throw new ApiError(404, 'Job not found');
+        }
+        const state = await job.getState();
+        const isComplete = await job.isCompleted();
+        if (isComplete) {
+            res.json({
+                state: state,
+                progress: job.progress,
+                result: job.returnvalue
+            });
+        } else {
+            res.json({
+                state: state,
+                progress: job.progress
+            });
+        }
+    } catch (err) {
+        next(err);
+    }
+};
 
 export const renderCVAsPDF = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -400,28 +405,7 @@ export const deleteUserPicture = async (req: Request, res: Response, next: NextF
         next(err);
     }
 };
-async function getUsersConsumptions(userId: string) {
-    const now = new Date();
-    const usersConsumptions = await Consumption.find({ userId });
-    //User's consumption's from today UTC
-    const todaysConsumptions = usersConsumptions.filter(consumption => {
-        const todayMidnight = new Date(now.toISOString().split('T')[0] + 'T00:00:00Z');
-        const consumptionDateUTC = new Date(consumption.createdAt.toISOString().split('T')[0] + 'T00:00:00Z');
-        return consumptionDateUTC === todayMidnight;
-    });
-    const thisWeeksConsumptions = usersConsumptions.filter(consumption => {
-        const consumptionDateUTC = new Date(consumption.createdAt.toISOString().split('T')[0] + 'T00:00:00Z');
-        const todayUTC = new Date(now.toISOString().split('T')[0] + 'T00:00:00Z');
-        const startOfWeek = new Date(todayUTC);
-        startOfWeek.setDate(todayUTC.getDate() - todayUTC.getDay());
-        return consumptionDateUTC >= startOfWeek;
-    });
-    return {
-        usersConsumptions,
-        todaysConsumptions: todaysConsumptions.length,
-        thisWeeksConsumptions: thisWeeksConsumptions.length
-    }
-}
+
 async function _getUsersActiveSubscription(userId: string) {
     const now = new Date();
     const subscriptions = await SaaSSubscription.find({
@@ -546,30 +530,7 @@ export const initiatePlanPurchase = async (req: Request, res: Response, next: Ne
     }
 };
 
-export async function checkUserCanDoOperation(userId: string) {
-    const activeSubscription = await _getUsersActiveSubscription(userId);
-    const activePlan = await SaaSPlan.findById(activeSubscription.planId);
-    const { todaysConsumptions, thisWeeksConsumptions } = await getUsersConsumptions(userId);
-    if (!activePlan) {
-        return {
-            canOperate: false,
-            reason: "No active plan"
-        }
-    } if (todaysConsumptions >= activePlan.dailyRateLimit) {
-        return {
-            canOperate: false,
-            reason: "Daily limit reached"
-        }
-    } if (thisWeeksConsumptions >= activePlan.weeklyRateLimit) {
-        return {
-            canOperate: false,
-            reason: "Weekly limit reached"
-        }
-    }
-    return {
-        canOperate: true
-    }
-}
+
 // CV.deleteMany({}).then(() => {
 //     console.log("All CVs deleted");
 // }).catch(err => {

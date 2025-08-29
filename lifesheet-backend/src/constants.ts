@@ -8,8 +8,19 @@ export const constants ={
     NODE_ENV: process.env.NODE_ENV || 'development',
     CV_TAILORING_SERVICE: process.env.CV_TAILORING_SERVICE || 'http://localhost:8000',
     GEMINI_API_KEY: process.env.GEMINI_API_KEY || 'throw',
+    REDIS_PASSWORD: process.env.REDIS_PASSWORD || undefined,
+    REDIS_HOST: process.env.REDIS_HOST || 'localhost',
+    REDIS_PORT: process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT) : 6379,
+    REDIS_USERNAME: process.env.REDIS_USERNAME || undefined,
 };
 const missing = Object.keys(constants).filter(key => constants[key as keyof typeof constants] === 'throw');
 if (missing.length > 0) {
     throw new Error('The following required environment variables are not set: ' + missing.join(', '));
 }
+export const redisConfig = {
+    host: constants.REDIS_HOST,
+    port: constants.REDIS_PORT,
+    password: constants.REDIS_PASSWORD,
+    username: constants.REDIS_USERNAME,
+    maxRetriesPerRequest: null,
+};

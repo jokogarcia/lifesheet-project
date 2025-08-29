@@ -1,5 +1,7 @@
 import axios, { Axios } from "axios"
 import { constants } from "../constants"
+import { se } from "react-day-picker/locale"
+import { set } from "immutable"
 // Types for our CV data
 export interface PersonalInfo {
   fullName: string
@@ -153,8 +155,22 @@ class CVsService {
   
   // Tailor CV to job description
   async tailorCV(jobDescription: string, companyName:string, includeCoverLetter:boolean, useAiTailoring:boolean): Promise<{cvId: string}> {
+    const {bullId} = await this.startTailoringOperation(jobDescription, companyName, includeCoverLetter, useAiTailoring);
+    do {
+      await wait(1000);
+      const status = await this.checkTailoringStatus(bullId);
+      console.log("🔄 CVsService: Tailoring state:", status.state, status.progress);
+      if(status.state === 'completed' && status.result){
+        return status.result;
+      }
+      if(status.state === 'failed'){
+        throw new Error("Failed to tailor CV")
+      }
+    } while (true);
+  }
+  private async startTailoringOperation(jobDescription: string, companyName:string, includeCoverLetter:boolean, useAiTailoring:boolean): Promise<{bullId: string}> {
     console.log("🔄 CVsService: Tailoring CV to job description...")
-    const response = await this.client.post<{cvId: string}>('/user/me/cv/tailor', { 
+    const response = await this.client.post<{bullId: string}>('/user/me/cv/tailor', { 
       jobDescription,
       companyName,
       includeCoverLetter,
@@ -165,6 +181,16 @@ class CVsService {
     }
     return response.data;
    
+  }
+  private async checkTailoringStatus(bullId: string): Promise<{state:string, progress:number, result?:{cvId:string}}> {
+    console.log("🔄 CVsService: Checking tailoring status...")
+    const response = await this.client.get<{state:string, progress:number, result?:{cvId:string}}>('/user/me/cv/tailor/progress/'+bullId, {
+      params: { bullId }
+    })
+    if (!response.data) {
+      throw new Error("Failed to check tailoring status")
+    }
+    return response.data;
   }
 
   // Upload CV file
@@ -229,4 +255,7 @@ export interface TailoredData {
   coverLetter: string;
   tailoredDate: string;
   updatedByUser: boolean;
+}
+async function wait(miliseconds:number){
+  return new Promise(resolve => setTimeout(resolve, miliseconds));
 }
