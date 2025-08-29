@@ -15,7 +15,7 @@ General:
 - Add multilingual support for the AI
 - Implement real payment system
 - Migrate Auth0 tenant X
-- Async AI operations with BullMQ
+- Async AI operations with BullMQ X
 - Improve AI Tailoring
 
 Refactor:
