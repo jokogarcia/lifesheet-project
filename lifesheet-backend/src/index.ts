@@ -8,12 +8,14 @@ import path from 'path';
 
 import apiRouter from './routes/api';
 import privateRoutes from './routes/private.routes';
+import { setupBullBoard } from './bullboard';
 import { errorHandler } from './middleware/errorHandler';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { PDFService } from './services/pdf-service';
 import { constants } from './constants'
 
 const app: Express = express();
+setupBullBoard(app, '/private/bull');
 
 // Graceful shutdown handlers
 const gracefulShutdown = async (signal: string) => {
