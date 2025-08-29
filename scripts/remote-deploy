@@ -1,1 +1,0 @@
-ssh joaquin@irazu.com.ar 'bash -s' < repos/lifesheet-project/scripts/self-deploy.sh

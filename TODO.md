@@ -14,7 +14,7 @@ General:
 - Add option to generate cover letter. X
 - Add multilingual support for the AI
 - Implement real payment system
-- Migrate Auth0 tenant
+- Migrate Auth0 tenant X
 - Async AI operations with BullMQ
 - Improve AI Tailoring
 
