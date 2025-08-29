@@ -37,7 +37,7 @@ export function SecureImg({ pictureId, alt, className }: SecureImgProps) {
         URL.revokeObjectURL(blobUrl)
       }
     }
-  }, [pictureId,blobUrl])
+  }, [pictureId])
 
   const placeholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMiA5QzEwLjM0MzEgOSA5IDEwLjM0MzEgOSAxMkM5IDEzLjY1NjkgMTAuMzQzMSAxNSAxMkM5IDE1IDEwLjM0MzEgMTMgMTUgMTVDMTMuNjU2OSAxNSAxNSAxMy42NTY5IDE1IDEyQzE1IDEwLjM0MzEgMTMuNjU2OSAxMiAxMiAxMkM5IDEzLjY1NjkgOSA5LjM0MzEgOSA5WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4='
   const src = error || !blobUrl ? placeholder : blobUrl
