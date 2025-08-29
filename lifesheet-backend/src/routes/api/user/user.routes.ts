@@ -16,7 +16,7 @@ router.put('/:id/cv', updateUsersMainCV)
 router.get('/:id/cv/:cvId', getUserTailoredCV);
 router.get('/:id/cv/:cvId/pdf', renderCVAsPDF);
 router.post('/:id/cv/tailor', tailorCV);
-router.get('/:id/cv/tailor/progress/:bullid', checkTailoringStatus);
+router.get('/:id/cv/tailor/progress/:bullId', checkTailoringStatus);
 router.post('/:id/cv/:cvId', upsertUserTailoredCV);
 
 
