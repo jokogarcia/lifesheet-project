@@ -4,7 +4,7 @@ import multer from 'multer';
 const upload = multer({ storage: multer.memoryStorage() });
 
 import { jwtCheck, extractUserFromToken } from '../../../middleware/auth.middleware';
-import { getUserProfile, updateUserProfile, deleteUserProfile, getUserCV, upsertUserTailoredCV, deleteUserCV, getUserTailoredCV, tailorCV, updateUsersMainCV, renderCVAsPDF, uploadPicture, getUserPicture, deleteUserPicture, getUserPictures, initiatePlanPurchase, getUsersActiveSubscription, getAllUsersSubscriptions, getUsersSubscriptionStatus, getUserPictureShareLink, getUsersTailoredCvs } from '../../../controllers/user.controller';
+import { getUserProfile, updateUserProfile, deleteUserProfile, getUserCV, upsertUserTailoredCV, deleteUserCV, getUserTailoredCV, tailorCV, updateUsersMainCV, renderCVAsPDF, uploadPicture, getUserPicture, deleteUserPicture, getUserPictures, initiatePlanPurchase, getUsersActiveSubscription, getAllUsersSubscriptions, getUsersSubscriptionStatus, getUserPictureShareLink, getUsersTailoredCvs, checkTailoringStatus } from '../../../controllers/user.controller';
 const router = express.Router();
 router.use([jwtCheck, extractUserFromToken]);
 router.get('/:id/',getUserProfile);
@@ -16,6 +16,7 @@ router.put('/:id/cv', updateUsersMainCV)
 router.get('/:id/cv/:cvId', getUserTailoredCV);
 router.get('/:id/cv/:cvId/pdf', renderCVAsPDF);
 router.post('/:id/cv/tailor', tailorCV);
+router.get('/:id/cv/tailor/progress/:bullId', checkTailoringStatus);
 router.post('/:id/cv/:cvId', upsertUserTailoredCV);
 
 

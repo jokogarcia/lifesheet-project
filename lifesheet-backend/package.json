@@ -20,8 +20,10 @@
   "license": "ISC",
   "description": "API server for the Lifesheet CV application",
   "dependencies": {
+    "@bull-board/express": "^6.12.7",
     "@google/generative-ai": "^0.24.1",
     "bcrypt": "^6.0.0",
+    "bullmq": "^5.58.2",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",

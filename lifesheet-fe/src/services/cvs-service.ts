@@ -1,5 +1,6 @@
 import axios, { Axios } from "axios"
 import { constants } from "../constants"
+
 // Types for our CV data
 export interface PersonalInfo {
   fullName: string
@@ -7,7 +8,7 @@ export interface PersonalInfo {
   title?: string
   email: string
   phone?: string
-  dateOfBirth?:string
+  dateOfBirth?: string
   location?: string
   linkedIn?: string
   website?: string
@@ -51,23 +52,23 @@ export interface LanguageSkill {
 }
 export interface CV {
   id: string
-  
+
   personal_info: PersonalInfo
   work_experience: WorkExperience[]
   education: Education[]
   skills: Skill[]
-  language_skills:LanguageSkill[]
+  language_skills: LanguageSkill[]
   created_at: string
   updated_at: string
   user_id: string,
   tailored?: TailoredData
 }
-export interface CVListItem{
-    _id: string,
-    updatedAt: string,
-    hasCoverLetter: boolean,
-    companyName: string
-  }
+export interface CVListItem {
+  _id: string,
+  updatedAt: string,
+  hasCoverLetter: boolean,
+  companyName: string
+}
 
 export interface CreateOrUpdateCVRequest {
   personal_info: PersonalInfo
@@ -79,20 +80,20 @@ export interface CreateOrUpdateCVRequest {
 
 // No need for mock data anymore, we're using real API calls
 export interface CVToPDFOptions {
-        pictureId?: string
-        template?: string
-        primaryColorOverride?: string
-        secondaryColorOverride?: string
-        textColorOverride?: string
-        text2ColorOverride?: string
-        backgroundColorOverride?: string
-        includeEmail?: boolean
-        includeAddress?: boolean
-        includeDateOfBirth?: boolean
-        includePhone?: boolean
-    }
+  pictureId?: string
+  template?: string
+  primaryColorOverride?: string
+  secondaryColorOverride?: string
+  textColorOverride?: string
+  text2ColorOverride?: string
+  backgroundColorOverride?: string
+  includeEmail?: boolean
+  includeAddress?: boolean
+  includeDateOfBirth?: boolean
+  includePhone?: boolean
+}
 class CVsService {
-  private client:Axios
+  private client: Axios
 
   constructor(baseUrl: string = constants.API_URL) {
     this.client = axios.create({
@@ -113,16 +114,16 @@ class CVsService {
         return Promise.reject(error)
       }
     )
-    
+
   }
 
-  
+
   // Get user's CV (single CV per user)
   async getUserCV(cvId?: string): Promise<CV | null> {
     console.log("🔄 CVsService: Fetching user CV ", cvId || '');
     const response = await this.client.get<CV>(`/user/me/cv${cvId ? `/${cvId}` : ''}`)
     return response.data;
-    
+
   }
 
   async getUsersTailoredCvs(): Promise<CVListItem[]> {
@@ -141,20 +142,36 @@ class CVsService {
       throw new Error("Failed to create or update CV")
     }
     return response.data;
-   
+
   }
 
   // Delete user's CV TODO: verify this is not missing an id
   async deleteCV(): Promise<void> {
     console.log("🔄 CVsService: Deleting user CV...")
     await this.client.delete('/user/me/cv')
-    
+
   }
-  
+
   // Tailor CV to job description
-  async tailorCV(jobDescription: string, companyName:string, includeCoverLetter:boolean, useAiTailoring:boolean): Promise<{cvId: string}> {
+  async tailorCV(jobDescription: string, companyName: string, includeCoverLetter: boolean, useAiTailoring: boolean): Promise<{ cvId: string }> {
+    const { bullId } = await this.startTailoringOperation(jobDescription, companyName, includeCoverLetter, useAiTailoring);
+    do {
+      await wait(1000);
+      const status = await this.checkTailoringStatus(bullId);
+      console.log("🔄 CVsService: Tailoring state:", status.state, status.progress);
+      if (status.state === 'completed' && status.result) {
+        return {
+          cvId: status.result.tailoredCVId
+        }
+      }
+      if (status.state === 'failed') {
+        throw new Error("Failed to tailor CV")
+      }
+    } while (true);
+  }
+  private async startTailoringOperation(jobDescription: string, companyName: string, includeCoverLetter: boolean, useAiTailoring: boolean): Promise<{ bullId: string }> {
     console.log("🔄 CVsService: Tailoring CV to job description...")
-    const response = await this.client.post<{cvId: string}>('/user/me/cv/tailor', { 
+    const response = await this.client.post<{ bullId: string }>('/user/me/cv/tailor', {
       jobDescription,
       companyName,
       includeCoverLetter,
@@ -164,7 +181,19 @@ class CVsService {
       throw new Error("Failed to tailor CV")
     }
     return response.data;
-   
+
+  }
+  private async checkTailoringStatus(bullId: string): Promise<{ state: string, progress: number, result?: { tailoredCVId: string, consumptionId:string } }> {
+    console.log("🔄 CVsService: Checking tailoring status...")
+    const response = await this.client.get<{
+      state: string,
+      progress: number,
+      result?: { tailoredCVId: string, consumptionId:string }
+    }>('/user/me/cv/tailor/progress/' + bullId)
+    if (!response.data) {
+      throw new Error("Failed to check tailoring status")
+    }
+    return response.data;
   }
 
   // Upload CV file
@@ -173,7 +202,7 @@ class CVsService {
     console.log("File to upload:", file.name);
     throw new Error("Method not implemented.");
   }
-  
+
   // Get CV PDF
   async getCVPDF(cvId: string, options?: CVToPDFOptions): Promise<Blob> {
     const { pictureId, template, primaryColorOverride, secondaryColorOverride, textColorOverride, text2ColorOverride, backgroundColorOverride } = options || {};
@@ -191,15 +220,15 @@ class CVsService {
     const response = await this.client.get(url.toString(), {
       responseType: 'blob' // Important for binary data
     })
-    
+
     if (!response.data) {
       throw new Error("Failed to fetch CV PDF")
     }
     return response.data;
   }
-  async getPDFv2(html:string, pictureId?:string, docTitle?:string){
+  async getPDFv2(html: string, pictureId?: string, docTitle?: string) {
     const response = await this.client.post('/utils/generate-pdf', { html, pictureId, docTitle },
-      {responseType: 'blob'}
+      { responseType: 'blob' }
     )
     if (!response.data) {
       throw new Error("Failed to generate PDF")
@@ -229,4 +258,7 @@ export interface TailoredData {
   coverLetter: string;
   tailoredDate: string;
   updatedByUser: boolean;
+}
+async function wait(miliseconds: number) {
+  return new Promise(resolve => setTimeout(resolve, miliseconds));
 }
