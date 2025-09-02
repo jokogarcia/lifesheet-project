@@ -33,21 +33,7 @@ router.post("/", express.raw({ type: 'application/json' }), async (req: Request,
         }
 
         console.log(`Received webhook event: ${event.type}`);
-        async function getMetadata(event: Stripe.Event) {
-            const session = event.data.object as Stripe.Checkout.Session;
-            const { userId, subscriptionId } = session.metadata || {};
 
-            if (!userId || !subscriptionId) {
-                console.error('Missing metadata in session:', session.metadata);
-                throw new ApiError(400, 'Missing metadata in session');
-            }
-            const subscription = await SaaSSubscription.findById(subscriptionId);
-            if (!subscription) {
-                console.error('Subscription not found:', subscriptionId);
-                throw new ApiError(404, 'Subscription not found');
-            }
-            return { userId, subscription };
-        }
         // Handle different event types
         switch (event.type) {
             case 'checkout.session.completed':
@@ -77,4 +63,19 @@ router.post("/", express.raw({ type: 'application/json' }), async (req: Request,
         next(error);
     }
 });
+async function getMetadata(event: Stripe.Event) {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const { userId, subscriptionId } = session.metadata || {};
+
+    if (!userId || !subscriptionId) {
+        console.error('Missing metadata in session:', session.metadata);
+        throw new ApiError(400, 'Missing metadata in session');
+    }
+    const subscription = await SaaSSubscription.findById(subscriptionId);
+    if (!subscription) {
+        console.error('Subscription not found:', subscriptionId);
+        throw new ApiError(404, 'Subscription not found');
+    }
+    return { userId, subscription };
+}
 export default router;
