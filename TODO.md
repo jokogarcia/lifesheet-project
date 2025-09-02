@@ -22,3 +22,6 @@ Refactor:
 
   - Add skills per Work Experience and remove them as a separate section X
 
+Plans page:
+- don't allow people to buy cheaper plans
+

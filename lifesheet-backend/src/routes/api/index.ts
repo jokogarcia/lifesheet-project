@@ -2,10 +2,8 @@ import { Router } from 'express';
 import UserRouter from './user/user.routes';
 import { SaaSPlan } from '../../models/saaS-plan.model';
 import UtilsRouter from './utils';
-import WebhooksRouter from './webhooks';
 const router = Router();
 
-router.use('/webhooks', WebhooksRouter);
 router.use('/user', UserRouter);
 //router.use('/saas', SaaSRouter);
 // Health check route

@@ -13,8 +13,11 @@ import { errorHandler } from './middleware/errorHandler';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { PDFService } from './services/pdf-service';
 import { constants } from './constants'
-
+import StripeWebhookRouter from './routes/api/webhooks/stripe';
 const app: Express = express();
+
+//This needs to come before express.json()
+app.use("/api/webhooks/stripe", StripeWebhookRouter);
 setupBullBoard(app, '/private/bull');
 
 // Graceful shutdown handlers
