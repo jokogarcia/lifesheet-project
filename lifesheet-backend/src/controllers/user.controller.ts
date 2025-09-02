@@ -541,6 +541,7 @@ export const initiatePlanPurchase = async (req: Request, res: Response, next: Ne
                     planId: plan._id.toString()
                 }
             });
+            console.log("Created Stripe session:", JSON.stringify(session));
             const startTimestamp = s.startDate.getTime();
             const endTimestamp = startTimestamp + (plan.days * 24 * 60 * 60 * 1000);
             s.endDate = new Date(endTimestamp);
