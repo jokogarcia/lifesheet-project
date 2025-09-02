@@ -59,6 +59,10 @@ class SaaSService {
         const response = await this.client.get<SaaSPlan[]>("/saas/plans", options);
         return response.data;
     }
+    public async getStripePK(): Promise<string> {
+        const response = await this.client.get<{ pk: string }>("/saas/stripepk");
+        return response.data.pk;
+    }
 
     public async initiatePurchase(token: string, planId: string, provider: string) {
         const response = await this.client.post<{ message: string, subscriptionId: string }>("user/me/saas/subscriptions",

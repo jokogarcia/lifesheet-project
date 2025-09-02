@@ -7,7 +7,10 @@ import { useEffect, useState } from 'react';
 import saasService, { type SaaSPlan } from '@/services/saas-service';
 import { useAuth } from '@/hooks/auth-hook';
 import { loadStripe } from '@stripe/stripe-js';
-import { constants } from '@/constants';
+async function getStripe(){
+    const pk = await saasService.getStripePK();
+    return loadStripe(pk);
+}
 
 export function CheckoutPage() {
     const location = useLocation();
@@ -19,7 +22,7 @@ export function CheckoutPage() {
     const navigate = useNavigate();
     const { saasPlans, isLoading: isLoadingPlans } = useSaasPlans();
     const [error, setError] = useState('');
-    const stripePromise = loadStripe(constants.STRIPE_PK);
+    const stripePromise = getStripe();
 
     useEffect(() => {
         if (isLoadingPlans) return;

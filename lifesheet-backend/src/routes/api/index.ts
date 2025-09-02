@@ -2,6 +2,7 @@ import { Router } from 'express';
 import UserRouter from './user/user.routes';
 import { SaaSPlan } from '../../models/saaS-plan.model';
 import UtilsRouter from './utils';
+import {constants} from '../../constants';
 const router = Router();
 
 router.use('/user', UserRouter);
@@ -20,6 +21,9 @@ router.get('/saas/plans', async (req, res) => {
     console.error('Error fetching SaaS plans:', error);
     res.status(500).json({ message: 'Failed to fetch SaaS plans' });
   }
+});
+router.get('/saas/stripepk', (req, res) => {
+  res.status(200).json({ pk: constants.STRIPE_PK });
 });
 router.use('/utils', UtilsRouter);
 router.all('/{*any}', (req, res) => {
