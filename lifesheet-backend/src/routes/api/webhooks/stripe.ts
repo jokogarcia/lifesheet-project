@@ -4,8 +4,14 @@ import { NextFunction, Router, Request, Response } from "express";
 import { Stripe } from "stripe";
 import { ApiError } from '../../../middleware/errorHandler';
 import { setSubscriptionActive, setSubscriptionPaymentFailed } from '../../../services/saas';
+import bodyParser from 'body-parser';
+
 const router = Router();
-router.post("/", async (req: Request, res: Response, next: NextFunction) => {
+
+// Create a raw body parser for Stripe webhooks
+const rawBodyParser = bodyParser.raw({ type: 'application/json' });
+
+router.post("/", rawBodyParser, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const signature = req.headers['stripe-signature'];
 
@@ -20,7 +26,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
         let event: Stripe.Event;
         try {
             event = stripe.webhooks.constructEvent(
-                req.body,
+                req.body, // req.body is now a Buffer thanks to the rawBodyParser
                 signature,
                 constants.STRIPE_WS
             );
