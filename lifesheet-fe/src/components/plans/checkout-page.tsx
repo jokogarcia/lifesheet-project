@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSaasPlans } from '@/hooks/use-saas';
 import { PlanCard } from './plan-card';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import saasService, { type SaaSPlan } from '@/services/saas-service';
 import { useAuth } from '@/hooks/auth-hook';
 import { loadStripe } from '@stripe/stripe-js';
