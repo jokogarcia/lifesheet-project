@@ -127,3 +127,11 @@ async function initialSeed() {
 initialSeed().catch(err => {
     console.error("Error seeding initial data:", err);
 });
+function patch365(){
+    SaaSPlan.updateOne({name:"Premium Plan 365"},{$set:{days:365}}).then(res=>{
+        console.log("Patch 365 applied:", res);
+    }).catch(err=>{
+        console.error("Error applying patch 365:", err);
+    });
+}
+patch365();
