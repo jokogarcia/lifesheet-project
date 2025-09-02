@@ -20,7 +20,7 @@ interface TailorCVJobData {
     pictureId?: string;
 };
 
-const tailorCVQueue = new Queue<TailorCVJobData>("tailorCV",{connection:redisConfig});
+const tailorCVQueue = new Queue<TailorCVJobData>("tailorCV", { connection: redisConfig });
 
 
 const worker = new Worker("tailorCV", async (job) => {
@@ -53,27 +53,41 @@ const worker = new Worker("tailorCV", async (job) => {
     }
     const tailoredCv = r.tailored_cv;
     tailoredCv.tailored = {
-            jobDescription_id: jobDescriptionId,
-            tailoredDate: new Date(),
-            updatedByUser: false
-        };
-        if (includeCoverLetter) {
-            const coverLetter = await cvTailoringService.generateCoverLetter(r.tailored_cv, jobDescriptionDoc.content, userId, companyName);
-            tailoredCv.tailored.coverLetter = coverLetter;
-        }
-        const { _id: tailoredCvId } = await CV.create(tailoredCv);
-        const { _id: consumptionId } = await Consumption.create({
-            userId,
-            jobDescriptionId,
-            cvId: tailoredCvId,
-            createdAt: new Date(),
-            tokens: r.tokens_used
+        jobDescription_id: jobDescriptionId,
+        tailoredDate: new Date(),
+        updatedByUser: false
+    };
+    if (includeCoverLetter) {
+        const coverLetter = await cvTailoringService.generateCoverLetter(r.tailored_cv, jobDescriptionDoc.content, userId, companyName);
+        tailoredCv.tailored.coverLetter = coverLetter;
+    }
+    const { _id: tailoredCvId } = await CV.create(tailoredCv);
+    const { _id: consumptionId } = await Consumption.create({
+        userId,
+        jobDescriptionId,
+        cvId: tailoredCvId,
+        createdAt: new Date(),
+        tokens: r.tokens_used
+    });
+    const cvid = typeof (tailoredCvId) === 'string' ? tailoredCvId : tailoredCvId?.toString();
+    return {
+        tailoredCVId: cvid,
+        consumptionId: consumptionId.toString()
+    };
+}, { connection: redisConfig });
+async function patchUser() {
+    //finds user with auth0sub="auth0|6859152a00fbb6fb935ab2b6"
+    //and adds the sub=5449746c-e3ca-454a-bb49-8f242bfcffcf
+    try {
+        const r = await User.findOneAndUpdate({
+            auth0sub: "auth0|6859152a00fbb6fb935ab2b6"
+        }, {
+            sub: "5449746c-e3ca-454a-bb49-8f242bfcffcf"
         });
-        const cvid = typeof(tailoredCvId) === 'string' ? tailoredCvId : tailoredCvId?.toString();
-        return {
-            tailoredCVId: cvid,
-            consumptionId: consumptionId.toString()
-        };
-    }, { connection: redisConfig });
-
+        console.log("User patch result", r);
+    } catch (e) {
+        console.error("Error patching user", e);
+    }
+}
+patchUser();
 export default tailorCVQueue;
