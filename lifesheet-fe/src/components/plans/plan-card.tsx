@@ -8,11 +8,12 @@ import type { SaaSPlan } from '@/services/saas-service';
 interface PlanCardProps {
   plan: SaaSPlan;
   isCurrentPlan: boolean;
-  isBetterPlan:boolean;
-  isCurrentFreePlan:boolean;
+  isBetterPlan?:boolean;
+  isCurrentFreePlan?:boolean;
+  hideBuyButton?:boolean;
 }
 
-export function PlanCard({ plan, isCurrentPlan, isBetterPlan, isCurrentFreePlan }: PlanCardProps) {
+export function PlanCard({ plan, isCurrentPlan, isBetterPlan, isCurrentFreePlan, hideBuyButton }: PlanCardProps) {
   const navigate = useNavigate();
   const handlePurchase = () => {
     navigate(`/checkout?planId=${plan._id}`);
@@ -54,7 +55,7 @@ export function PlanCard({ plan, isCurrentPlan, isBetterPlan, isCurrentFreePlan 
         </ul>
         
       </CardContent>
-      <CardFooter >
+      <CardFooter hidden={!!hideBuyButton}>
         <Button className="w-full" onClick={handlePurchase} disabled={!isCurrentPlan && !isBetterPlan }>
             {isCurrentPlan ? 'Renew' : isCurrentFreePlan ? "Buy": !isBetterPlan ? "Your current plan is better" : 'Upgrade'}
           </Button>
