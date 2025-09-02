@@ -12,6 +12,9 @@ export const constants ={
     REDIS_HOST: process.env.REDIS_HOST || 'localhost',
     REDIS_PORT: process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT) : 6379,
     REDIS_USERNAME: process.env.REDIS_USERNAME || undefined,
+    STRIPE_PK: process.env.STRIPE_PK || 'throw',
+    STRIPE_SK: process.env.STRIPE_SK || 'throw',
+    STRIPE_WS: process.env.STRIPE_WS || 'throw',
 };
 const missing = Object.keys(constants).filter(key => constants[key as keyof typeof constants] === 'throw');
 if (missing.length > 0) {

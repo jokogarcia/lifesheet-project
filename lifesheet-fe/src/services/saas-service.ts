@@ -84,6 +84,24 @@ class SaaSService {
         return response.data.status;
     }
 
+    public async createStripeCheckoutSession(token: string, planId: string, successUrl: string, cancelUrl: string) {
+        const response = await this.client.post<{ sessionId: string, subscriptionId: string }>(
+            "/user/me/saas/subscriptions",
+            {
+                provider:"stripe",
+                planId,
+                successUrl,
+                cancelUrl
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+        return response.data;
+    }
 }
+
 export const saasService = new SaaSService();
 export default saasService;

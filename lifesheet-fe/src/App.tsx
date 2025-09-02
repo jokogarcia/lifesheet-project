@@ -11,6 +11,8 @@ import userService from './services/user-service'
 import { TailorCV } from './components/tailor-cv'
 import { PlansPage } from './components/plans/plans-page'
 import { CheckoutPage } from './components/plans/checkout-page'
+import { CheckoutSuccessPage } from './components/plans/checkout-success'
+import { CheckoutCancelPage } from './components/plans/checkout-cancel'
 import { ExportPdf } from './components/export-pdf'
 import TailoredCVs from './components/tailored-cvs'
 import { Onboarding } from './components/onboarding'
@@ -45,6 +47,8 @@ function App() {
       <Route path="/tailor-cv" element={<TailorCV />} />
       <Route path="/plans" element={<PlansPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/checkout-success" element={<CheckoutSuccessPage />} />
+      <Route path="/checkout-cancel" element={<CheckoutCancelPage />} />
       <Route path="/export-pdf" element={<ExportPdf />} />
       <Route path="/tailored-cvs" element={<TailoredCVs />} />
       <Route path="/onboarding" element={<Onboarding />} />

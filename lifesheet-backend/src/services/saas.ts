@@ -79,4 +79,28 @@ export async function getUsersConsumptions(userId: string) {
         thisWeeksConsumptions: thisWeeksConsumptions.length
     }
 }
-
+export async function setSubscriptionActive(subscriptionId: string) {
+    const subscription = await SaaSSubscription.findById(subscriptionId);
+    if (!subscription) {
+        throw new Error('Subscription not found');
+    }
+    const plan = await SaaSPlan.findById(subscription.planId);
+    if (!plan) {
+        throw new Error('Plan not found');
+    }
+    const startTimestamp = new Date().getTime();
+    const endTimestamp = startTimestamp + (plan.days * 24 * 60 * 60 * 1000);
+    subscription.startDate = new Date(startTimestamp);
+    subscription.endDate = new Date(endTimestamp);
+    subscription.status = 'active';
+    
+    await subscription.save();
+}
+export async function setSubscriptionPaymentFailed(subscriptionId: string) {
+    const subscription = await SaaSSubscription.findById(subscriptionId);
+    if (!subscription) {
+        throw new Error('Subscription not found');
+    }
+    subscription.status = 'payment-failed';
+    await subscription.save();
+}

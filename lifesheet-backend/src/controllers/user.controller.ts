@@ -29,6 +29,7 @@ import path from 'path';
 import { checkUserCanDoOperation, getUsersConsumptions } from '../services/saas';
 import TailorCVQueue from '../q/tailorcv';
 import { JobState } from 'bullmq';
+import stripe from 'stripe';
 
 // Helper to resolve 'me' to the authenticated user's id
 function resolveUserId(req: Request): string {
@@ -212,19 +213,19 @@ export const deleteUserCV = async (req: Request, res: Response, next: NextFuncti
  * @param next 
  */
 export const tailorCV = async (req: Request, res: Response, next: NextFunction) => {
-    
+
     try {
         const userId = resolveUserId(req);
         const companyName = req.body.companyName || "";
-        if(!companyName) {
+        if (!companyName) {
             throw new ApiError(400, 'Company name is required.');
         }
         const includeCoverLetter = !!req.body.includeCoverLetter;
         const useAiTailoring = !!req.body.useAiTailoring
-        
+
         let jobDescription = req.body.jobDescription || "";
         let jobDescriptionId = req.body.jobDescriptionId || "";
-        
+
         const pictureId = req.body.pictureId || "";
         if (!jobDescription && !jobDescriptionId) {
             throw new ApiError(400, 'Job description is required. Provide one or a valid job description ID.');
@@ -259,7 +260,7 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
                 pictureId
             }
         );
-        
+
         res.json({
             bullId: j.id
         });
@@ -486,10 +487,17 @@ export const getUsersSubscriptionStatus = async (req: Request, res: Response, ne
     }
     res.json({ status: subscription?.status });
 }
+
 export const initiatePlanPurchase = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = resolveUserId(req);
-        const { provider, planId } = req.body as { provider: 'paypal' | 'stripe', planId: string };
+
+        const {
+            provider,
+            planId,
+            successUrl,
+            cancelUrl
+        } = req.body as { provider: 'paypal' | 'stripe', planId: string, successUrl: string, cancelUrl: string };
         const plan = await SaaSPlan.findById(planId);
         if (!plan) {
             throw new ApiError(400, 'Invalid plan ID');
@@ -503,6 +511,47 @@ export const initiatePlanPurchase = async (req: Request, res: Response, next: Ne
             endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
             status: 'payment-pending'
         });
+        if (provider === 'paypal') {
+            throw new ApiError(501, 'PayPal integration not implemented yet');
+        }
+        if (provider === 'stripe') {
+            const stripeClient = new stripe(constants.STRIPE_SK)
+            const session = await stripeClient.checkout.sessions.create({
+                payment_method_types: ['card'],
+                line_items: [
+                    {
+                        price_data: {
+                            currency: plan.currency,
+                            product_data: {
+                                name: plan.name,
+                                description: plan.description,
+                                images: [`${process.env.FRONTEND_URL}/images/${plan.iconUrl}`]
+                            },
+                            unit_amount: Math.floor(plan.priceCents)
+                        },
+                        quantity: 1
+                    }
+                ],
+                mode: 'payment',
+                success_url: successUrl,
+                cancel_url: cancelUrl,
+                metadata: {
+                    userId: userId,
+                    subscriptionId: s._id.toString(),
+                    planId: plan._id.toString()
+                }
+            });
+            const startTimestamp = s.startDate.getTime();
+            const endTimestamp = startTimestamp + (plan.days * 24 * 60 * 60 * 1000);
+            s.endDate = new Date(endTimestamp);
+            s.status = 'active';
+            s.save().catch(err => {
+                console.error("Error saving subscription:", err);
+            });
+            // Return the session ID to the client
+            res.json({ sessionId: session.id, subscriptionId: s._id.toString() });
+            return;
+        }
 
         {
             //TODO: Initiate payment process with the selected provider
@@ -529,7 +578,6 @@ export const initiatePlanPurchase = async (req: Request, res: Response, next: Ne
         next(err);
     }
 };
-
 
 // CV.deleteMany({}).then(() => {
 //     console.log("All CVs deleted");

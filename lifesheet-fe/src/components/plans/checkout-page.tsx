@@ -6,6 +6,8 @@ import { PlanCard } from './plan-card';
 import { useEffect, useRef, useState } from 'react';
 import saasService, { type SaaSPlan } from '@/services/saas-service';
 import { useAuth } from '@/hooks/auth-hook';
+import { loadStripe } from '@stripe/stripe-js';
+import { constants } from '@/constants';
 
 export function CheckoutPage() {
     const location = useLocation();
@@ -13,12 +15,14 @@ export function CheckoutPage() {
     const [purchasedSubscriptionId, setPurchasedSubscriptionId] = useState('');
     const [purchasedSubscriptionState, setPurchasedSubscriptionState] = useState('');
     const [selectedPlan, setSelectedPlan] = useState<SaaSPlan | null>(null)
+    const [isProcessing, setIsProcessing] = useState(false);
     const auth = useAuth();
     const planId = searchParams.get('planId');
     const navigate = useNavigate();
     const { saasPlans, isLoading: isLoadingPlans } = useSaasPlans();
     const [error, setError] = useState('');
     const statusCheckIntervalRef = useRef<number | null>(null);
+    const stripePromise = loadStripe(constants.STRIPE_PK);
 
     useEffect(() => {
         if (isLoadingPlans) return;
@@ -67,22 +71,57 @@ export function CheckoutPage() {
 
     async function handleBuyConfirm() {
         try {
+            setIsProcessing(true);
+            setError('');
+            
             const token = await auth.getAccessTokenSilently();
             if (!token) {
-                setError("Failed to authenticate")
+                setError("Failed to authenticate");
+                setIsProcessing(false);
+                return;
             }
-            const r = await saasService.initiatePurchase(token, selectedPlan!._id, "paypal");
-            if (r.subscriptionId) {
-                setPurchasedSubscriptionId(r.subscriptionId)
-                setPurchasedSubscriptionState("payment-pending");
+            
+            if (!selectedPlan) {
+                setError("No plan selected");
+                setIsProcessing(false);
+                return;
+            }
+            
+            // Create Stripe checkout session
+            const response = await saasService.createStripeCheckoutSession(
+                token, 
+                selectedPlan._id, 
+                window.location.origin + "/checkout-success",
+                window.location.origin + "/checkout-cancel"
+            );
+            
+            // Redirect to Stripe checkout
+            if (response.sessionId) {
+                const stripe = await stripePromise;
+                if (!stripe) {
+                    setError("Failed to load Stripe");
+                    setIsProcessing(false);
+                    return;
+                }
+                
+                const { error } = await stripe.redirectToCheckout({
+                    sessionId: response.sessionId
+                });
+                
+                if (error) {
+                    console.error("Stripe redirect error:", error);
+                    setError(error.message || "Failed to redirect to payment page");
+                    setIsProcessing(false);
+                }
             } else {
-                console.error("Failed to initiate purchase", r);
-                setError("Failed to initiate purchase");
+                console.error("Failed to create checkout session", response);
+                setError("Failed to create checkout session");
+                setIsProcessing(false);
             }
-
         } catch (e) {
             console.error("Error occurred while initiating purchase", e);
             setError("Error occurred while initiating purchase");
+            setIsProcessing(false);
         }
     }
     if (purchasedSubscriptionId) {
@@ -133,8 +172,13 @@ export function CheckoutPage() {
                         isCurrentPlan={false}
                     ></PlanCard>
 
-                    <Button className="w-full mt-5" variant="default" onClick={handleBuyConfirm}>
-                        Confirm
+                    <Button 
+                        className="w-full mt-5" 
+                        variant="default" 
+                        onClick={handleBuyConfirm}
+                        disabled={isProcessing}
+                    >
+                        {isProcessing ? 'Processing...' : 'Checkout with Stripe'}
                     </Button>
                 </CardContent>
             </Card>
