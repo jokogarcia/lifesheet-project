@@ -533,7 +533,7 @@ export const initiatePlanPurchase = async (req: Request, res: Response, next: Ne
                     }
                 ],
                 mode: 'payment',
-                success_url: successUrl,
+                success_url: successUrl+`?session_id={CHECKOUT_SESSION_ID}&subscription_id=${s._id.toString()}`,
                 cancel_url: cancelUrl,
                 metadata: {
                     userId: userId,
