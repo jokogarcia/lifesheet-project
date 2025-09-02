@@ -32,33 +32,44 @@ router.post("/", express.raw({ type: 'application/json' }), async (req: Request,
             throw new ApiError(401, `signature verification failed (${error})`);
         }
 
-        const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        const { userId, subscriptionId } = paymentIntent.metadata;
+        console.log(`Received webhook event: ${event.type}`);
+        async function getMetadata(event: Stripe.Event) {
+            const session = event.data.object as Stripe.Checkout.Session;
+            const { userId, subscriptionId } = session.metadata || {};
 
-        if (!userId || !subscriptionId) {
-            console.error('Missing metadata in payment intent:', paymentIntent.metadata);
-            throw new ApiError(400, 'Missing metadata');
+            if (!userId || !subscriptionId) {
+                console.error('Missing metadata in session:', session.metadata);
+                throw new ApiError(400, 'Missing metadata in session');
+            }
+            const subscription = await SaaSSubscription.findById(subscriptionId);
+            if (!subscription) {
+                console.error('Subscription not found:', subscriptionId);
+                throw new ApiError(404, 'Subscription not found');
+            }
+            return { userId, subscription };
         }
-        const subscription = await SaaSSubscription.findById(subscriptionId);
-        if (!subscription) {
-            console.error('Subscription not found:', subscriptionId);
-            throw new ApiError(404, 'Subscription not found');
-        }
-
+        // Handle different event types
         switch (event.type) {
-            case 'payment_intent.succeeded':
-
-                await setSubscriptionActive(subscriptionId);
-                break;
-
-            case 'payment_intent.payment_failed':
-
-                await setSubscriptionPaymentFailed(subscriptionId);
-
-                break;
+            case 'checkout.session.completed':
+            case 'checkout.session.async_payment_succeeded':
+                {
+                    const { subscription } = await getMetadata(event);
+                    await setSubscriptionActive(subscription.id);
+                    break;
+                }
+            case 'checkout.session.async_payment_failed':
+            case 'checkout.session.expired':
+                {
+                    const { subscription } = await getMetadata(event);
+                    // For payment failures, try to retrieve the session info
+                    await setSubscriptionPaymentFailed(subscription.id);
+                    break;
+                }
 
             default:
-                throw new ApiError(400, 'unexpected event type');
+                console.log(`Unhandled event type: ${event.type}`);
+                res.status(200).send({}); // Still return 200 to acknowledge receipt
+                return;
         }
 
         res.status(200).send({});
