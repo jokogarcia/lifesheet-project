@@ -60,7 +60,8 @@ router.post("/", express.raw({ type: 'application/json' }), async (req: Request,
 
         res.status(200).send({});
     } catch (error) {
-        next(error);
+        console.error('Error processing webhook:', error);
+        res.status(200).send({});//Reply OK anyway, to avoid triggering Stripe's retry mechanism
     }
 });
 async function getMetadata(event: Stripe.Event) {
@@ -69,12 +70,12 @@ async function getMetadata(event: Stripe.Event) {
 
     if (!userId || !subscriptionId) {
         console.error('Missing metadata in session:', session.metadata);
-        throw new ApiError(400, 'Missing metadata in session');
+        throw new Error('Missing metadata in session');
     }
     const subscription = await SaaSSubscription.findById(subscriptionId);
     if (!subscription) {
         console.error('Subscription not found:', subscriptionId);
-        throw new ApiError(404, 'Subscription not found');
+        throw new Error('Subscription not found');
     }
     return { userId, subscription };
 }
