@@ -33,6 +33,7 @@ router.get('/:id/picture/:pictureId/share-link', getUserPictureShareLink);
 router.get("/:id/saas/subscriptions", getAllUsersSubscriptions)
 router.get("/:id/saas/subscriptions/active", getUsersActiveSubscription)
 router.post("/:id/saas/subscriptions", initiatePlanPurchase)
+
 router.get("/:id/saas/subscriptions/:subscriptionId/status", getUsersSubscriptionStatus)
 
 export default router;

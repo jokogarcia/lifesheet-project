@@ -1,8 +1,7 @@
-import e from 'express';
 import mongoose, { Schema, Document } from 'mongoose';
-import User from './user.model';
 
 export interface ISaaSPlan extends Document {
+    _id: mongoose.Types.ObjectId;
     name: string;
     days: number; //Number of days the plan is valid for
     description: string;
@@ -34,6 +33,7 @@ const SaaSPlanSchema: Schema = new Schema({
 });
 
 export interface ISaasSubscription extends Document {
+    _id: mongoose.Types.ObjectId;
     userId: string;
     planId: string;
     startDate: Date;
@@ -81,6 +81,7 @@ async function initialSeed() {
                 name: "Premium Plan 30",
                 description: "Contribute to the project and get a much more AI Operations for tailoring your CVs and generating Cover Letters.",
                 priceCents: 2000,
+                days:30,
                 currency: "EUR",
                 iconUrl: "plan-premium.png",
                 features: [
@@ -101,6 +102,7 @@ async function initialSeed() {
                 name: "Premium Plan 365",
                 description: "Commit to a full year and enjoy a hefty discount.",
                 priceCents: 20000,
+                days: 365,
                 currency: "EUR",
                 iconUrl: "plan-premium-365.png",
                 features: [

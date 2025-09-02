@@ -22,3 +22,17 @@ Refactor:
 
   - Add skills per Work Experience and remove them as a separate section X
 
+Plans page:
+- don't allow people to buy cheaper plans X
+- improve ussage indicators
+
+Stripe:
+- setup real API Keys
+- reconsider prices
+
+Other:
+- investigate adding adds to Free Plan
+- setup dev environment
+- refactor CI pipeline for github actions and deployment to prod or dev
+- fix user onboarding
+

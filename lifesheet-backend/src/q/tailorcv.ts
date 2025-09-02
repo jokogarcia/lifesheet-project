@@ -7,7 +7,6 @@ import { Consumption } from "../models/consumption.model";
 import { getSecondsUntilNextWeek, getSecondsUntilTomorrow } from "../utils/utils";
 import User, { IUser } from '../models/user.model';
 import CV from '../models/cv.model';
-const connection = new IORedis(redisConfig);
 import * as cvTailoringService from '../services/cv-tailoring-service'
 import JobDescription from "../models/job-description";
 import { checkUserCanDoOperation } from "../services/saas";
@@ -21,7 +20,7 @@ interface TailorCVJobData {
     pictureId?: string;
 };
 
-const tailorCVQueue = new Queue<TailorCVJobData>("tailorCV");
+const tailorCVQueue = new Queue<TailorCVJobData>("tailorCV",{connection:redisConfig});
 
 
 const worker = new Worker("tailorCV", async (job) => {
@@ -75,6 +74,6 @@ const worker = new Worker("tailorCV", async (job) => {
             tailoredCVId: cvid,
             consumptionId: consumptionId.toString()
         };
-    }, { connection });
+    }, { connection: redisConfig });
 
 export default tailorCVQueue;

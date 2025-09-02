@@ -41,8 +41,9 @@ export function PlansPage() {
                 <Card className="p-6 mb-8">
                     <h2 className="text-xl font-semibold mb-2">Your Current Plan</h2>
                     <p className="text-muted-foreground mb-4">
-                        {currentPlan.name}
+                        {currentPlan.name} 
                     </p>
+                    <span className="text-sm ml-4">Purchased on {new Date(activeSubscription!.startDate).toLocaleDateString()} - Expires on {new Date(activeSubscription!.endDate).toLocaleDateString()}</span>
                     <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                             <span>Daily Limits</span>
@@ -77,6 +78,8 @@ export function PlansPage() {
                         key={plan._id}
                         plan={plan}
                         isCurrentPlan={activeSubscription?.planId === plan._id}
+                        isBetterPlan={plan.priceCents > (currentPlan?.priceCents || 0)}
+                        isCurrentFreePlan={plan.priceCents === 0}
                     />
                 ))}
             </div>

@@ -35,7 +35,8 @@
     "mongoose": "^8.16.0",
     "multer": "^2.0.2",
     "node-cron": "^4.2.1",
-    "puppeteer": "^24.16.0"
+    "puppeteer": "^24.16.0",
+    "stripe": "^18.5.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
