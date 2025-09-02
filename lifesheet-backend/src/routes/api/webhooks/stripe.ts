@@ -4,20 +4,18 @@ import { NextFunction, Router, Request, Response } from "express";
 import { Stripe } from "stripe";
 import { ApiError } from '../../../middleware/errorHandler';
 import { setSubscriptionActive, setSubscriptionPaymentFailed } from '../../../services/saas';
-import bodyParser from 'body-parser';
-
+import express from 'express';
 const router = Router();
 
 // Create a raw body parser for Stripe webhooks
-const rawBodyParser = bodyParser.raw({ type: 'application/json' });
 
-router.post("/", rawBodyParser, async (req: Request, res: Response, next: NextFunction) => {
+router.post("/", express.raw({ type: 'application/json' }), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const signature = req.headers['stripe-signature'];
-
         if (!signature) {
             throw new ApiError(401, `invalid signature (${signature})`);
         }
+        console.log("Webhook request received. Type of body", typeof req.body);
         const stripe = new Stripe(constants.STRIPE_SK);
         if (stripe == null) {
             throw new ApiError(500, `Cannot initialize Stripe`);
