@@ -521,7 +521,7 @@ export const initiatePlanPurchase = async (req: Request, res: Response, next: Ne
                 line_items: [
                     {
                         price_data: {
-                            currency: plan.currency,
+                            currency: plan.currency.toLowerCase(),
                             product_data: {
                                 name: plan.name,
                                 description: plan.description,
