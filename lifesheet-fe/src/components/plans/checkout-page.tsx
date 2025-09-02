@@ -12,8 +12,6 @@ import { constants } from '@/constants';
 export function CheckoutPage() {
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
-    const [purchasedSubscriptionId, setPurchasedSubscriptionId] = useState('');
-    const [purchasedSubscriptionState, setPurchasedSubscriptionState] = useState('');
     const [selectedPlan, setSelectedPlan] = useState<SaaSPlan | null>(null)
     const [isProcessing, setIsProcessing] = useState(false);
     const auth = useAuth();
@@ -21,7 +19,6 @@ export function CheckoutPage() {
     const navigate = useNavigate();
     const { saasPlans, isLoading: isLoadingPlans } = useSaasPlans();
     const [error, setError] = useState('');
-    const statusCheckIntervalRef = useRef<number | null>(null);
     const stripePromise = loadStripe(constants.STRIPE_PK);
 
     useEffect(() => {
@@ -36,39 +33,7 @@ export function CheckoutPage() {
             setSelectedPlan(selectedPlan);
         }
     }, [saasPlans, planId, isLoadingPlans])
-    useEffect(() => {
-        if (purchasedSubscriptionId) {
-            // Clear any existing interval first
-            if (statusCheckIntervalRef.current !== null) {
-                return;
-            }
-
-            // Start new interval and store the ID
-            statusCheckIntervalRef.current = window.setInterval(async () => {
-                try {
-                    const token = await auth.getAccessTokenSilently();
-                    const status = await saasService.getSubscriptionStatus(token, purchasedSubscriptionId);
-                    setPurchasedSubscriptionState(status);
-                } catch (e) {
-                    console.error("Error occurred while checking subscription status", e);
-                    setError("Error occurred while checking subscription status");
-                    // Clear interval on error
-                    if (statusCheckIntervalRef.current !== null) {
-                        clearInterval(statusCheckIntervalRef.current);
-                        statusCheckIntervalRef.current = null;
-                    }
-                }
-            }, 1000);
-            // Cleanup function to clear interval when component unmounts
-            return () => {
-                if (statusCheckIntervalRef.current !== null) {
-                    clearInterval(statusCheckIntervalRef.current);
-                    statusCheckIntervalRef.current = null;
-                }
-            };
-        }
-    }, [auth, purchasedSubscriptionId]);
-
+    
     async function handleBuyConfirm() {
         try {
             setIsProcessing(true);
@@ -124,27 +89,7 @@ export function CheckoutPage() {
             setIsProcessing(false);
         }
     }
-    if (purchasedSubscriptionId) {
-        switch (purchasedSubscriptionState) {
-            case "payment-pending":
-                return <h2>Processing payment</h2>
-            case "active":
-                if (statusCheckIntervalRef.current !== null) {
-                    clearInterval(statusCheckIntervalRef.current);
-                    statusCheckIntervalRef.current = null;
-                }
-                setTimeout(() => navigate("/"), 1000);
-                return <h2>Payment successfully processed</h2>
-            case "payment-failed":
-                alert("The payment did not process correctly");
-                setPurchasedSubscriptionId("");
-                setPurchasedSubscriptionState("");
-                break;
-            default:
-                console.log("Unexpected subscription state", purchasedSubscriptionState)
-                setError("Unexpected subscription state");
-        }
-    }
+   
     if (isLoadingPlans || !selectedPlan) {
         return <div>Loading plans...</div>;
     }
