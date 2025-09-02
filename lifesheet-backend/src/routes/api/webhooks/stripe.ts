@@ -61,7 +61,7 @@ router.post("/", express.raw({ type: 'application/json' }), async (req: Request,
         res.status(200).send({});
     } catch (error) {
         console.error('Error processing webhook:', error);
-        res.status(200).send({});//Reply OK anyway, to avoid triggering Stripe's retry mechanism
+        res.status(200).send({});//Respond OK anyway, to avoid triggering Stripe's retry mechanism
     }
 });
 async function getMetadata(event: Stripe.Event) {
