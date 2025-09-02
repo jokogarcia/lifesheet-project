@@ -545,7 +545,6 @@ export const initiatePlanPurchase = async (req: Request, res: Response, next: Ne
             const startTimestamp = s.startDate.getTime();
             const endTimestamp = startTimestamp + (plan.days * 24 * 60 * 60 * 1000);
             s.endDate = new Date(endTimestamp);
-            s.status = 'active';
             s.save().catch(err => {
                 console.error("Error saving subscription:", err);
             });

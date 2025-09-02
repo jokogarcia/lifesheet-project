@@ -5,6 +5,6 @@ export const constants={
     AUTH_DOMAIN: "auth.irazu.com.ar",
     AUTH_CLIENT_ID: "lifesheet-webapp",
     AUTH_AUDIENCE: "lifesheet-webapp",
-    AUTH_REALM: "lifesheet",
+    AUTH_REALM: "lifesheet"
     
 }
