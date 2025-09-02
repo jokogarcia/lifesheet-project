@@ -34,5 +34,5 @@ Other:
 - investigate adding adds to Free Plan
 - setup dev environment
 - refactor CI pipeline for github actions and deployment to prod or dev
-
+- fix user onboarding
 
