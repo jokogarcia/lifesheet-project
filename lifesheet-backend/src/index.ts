@@ -1,4 +1,4 @@
-import 'loadenv';
+import './loadenv';
 import express, { Express } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -61,9 +61,6 @@ mongoose.connect(constants.MONGODB_URI as string)
 
 app.use('/api', apiRouter);
 app.use('/private', privateRoutes);
-
-
-
 
 
 // Proxy all non-API requests to localhost:4000
