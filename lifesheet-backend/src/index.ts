@@ -37,7 +37,13 @@ const gracefulShutdown = async (signal: string) => {
 };
 
 // Middleware
-app.use(cors());
+if (constants.NODE_ENV === 'development') {
+  app.use(cors({
+    origin: ['http://localhost:3000', 'http://localhost:4000']
+  }));
+} else {
+  app.use(cors());
+}
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
