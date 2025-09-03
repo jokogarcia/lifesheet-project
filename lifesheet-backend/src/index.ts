@@ -1,10 +1,7 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
-import express, { Express, Request, Response, NextFunction } from 'express';
+import 'loadenv';
+import express, { Express } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import path from 'path';
 
 import apiRouter from './routes/api';
 import privateRoutes from './routes/private.routes';
