@@ -24,10 +24,7 @@ const userSchema: Schema = new Schema(
       unique: true,
       lowercase: true,
       trim: true,
-      match: [
-        /^[\w.+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-        'Please add a valid email',
-      ],
+      match: [/^[\w.+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Please add a valid email'],
     },
     sub: {
       type: String,
@@ -38,14 +35,11 @@ const userSchema: Schema = new Schema(
     deletedAt: {
       type: Date,
       default: null,
-    }
+    },
   },
   {
     timestamps: true,
   }
 );
-
-
-
 
 export default mongoose.model<IUser>('User', userSchema);

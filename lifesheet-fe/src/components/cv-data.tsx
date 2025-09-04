@@ -1,6 +1,6 @@
-"use client"
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
+'use client';
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Briefcase,
   GraduationCap,
@@ -10,117 +10,121 @@ import {
   AlertCircle,
   Plus,
   ArrowLeft,
-} from "lucide-react"
-import { useUserCV } from "../hooks/use-cv"
-import type { PersonalInfo, WorkExperience, Education, Skill, LanguageSkill } from "../services/cvs-service"
-import { useAuth } from "@/hooks/auth-hook";
-import { useNavigate } from "react-router-dom"
-import userService from "../services/user-service"
+} from 'lucide-react';
+import { useUserCV } from '../hooks/use-cv';
+import type {
+  PersonalInfo,
+  WorkExperience,
+  Education,
+  Skill,
+  LanguageSkill,
+} from '../services/cvs-service';
+import { useAuth } from '@/hooks/auth-hook';
+import { useNavigate } from 'react-router-dom';
+import userService from '../services/user-service';
 import {
   PersonalInfoTab,
   WorkExperienceTab,
   EducationTab,
   SkillsTab,
-  PicturesTab
-} from "./cv-tabs"
+  PicturesTab,
+} from './cv-tabs';
 
 export function CVData() {
-  const { user } = useAuth()
-  const navigate = useNavigate()
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-  const { cv, isLoading, isSaving, error, saveCV } = useUserCV()
-  const [isEditing, setIsEditing] = useState(false)
-  const [activeTab, setActiveTab] = useState("personal")
-  const [saveMessage, setSaveMessage] = useState<string | null>(null)
-  const [pictures, setPictures] = useState<string[]>([])
-  const [isUploadingPicture, setIsUploadingPicture] = useState(false)
+  const { cv, isLoading, isSaving, error, saveCV } = useUserCV();
+  const [isEditing, setIsEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState('personal');
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [pictures, setPictures] = useState<string[]>([]);
+  const [isUploadingPicture, setIsUploadingPicture] = useState(false);
   // Form state
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({
-    fullName: "",
-    title: "",
-    profilePictureUrl: "",
-    email: "",
-    phone: "",
-    location: "",
-    linkedIn: "",
-    website: "",
-    github: "",
-    summary: "",
-  })
+    fullName: '',
+    title: '',
+    profilePictureUrl: '',
+    email: '',
+    phone: '',
+    location: '',
+    linkedIn: '',
+    website: '',
+    github: '',
+    summary: '',
+  });
 
   const [workExperience, setWorkExperience] = useState<WorkExperience[]>([
     {
-      id: "1",
-      company: "",
-      position: "",
-      startDate: "",
-      endDate: "",
+      id: '1',
+      company: '',
+      position: '',
+      startDate: '',
+      endDate: '',
       current: false,
-      description: "",
-      location: "",
+      description: '',
+      location: '',
       achievements: [],
     },
-  ])
+  ]);
 
   const [education, setEducation] = useState<Education[]>([
     {
-      id: "1",
-      institution: "",
-      degree: "",
-      field: "",
-      startDate: "",
-      endDate: "",
-      gpa: "",
-      location: "",
+      id: '1',
+      institution: '',
+      degree: '',
+      field: '',
+      startDate: '',
+      endDate: '',
+      gpa: '',
+      location: '',
     },
-  ])
+  ]);
 
-  const [skills, setSkills] = useState<Skill[]>([])
-  const [newSkill, setNewSkill] = useState({ name: "", level: "Intermediate" })
-  const [languageSkills, setLanguageSkills] = useState<LanguageSkill[]>([])
-  const [newLanguageSkill, setNewLanguageSkill] = useState({ language: "", level: "Intermediate" })
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [newSkill, setNewSkill] = useState({ name: '', level: 'Intermediate' });
+  const [languageSkills, setLanguageSkills] = useState<LanguageSkill[]>([]);
+  const [newLanguageSkill, setNewLanguageSkill] = useState({ language: '', level: 'Intermediate' });
 
   // Initialize form data when CV is loaded or when entering edit mode
   useEffect(() => {
     if (cv && isEditing) {
-      setPersonalInfo(cv.personal_info)
-      setWorkExperience(cv.work_experience)
-      setEducation(cv.education)
-      setSkills(cv.skills)
-      setLanguageSkills(cv.language_skills || [])
+      setPersonalInfo(cv.personal_info);
+      setWorkExperience(cv.work_experience);
+      setEducation(cv.education);
+      setSkills(cv.skills);
+      setLanguageSkills(cv.language_skills || []);
     }
-  }, [cv, isEditing])
+  }, [cv, isEditing]);
 
   // Load user pictures
   useEffect(() => {
     const loadPictures = async () => {
       try {
-        const userPictures = await userService.getUserPictures()
-        setPictures(userPictures)
+        const userPictures = await userService.getUserPictures();
+        setPictures(userPictures);
       } catch (error) {
-        console.error("Error loading pictures:", error)
+        console.error('Error loading pictures:', error);
       }
-    }
-    loadPictures()
-  }, [])
-
-
+    };
+    loadPictures();
+  }, []);
 
   const handleStartEditing = () => {
     if (cv) {
-      setPersonalInfo(cv.personal_info)
-      setWorkExperience(cv.work_experience)
-      setEducation(cv.education)
-      setSkills(cv.skills)
-      setLanguageSkills(cv.language_skills || [])
+      setPersonalInfo(cv.personal_info);
+      setWorkExperience(cv.work_experience);
+      setEducation(cv.education);
+      setSkills(cv.skills);
+      setLanguageSkills(cv.language_skills || []);
     }
-    setIsEditing(true)
-  }
+    setIsEditing(true);
+  };
 
   const handleCancelEditing = () => {
-    setIsEditing(false)
-    setSaveMessage(null)
-  }
+    setIsEditing(false);
+    setSaveMessage(null);
+  };
 
   const handleSave = async () => {
     try {
@@ -130,44 +134,43 @@ export function CVData() {
         education: education,
         skills: skills,
         language_skills: languageSkills,
-      })
-      setIsEditing(false)
-      setSaveMessage("CV saved successfully!")
-      setTimeout(() => setSaveMessage(null), 3000)
+      });
+      setIsEditing(false);
+      setSaveMessage('CV saved successfully!');
+      setTimeout(() => setSaveMessage(null), 3000);
     } catch (error) {
-      console.error("Error saving CV:", error)
+      console.error('Error saving CV:', error);
     }
-  }
-
+  };
 
   // Picture management handlers
   const handlePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
+    const file = event.target.files?.[0];
     if (file) {
-      setIsUploadingPicture(true)
+      setIsUploadingPicture(true);
       try {
-        const pictureId = await userService.uploadPicture(file)
+        const pictureId = await userService.uploadPicture(file);
         // Reload pictures to get the updated list
-        const updatedPictures = await userService.getUserPictures()
-        setPictures(updatedPictures)
-        console.log("Picture uploaded successfully:", pictureId)
+        const updatedPictures = await userService.getUserPictures();
+        setPictures(updatedPictures);
+        console.log('Picture uploaded successfully:', pictureId);
       } catch (error) {
-        console.error("Error uploading picture:", error)
+        console.error('Error uploading picture:', error);
       } finally {
-        setIsUploadingPicture(false)
+        setIsUploadingPicture(false);
       }
     }
-  }
+  };
 
   const handleDeletePicture = async (pictureId: string) => {
     try {
-      await userService.deletePicture(pictureId)
+      await userService.deletePicture(pictureId);
       // Remove the picture from state
-      setPictures(pictures.filter(id => id !== pictureId))
+      setPictures(pictures.filter(id => id !== pictureId));
     } catch (error) {
-      console.error("Error deleting picture:", error)
+      console.error('Error deleting picture:', error);
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -177,13 +180,12 @@ export function CVData() {
           <p className="mt-2">Loading your CV...</p>
         </div>
       </div>
-    )
+    );
   }
   if (!cv?.personal_info.fullName) {
     //CV is incomplete, redirect to onboarding
-    navigate("/onboarding");
-  }
-  else {
+    navigate('/onboarding');
+  } else {
     return (
       <div className="max-w-6xl mx-auto p-6 space-y-6">
         {/* Header */}
@@ -193,11 +195,11 @@ export function CVData() {
             <p className="text-muted-foreground">Welcome back, {user?.name || user?.email}</p>
           </div>
           <div className="flex gap-2">
-          <Button onClick={() => navigate("/")} variant="outline" className="btn-custom">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Button>
-        </div>
+            <Button onClick={() => navigate('/')} variant="outline" className="btn-custom">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </div>
         </div>
 
         {/* Messages */}
@@ -254,30 +256,45 @@ export function CVData() {
 
             <div className="w-full text-left">
               <div className="grid grid-cols-5 mb-4">
-                <div onClick={() => setActiveTab("personal")} className="flex items-center gap-2 cursor-pointer">
+                <div
+                  onClick={() => setActiveTab('personal')}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <GraduationCap className="h-4 w-4" />
                   Personal
                 </div>
-                <div onClick={() => setActiveTab("experience")} className="flex items-center gap-2 cursor-pointer">
+                <div
+                  onClick={() => setActiveTab('experience')}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <Briefcase className="h-4 w-4" />
                   Experience
                 </div>
-                <div onClick={() => setActiveTab("education")} className="flex items-center gap-2 cursor-pointer">
+                <div
+                  onClick={() => setActiveTab('education')}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <GraduationCap className="h-4 w-4" />
                   Education
                 </div>
-                <div onClick={() => setActiveTab("skills")} className="flex items-center gap-2 cursor-pointer">
+                <div
+                  onClick={() => setActiveTab('skills')}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <Award className="h-4 w-4" />
                   Skills
                 </div>
-                <div onClick={() => setActiveTab("pictures")} className="flex items-center gap-2 cursor-pointer">
+                <div
+                  onClick={() => setActiveTab('pictures')}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <FileText className="h-4 w-4" />
                   Pictures
                 </div>
               </div>
 
               {/* Personal Information Tab */}
-              {activeTab === "personal" && (
+              {activeTab === 'personal' && (
                 <PersonalInfoTab
                   isEditing={isEditing}
                   personalInfo={personalInfo}
@@ -287,7 +304,7 @@ export function CVData() {
               )}
 
               {/* Work Experience Tab */}
-              {activeTab === "experience" && (
+              {activeTab === 'experience' && (
                 <WorkExperienceTab
                   isEditing={isEditing}
                   workExperience={workExperience}
@@ -297,7 +314,7 @@ export function CVData() {
               )}
 
               {/* Education Tab */}
-              {activeTab === "education" && (
+              {activeTab === 'education' && (
                 <EducationTab
                   isEditing={isEditing}
                   education={education}
@@ -307,7 +324,7 @@ export function CVData() {
               )}
 
               {/* Skills Tab */}
-              {activeTab === "skills" && (
+              {activeTab === 'skills' && (
                 <SkillsTab
                   isEditing={isEditing}
                   skills={skills}
@@ -323,7 +340,7 @@ export function CVData() {
               )}
 
               {/* Pictures Tab */}
-              {activeTab === "pictures" && (
+              {activeTab === 'pictures' && (
                 <PicturesTab
                   pictures={pictures}
                   isUploadingPicture={isUploadingPicture}
@@ -338,7 +355,10 @@ export function CVData() {
               <>
                 <div className="border-t mt-6"></div>
                 <div className="flex justify-center gap-4 mt-6">
-                  <button onClick={handleCancelEditing} className="bg-gray-100 text-gray-600 px-8 py-2 rounded">
+                  <button
+                    onClick={handleCancelEditing}
+                    className="bg-gray-100 text-gray-600 px-8 py-2 rounded"
+                  >
                     Cancel
                   </button>
                   <button
@@ -364,6 +384,6 @@ export function CVData() {
           </>
         )}
       </div>
-    )
+    );
   }
 }

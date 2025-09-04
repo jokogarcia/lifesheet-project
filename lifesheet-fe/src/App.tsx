@@ -1,22 +1,21 @@
+import { useKeycloak } from '@react-keycloak/web';
+import { Routes, Route } from 'react-router-dom';
 
-import { useKeycloak } from '@react-keycloak/web'
-import { Routes, Route } from 'react-router-dom'
-
-import './App.css'
-import { CVData } from './components/cv-data'
-import { Welcome } from './components/welcome'
-import { useEffect, useState } from 'react'
-import cvsService from './services/cvs-service'
-import userService from './services/user-service'
-import { TailorCV } from './components/tailor-cv'
-import { PlansPage } from './components/plans/plans-page'
-import { CheckoutPage } from './components/plans/checkout-page'
-import { CheckoutSuccessPage } from './components/plans/checkout-success'
-import { CheckoutCancelPage } from './components/plans/checkout-cancel'
-import { ExportPdf } from './components/export-pdf'
-import TailoredCVs from './components/tailored-cvs'
-import { Onboarding } from './components/onboarding'
-import { Dashboard } from './components/dashboard'
+import './App.css';
+import { CVData } from './components/cv-data';
+import { Welcome } from './components/welcome';
+import { useEffect, useState } from 'react';
+import cvsService from './services/cvs-service';
+import userService from './services/user-service';
+import { TailorCV } from './components/tailor-cv';
+import { PlansPage } from './components/plans/plans-page';
+import { CheckoutPage } from './components/plans/checkout-page';
+import { CheckoutSuccessPage } from './components/plans/checkout-success';
+import { CheckoutCancelPage } from './components/plans/checkout-cancel';
+import { ExportPdf } from './components/export-pdf';
+import TailoredCVs from './components/tailored-cvs';
+import { Onboarding } from './components/onboarding';
+import { Dashboard } from './components/dashboard';
 
 function App() {
   const { keycloak, initialized } = useKeycloak();
@@ -37,9 +36,9 @@ function App() {
     return <div>Authenticating...</div>;
   }
   if (!keycloak?.authenticated || !hasToken) {
-    return (<Welcome />);
+    return <Welcome />;
   }
-  
+
   return (
     <Routes>
       <Route path="/" element={<Dashboard />} />
@@ -53,8 +52,7 @@ function App() {
       <Route path="/tailored-cvs" element={<TailoredCVs />} />
       <Route path="/onboarding" element={<Onboarding />} />
     </Routes>
-  )
- 
+  );
 }
 
-export default App
+export default App;

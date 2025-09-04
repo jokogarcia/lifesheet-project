@@ -4,13 +4,13 @@ import { Request, Response, NextFunction } from 'express';
 import { ApiError } from './errorHandler';
 import User, { IUser } from '../models/user.model';
 import { getUserInfo } from '../services/auth';
-import  { constants } from '../constants'
+import { constants } from '../constants';
 
 // Initialize Auth middleware
 export const jwtCheck = auth({
   audience: constants.AUTH_AUDIENCE,
   issuerBaseURL: `https://${constants.AUTH_DOMAIN}/`,
-  tokenSigningAlg: 'RS256'
+  tokenSigningAlg: 'RS256',
 });
 declare global {
   namespace Express {
@@ -26,9 +26,9 @@ declare global {
 /**
  * Middleware to extract user information from Auth token.
  * It creates a new user if a matching one does not exist
- * @param req 
- * @param res 
- * @param next 
+ * @param req
+ * @param res
+ * @param next
  */
 export const extractUserFromToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -41,29 +41,28 @@ export const extractUserFromToken = async (req: Request, res: Response, next: Ne
         throw new ApiError(401, 'Unauthorized: No sub claim in token');
       }
       let userId = await getUserIdFromSub(sub);
-      if(!userId){
+      if (!userId) {
         //First login. must create a profile
-        const userAuthInfo = getUserInfo(req.auth.token)
+        const userAuthInfo = getUserInfo(req.auth.token);
         const newdoc = await User.insertOne({
-          name:userAuthInfo.name,
-          email:userAuthInfo.email,
-          sub:sub,
-          createdAt:new Date(),
-          updatedAt:new Date()
+          name: userAuthInfo.name,
+          email: userAuthInfo.email,
+          sub: sub,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
 
-        })
-        
         userId = await getUserIdFromSub(sub);
-        if(!userId){
-          throw new Error("Cannot find the userId after creating a new profile")
+        if (!userId) {
+          throw new Error('Cannot find the userId after creating a new profile');
         }
       }
       // Add user info to request object
       req.user = {
         authProvider: 'keycloak',
         sub: sub,
-        id: userId
-      }
+        id: userId,
+      };
     }
     next();
   } catch (error) {
@@ -82,7 +81,6 @@ export const requirePermissions = (permissions: string[]) => {
     }
   };
 };
-
 
 const userSubIdCache: { [key: string]: string } = {};
 /**
@@ -106,5 +104,4 @@ export const getUserIdFromSub = async (authsub: string): Promise<string | undefi
   }
   userSubIdCache[authsub] = user.id;
   return user.id;
-
-}
+};

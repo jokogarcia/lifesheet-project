@@ -1,69 +1,83 @@
-import { Briefcase, Plus } from "lucide-react"
-import ReactMarkdown from "react-markdown"
-import type { CV, WorkExperience } from "../../services/cvs-service"
+import { Briefcase, Plus } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import type { CV, WorkExperience } from '../../services/cvs-service';
 
 interface WorkExperienceTabProps {
-  isEditing: boolean
-  workExperience: WorkExperience[]
-  setWorkExperience: (exp: WorkExperience[]) => void
-  cv: CV | null
+  isEditing: boolean;
+  workExperience: WorkExperience[];
+  setWorkExperience: (exp: WorkExperience[]) => void;
+  cv: CV | null;
 }
 
-export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience, cv }: WorkExperienceTabProps) {
+export function WorkExperienceTab({
+  isEditing,
+  workExperience,
+  setWorkExperience,
+  cv,
+}: WorkExperienceTabProps) {
   const addWorkExperience = () => {
     const newExp: WorkExperience = {
       id: Date.now().toString(),
-      company: "",
-      position: "",
-      startDate: "",
-      endDate: "",
+      company: '',
+      position: '',
+      startDate: '',
+      endDate: '',
       current: false,
-      description: "",
-      location: "",
+      description: '',
+      location: '',
       achievements: [],
-    }
-    setWorkExperience([...workExperience, newExp])
-  }
+    };
+    setWorkExperience([...workExperience, newExp]);
+  };
 
   const removeWorkExperience = (id: string) => {
-    setWorkExperience(workExperience.filter((exp) => exp.id !== id))
-  }
+    setWorkExperience(workExperience.filter(exp => exp.id !== id));
+  };
 
-  const updateWorkExperience = (id: string, field: keyof WorkExperience, value: WorkExperience[keyof WorkExperience]) => {
-    setWorkExperience(workExperience.map((exp) => (exp.id === id ? { ...exp, [field]: value } : exp)))
-  }
+  const updateWorkExperience = (
+    id: string,
+    field: keyof WorkExperience,
+    value: WorkExperience[keyof WorkExperience]
+  ) => {
+    setWorkExperience(
+      workExperience.map(exp => (exp.id === id ? { ...exp, [field]: value } : exp))
+    );
+  };
 
   const addAchievement = (expId: string) => {
-    setWorkExperience(workExperience.map((exp) =>
-      exp.id === expId
-        ? { ...exp, achievements: [...(exp.achievements || []), ""] }
-        : exp
-    ))
-  }
+    setWorkExperience(
+      workExperience.map(exp =>
+        exp.id === expId ? { ...exp, achievements: [...(exp.achievements || []), ''] } : exp
+      )
+    );
+  };
 
   const updateAchievement = (expId: string, achievementIndex: number, value: string) => {
-    setWorkExperience(workExperience.map((exp) =>
-      exp.id === expId
-        ? {
-          ...exp,
-          achievements: exp.achievements?.map((ach, idx) =>
-            idx === achievementIndex ? value : ach
-          ) || []
-        }
-        : exp
-    ))
-  }
+    setWorkExperience(
+      workExperience.map(exp =>
+        exp.id === expId
+          ? {
+              ...exp,
+              achievements:
+                exp.achievements?.map((ach, idx) => (idx === achievementIndex ? value : ach)) || [],
+            }
+          : exp
+      )
+    );
+  };
 
   const removeAchievement = (expId: string, achievementIndex: number) => {
-    setWorkExperience(workExperience.map((exp) =>
-      exp.id === expId
-        ? {
-          ...exp,
-          achievements: exp.achievements?.filter((_, idx) => idx !== achievementIndex) || []
-        }
-        : exp
-    ))
-  }
+    setWorkExperience(
+      workExperience.map(exp =>
+        exp.id === expId
+          ? {
+              ...exp,
+              achievements: exp.achievements?.filter((_, idx) => idx !== achievementIndex) || [],
+            }
+          : exp
+      )
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -76,7 +90,10 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
           {isEditing ? (
             <>
               {workExperience.map((exp, index) => (
-                <div key={exp.id} className="space-y-4 p-4 border rounded-lg transition-all hover:shadow-md">
+                <div
+                  key={exp.id}
+                  className="space-y-4 p-4 border rounded-lg transition-all hover:shadow-md"
+                >
                   <div className="flex justify-between items-center">
                     <h3 className="font-semibold">Experience {index + 1}</h3>
                     {workExperience.length > 1 && (
@@ -95,7 +112,7 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                         id={`company-${exp.id}`}
                         value={exp.company}
                         required
-                        onChange={(e) => updateWorkExperience(exp.id, "company", e.target.value)}
+                        onChange={e => updateWorkExperience(exp.id, 'company', e.target.value)}
                         placeholder="Company Name"
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
@@ -106,7 +123,7 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                         id={`position-${exp.id}`}
                         value={exp.position}
                         required
-                        onChange={(e) => updateWorkExperience(exp.id, "position", e.target.value)}
+                        onChange={e => updateWorkExperience(exp.id, 'position', e.target.value)}
                         placeholder="Job Title"
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
@@ -115,8 +132,8 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                       <label htmlFor={`location-${exp.id}`}>Location</label>
                       <input
                         id={`location-${exp.id}`}
-                        value={exp.location || ""}
-                        onChange={(e) => updateWorkExperience(exp.id, "location", e.target.value)}
+                        value={exp.location || ''}
+                        onChange={e => updateWorkExperience(exp.id, 'location', e.target.value)}
                         placeholder="City, State/Country"
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
@@ -128,7 +145,7 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                         required
                         type="date"
                         value={exp.startDate}
-                        onChange={(e) => updateWorkExperience(exp.id, "startDate", e.target.value)}
+                        onChange={e => updateWorkExperience(exp.id, 'startDate', e.target.value)}
                         className="border rounded-lg p-2"
                       />
                     </div>
@@ -138,7 +155,7 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                         id={`endDate-${exp.id}`}
                         type="date"
                         value={exp.endDate}
-                        onChange={(e) => updateWorkExperience(exp.id, "endDate", e.target.value)}
+                        onChange={e => updateWorkExperience(exp.id, 'endDate', e.target.value)}
                         disabled={exp.current}
                         className="border rounded-lg p-2"
                       />
@@ -149,7 +166,7 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                       type="checkbox"
                       id={`current-${exp.id}`}
                       checked={exp.current}
-                      onChange={(e) => updateWorkExperience(exp.id, "current", e.target.checked)}
+                      onChange={e => updateWorkExperience(exp.id, 'current', e.target.checked)}
                     />
                     <label htmlFor={`current-${exp.id}`}>Currently working here</label>
                   </div>
@@ -158,7 +175,7 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                     <textarea
                       id={`description-${exp.id}`}
                       value={exp.description}
-                      onChange={(e) => updateWorkExperience(exp.id, "description", e.target.value)}
+                      onChange={e => updateWorkExperience(exp.id, 'description', e.target.value)}
                       placeholder="Describe your responsibilities and achievements..."
                       rows={3}
                       className="block w-full border rounded-lg p-2 h-48 placeholder-gray-500"
@@ -171,7 +188,7 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                         <div key={achIndex} className="flex gap-2">
                           <input
                             value={achievement}
-                            onChange={(e) => updateAchievement(exp.id, achIndex, e.target.value)}
+                            onChange={e => updateAchievement(exp.id, achIndex, e.target.value)}
                             placeholder="Describe a key achievement..."
                             className="flex-1 border rounded-lg p-2 placeholder-gray-500"
                           />
@@ -193,7 +210,10 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                   </div>
                 </div>
               ))}
-              <button onClick={addWorkExperience} className="bg-green-100 text-green-600 px-4 py-2 rounded btn-custom">
+              <button
+                onClick={addWorkExperience}
+                className="bg-green-100 text-green-600 px-4 py-2 rounded btn-custom"
+              >
                 <Plus className="h-4 w-4 mr-2 inline-block" />
                 Add Work Experience
               </button>
@@ -201,7 +221,9 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
           ) : (
             <div className="space-y-4">
               {cv?.work_experience.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">No work experience added yet</p>
+                <p className="text-muted-foreground text-center py-8">
+                  No work experience added yet
+                </p>
               ) : (
                 cv?.work_experience.map((exp: WorkExperience) => (
                   <div key={exp.id} className="p-4 border rounded-lg">
@@ -214,7 +236,7 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
                         )}
                       </div>
                       <div className="bg-gray-100 px-2 py-1 rounded">
-                        {exp.startDate} - {exp.current ? "Present" : exp.endDate}
+                        {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
                       </div>
                     </div>
                     <div className="text-sm mt-2 text-left">
@@ -240,5 +262,5 @@ export function WorkExperienceTab({ isEditing, workExperience, setWorkExperience
         </div>
       </div>
     </div>
-  )
+  );
 }

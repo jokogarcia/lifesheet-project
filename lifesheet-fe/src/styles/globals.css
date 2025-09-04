@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @config "../../tailwind.config.js";
 
 @layer base {
@@ -91,5 +91,3 @@ body {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
-
-

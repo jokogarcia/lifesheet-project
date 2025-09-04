@@ -1,14 +1,19 @@
-import { GraduationCap } from "lucide-react"
-import type { CV, PersonalInfo } from "../../services/cvs-service"
+import { GraduationCap } from 'lucide-react';
+import type { CV, PersonalInfo } from '../../services/cvs-service';
 
 interface PersonalInfoTabProps {
-  isEditing: boolean
-  personalInfo: PersonalInfo
-  setPersonalInfo: (info: PersonalInfo) => void
-  cv: CV | null
+  isEditing: boolean;
+  personalInfo: PersonalInfo;
+  setPersonalInfo: (info: PersonalInfo) => void;
+  cv: CV | null;
 }
 
-export function PersonalInfoTab({ isEditing, personalInfo, setPersonalInfo, cv }: PersonalInfoTabProps) {
+export function PersonalInfoTab({
+  isEditing,
+  personalInfo,
+  setPersonalInfo,
+  cv,
+}: PersonalInfoTabProps) {
   return (
     <div className="space-y-4">
       <div className="border rounded-lg p-6 card-hover bg-gradient-subtle">
@@ -25,12 +30,14 @@ export function PersonalInfoTab({ isEditing, personalInfo, setPersonalInfo, cv }
                   id="fullName"
                   required
                   value={personalInfo.fullName}
-                  onChange={(e) => setPersonalInfo({ ...personalInfo, fullName: e.target.value })}
+                  onChange={e => setPersonalInfo({ ...personalInfo, fullName: e.target.value })}
                   placeholder="John Doe"
                   className="border rounded-lg p-2 placeholder-gray-500"
                 />
               ) : (
-                <p className="p-2 bg-gray-50 rounded">{cv?.personal_info?.fullName || "Not provided"}</p>
+                <p className="p-2 bg-gray-50 rounded">
+                  {cv?.personal_info?.fullName || 'Not provided'}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -38,13 +45,15 @@ export function PersonalInfoTab({ isEditing, personalInfo, setPersonalInfo, cv }
               {isEditing ? (
                 <input
                   id="title"
-                  value={personalInfo.title || ""}
-                  onChange={(e) => setPersonalInfo({ ...personalInfo, title: e.target.value })}
+                  value={personalInfo.title || ''}
+                  onChange={e => setPersonalInfo({ ...personalInfo, title: e.target.value })}
                   placeholder="Software Engineer"
                   className="border rounded-lg p-2 placeholder-gray-500"
                 />
               ) : (
-                <p className="p-2 bg-gray-50 rounded">{cv?.personal_info?.title || "Not provided"}</p>
+                <p className="p-2 bg-gray-50 rounded">
+                  {cv?.personal_info?.title || 'Not provided'}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -55,12 +64,14 @@ export function PersonalInfoTab({ isEditing, personalInfo, setPersonalInfo, cv }
                   type="email"
                   required
                   value={personalInfo.email}
-                  onChange={(e) => setPersonalInfo({ ...personalInfo, email: e.target.value })}
+                  onChange={e => setPersonalInfo({ ...personalInfo, email: e.target.value })}
                   placeholder="john@example.com"
                   className="border rounded-lg p-2 placeholder-gray-500"
                 />
               ) : (
-                <p className="p-2 bg-gray-50 rounded">{cv?.personal_info?.email || "Not provided"}</p>
+                <p className="p-2 bg-gray-50 rounded">
+                  {cv?.personal_info?.email || 'Not provided'}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -69,12 +80,14 @@ export function PersonalInfoTab({ isEditing, personalInfo, setPersonalInfo, cv }
                 <input
                   id="phone"
                   value={personalInfo.phone}
-                  onChange={(e) => setPersonalInfo({ ...personalInfo, phone: e.target.value })}
+                  onChange={e => setPersonalInfo({ ...personalInfo, phone: e.target.value })}
                   placeholder="+1 (555) 123-4567"
                   className="border rounded-lg p-2 placeholder-gray-500"
                 />
               ) : (
-                <p className="p-2 bg-gray-50 rounded">{cv?.personal_info?.phone || "Not provided"}</p>
+                <p className="p-2 bg-gray-50 rounded">
+                  {cv?.personal_info?.phone || 'Not provided'}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -83,12 +96,14 @@ export function PersonalInfoTab({ isEditing, personalInfo, setPersonalInfo, cv }
                 <input
                   id="location"
                   value={personalInfo.location}
-                  onChange={(e) => setPersonalInfo({ ...personalInfo, location: e.target.value })}
+                  onChange={e => setPersonalInfo({ ...personalInfo, location: e.target.value })}
                   placeholder="New York, NY"
                   className="border rounded-lg p-2 placeholder-gray-500"
                 />
               ) : (
-                <p className="p-2 bg-gray-50 rounded">{cv?.personal_info?.location || "Not provided"}</p>
+                <p className="p-2 bg-gray-50 rounded">
+                  {cv?.personal_info?.location || 'Not provided'}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -97,12 +112,14 @@ export function PersonalInfoTab({ isEditing, personalInfo, setPersonalInfo, cv }
                 <input
                   id="linkedIn"
                   value={personalInfo.linkedIn}
-                  onChange={(e) => setPersonalInfo({ ...personalInfo, linkedIn: e.target.value })}
+                  onChange={e => setPersonalInfo({ ...personalInfo, linkedIn: e.target.value })}
                   placeholder="linkedin.com/in/johndoe"
                   className="border rounded-lg p-2 placeholder-gray-500"
                 />
               ) : (
-                <p className="p-2 bg-gray-50 rounded">{cv?.personal_info?.linkedIn || "Not provided"}</p>
+                <p className="p-2 bg-gray-50 rounded">
+                  {cv?.personal_info?.linkedIn || 'Not provided'}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -111,12 +128,14 @@ export function PersonalInfoTab({ isEditing, personalInfo, setPersonalInfo, cv }
                 <input
                   id="website"
                   value={personalInfo.website}
-                  onChange={(e) => setPersonalInfo({ ...personalInfo, website: e.target.value })}
+                  onChange={e => setPersonalInfo({ ...personalInfo, website: e.target.value })}
                   placeholder="www.johndoe.com"
                   className="border rounded-lg p-2 placeholder-gray-500"
                 />
               ) : (
-                <p className="p-2 bg-gray-50 rounded">{cv?.personal_info?.website || "Not provided"}</p>
+                <p className="p-2 bg-gray-50 rounded">
+                  {cv?.personal_info?.website || 'Not provided'}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -124,35 +143,38 @@ export function PersonalInfoTab({ isEditing, personalInfo, setPersonalInfo, cv }
               {isEditing ? (
                 <input
                   id="github"
-                  value={personalInfo.github || ""}
-                  onChange={(e) => setPersonalInfo({ ...personalInfo, github: e.target.value })}
+                  value={personalInfo.github || ''}
+                  onChange={e => setPersonalInfo({ ...personalInfo, github: e.target.value })}
                   placeholder="github.com/johndoe"
                   className="border rounded-lg p-2 placeholder-gray-500"
                 />
               ) : (
-                <p className="p-2 bg-gray-50 rounded">{cv?.personal_info?.github || "Not provided"}</p>
+                <p className="p-2 bg-gray-50 rounded">
+                  {cv?.personal_info?.github || 'Not provided'}
+                </p>
               )}
             </div>
           </div>
           <div className="space-y-2">
-            <label htmlFor="summary">Professional Summary</label><br />
+            <label htmlFor="summary">Professional Summary</label>
+            <br />
             {isEditing ? (
               <textarea
                 id="summary"
                 value={personalInfo.summary}
-                onChange={(e) => setPersonalInfo({ ...personalInfo, summary: e.target.value })}
+                onChange={e => setPersonalInfo({ ...personalInfo, summary: e.target.value })}
                 placeholder="Brief professional summary highlighting your key achievements and career objectives..."
                 rows={6}
                 className="border rounded-lg p-2 w-full placeholder-gray-500"
               />
             ) : (
               <p className="p-3 bg-gray-50 rounded min-h-[100px]">
-                {cv?.personal_info?.summary || "No summary provided"}
+                {cv?.personal_info?.summary || 'No summary provided'}
               </p>
             )}
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

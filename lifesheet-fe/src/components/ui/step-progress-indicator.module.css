@@ -1,93 +1,89 @@
-
 .progressbar-wrapper {
-      --color-background: #fff;
-      --color-inactive: #7d7d7d;
-      --color-active: #556fb7;
-      --color-active-text: rgb(0, 13, 128);
-      --color-active-background: blue;
+  --color-background: #fff;
+  --color-inactive: #7d7d7d;
+  --color-active: #556fb7;
+  --color-active-text: rgb(0, 13, 128);
+  --color-active-background: blue;
 
-      background: var(--color-background);
-      width: 100%;
-      padding-top: 10px;
-      padding-bottom: 5px;
-      margin-bottom: 65px;
+  background: var(--color-background);
+  width: 100%;
+  padding-top: 10px;
+  padding-bottom: 5px;
+  margin-bottom: 65px;
 }
 
 .progressbar li {
-      list-style-type: none;
-      width: 20%;
-      float: left;
-      font-size: 12px;
-      position: relative;
-      text-align: center;
-      text-transform: uppercase;
-      color: var(--color-inactive);
-     
+  list-style-type: none;
+  width: 20%;
+  float: left;
+  font-size: 12px;
+  position: relative;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--color-inactive);
 }
-.progressbar li.interactive{
-    cursor: pointer;
+.progressbar li.interactive {
+  cursor: pointer;
 }
 .progressbar li.interactive:hover {
-    color: var(--color-active-text);
+  color: var(--color-active-text);
 }
 .progressbar li:before {
-    width: 60px;
-    height: 60px;
-    content: "";
-    line-height: 60px;
-    border: 2px dashed var(--color-inactive);
-    display: block;
-    text-align: center;
-    margin: 0 auto 3px auto;
-    border-radius: 50%;
-    position: relative;
-    z-index: 2;
-    background-color: var(--color-background);
+  width: 60px;
+  height: 60px;
+  content: '';
+  line-height: 60px;
+  border: 2px dashed var(--color-inactive);
+  display: block;
+  text-align: center;
+  margin: 0 auto 3px auto;
+  border-radius: 50%;
+  position: relative;
+  z-index: 2;
+  background-color: var(--color-background);
 }
 .progressbar li.previous:before {
-
-    border: 2px solid var(--color-inactive);
-
+  border: 2px solid var(--color-inactive);
 }
 .progressbar li:after {
-     width: 100%;
-     height: 2px;
-     content: '';
-     position: absolute;
-     background-color: var(--color-inactive);
-     top: 30px;
-     left: -50%;
-     z-index: 0;
+  width: 100%;
+  height: 2px;
+  content: '';
+  position: absolute;
+  background-color: var(--color-inactive);
+  top: 30px;
+  left: -50%;
+  z-index: 0;
 }
 .progressbar li:first-child:after {
-     content: none;
+  content: none;
 }
 .progressbar li.active {
-    color: var(--color-active-text);
-    font-weight: bold;  
+  color: var(--color-active-text);
+  font-weight: bold;
 }
 .progressbar li.active:before {
-    border-color: var(--color-active);
-    background: var(--color-active-background);
- }
+  border-color: var(--color-active);
+  background: var(--color-active-background);
+}
 .progressbar li.active + li:after {
-    background-color: var(--color-active);
+  background-color: var(--color-active);
 }
 .progressbar li.active:before {
-    background: var(--color-active)  no-repeat center center;
-    background-size: 60%;
+  background: var(--color-active) no-repeat center center;
+  background-size: 60%;
 }
 .progressbar li::before {
-    background: var(--color-background) no-repeat center center;
-    background-size: 60%;
+  background: var(--color-background) no-repeat center center;
+  background-size: 60%;
 }
 .progressbar {
-    counter-reset: step;
+  counter-reset: step;
 }
 .progressbar li:before {
-    content: counter(step);
-    counter-increment: step; 
+  content: counter(step);
+  counter-increment: step;
 }
-.progressbar li.previous{
-    color: gray;
+.progressbar li.previous {
+  color: gray;
 }

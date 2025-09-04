@@ -2,7 +2,7 @@ import { Router } from 'express';
 import UserRouter from './user/user.routes';
 import { SaaSPlan } from '../../models/saaS-plan.model';
 import UtilsRouter from './utils';
-import {constants} from '../../constants';
+import { constants } from '../../constants';
 const router = Router();
 
 router.use('/user', UserRouter);
@@ -14,7 +14,7 @@ router.get('/health', (req, res) => {
 router.get('/saas/plans', async (req, res) => {
   try {
     const plans = await SaaSPlan.find({
-      deletedAt: null
+      deletedAt: null,
     });
     res.status(200).json(plans);
   } catch (error) {

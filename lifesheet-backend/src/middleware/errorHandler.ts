@@ -1,16 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import {constants} from '../constants'
+import { constants } from '../constants';
 
 interface AppError extends Error {
   statusCode?: number;
 }
 
-export const errorHandler = (
-  err: AppError,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const errorHandler = (err: AppError, req: Request, res: Response, next: NextFunction) => {
   console.error('Error:', err);
 
   const statusCode = err.statusCode || 500;
@@ -25,7 +20,7 @@ export const errorHandler = (
 
 export class ApiError extends Error {
   statusCode: number;
-  
+
   constructor(statusCode: number, message: string) {
     super(message);
     this.statusCode = statusCode;

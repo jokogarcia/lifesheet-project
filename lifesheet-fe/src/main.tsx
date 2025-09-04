@@ -1,18 +1,17 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import '@/styles/globals.css'
-import App from './App.tsx'
-import { ReactKeycloakProvider } from '@react-keycloak/web'
-import keycloak from './keycloak'
-import { BrowserRouter } from 'react-router-dom'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import '@/styles/globals.css';
+import App from './App.tsx';
+import { ReactKeycloakProvider } from '@react-keycloak/web';
+import keycloak from './keycloak';
+import { BrowserRouter } from 'react-router-dom';
 import '@stripe/stripe-js';
 createRoot(document.getElementById('root')!).render(
   <ReactKeycloakProvider authClient={keycloak}>
-
     <StrictMode>
       <BrowserRouter>
         <App />
       </BrowserRouter>
     </StrictMode>
   </ReactKeycloakProvider>
-)
+);

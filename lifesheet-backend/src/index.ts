@@ -9,12 +9,12 @@ import { setupBullBoard } from './bullboard';
 import { errorHandler } from './middleware/errorHandler';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { PDFService } from './services/pdf-service';
-import { constants } from './constants'
+import { constants } from './constants';
 import StripeWebhookRouter from './routes/api/webhooks/stripe';
 const app: Express = express();
 
 //This needs to come before express.json()
-app.use("/api/webhooks/stripe", StripeWebhookRouter);
+app.use('/api/webhooks/stripe', StripeWebhookRouter);
 setupBullBoard(app, '/private/bull');
 
 // Graceful shutdown handlers
@@ -38,23 +38,24 @@ const gracefulShutdown = async (signal: string) => {
 
 // Middleware
 if (constants.NODE_ENV === 'development') {
-  app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:4000']
-  }));
+  app.use(
+    cors({
+      origin: ['http://localhost:3000', 'http://localhost:4000'],
+    })
+  );
 } else {
   app.use(cors());
 }
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
-
 // Connect to MongoDB
-mongoose.connect(constants.MONGODB_URI as string)
+mongoose
+  .connect(constants.MONGODB_URI as string)
   .then(() => {
     console.log('Connected to MongoDB');
   })
-  .catch((error) => {
+  .catch(error => {
     console.error('MongoDB connection error:', error);
     process.exit(1);
   });
@@ -62,26 +63,27 @@ mongoose.connect(constants.MONGODB_URI as string)
 app.use('/api', apiRouter);
 app.use('/private', privateRoutes);
 
-
 // Proxy all non-API requests to localhost:4000
 if (constants.NODE_ENV !== 'production') {
   //In production, we will use Nginx to handle the proxying
-  
-  app.use(createProxyMiddleware({
-    target: 'http://localhost:4000',
-    changeOrigin: true,
-  }));
+
+  app.use(
+    createProxyMiddleware({
+      target: 'http://localhost:4000',
+      changeOrigin: true,
+    })
+  );
 }
 
 // Error handling middleware
 app.use(errorHandler);
 // Handle different shutdown signals
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));   // Ctrl+C
+process.on('SIGINT', () => gracefulShutdown('SIGINT')); // Ctrl+C
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM')); // Termination signal
 process.on('SIGQUIT', () => gracefulShutdown('SIGQUIT')); // Quit signal
 
 // Handle uncaught exceptions
-process.on('uncaughtException', (error) => {
+process.on('uncaughtException', error => {
   console.error('Uncaught Exception:', error);
   gracefulShutdown('uncaughtException');
 });
