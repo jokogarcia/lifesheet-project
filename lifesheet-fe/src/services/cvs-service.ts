@@ -285,3 +285,8 @@ export interface TailoredData {
 async function wait(miliseconds: number) {
   return new Promise(resolve => setTimeout(resolve, miliseconds));
 }
+
+export function isCVOnboarded(cv: CV | null): boolean {
+  if (!cv) return false;
+  return cv.created_at !== cv.updated_at;
+}

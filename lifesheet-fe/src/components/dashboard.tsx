@@ -3,10 +3,23 @@ import TailoredCVs from './tailored-cvs';
 import { Button } from './ui/button';
 import { Award, Download, LogOut, UserRoundPen } from 'lucide-react';
 import { useAuth } from '@/hooks/auth-hook';
+import { useUserCV } from '@/hooks/use-cv';
+import { LoadingIndicator } from './ui/loading-indicator';
+import { isCVOnboarded } from '@/services/cvs-service';
 
 export function Dashboard() {
+
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { cv, isLoading } = useUserCV();
+  if (isLoading) {
+    return <LoadingIndicator />;
+  }
+  if (!isCVOnboarded(cv)) {
+    //CV is incomplete, redirect to onboarding
+    navigate('/onboarding');
+    return <LoadingIndicator />;
+  }
   return (
     <>
       <div className="flex flex-row-reverse">
