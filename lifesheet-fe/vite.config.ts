@@ -13,4 +13,20 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router-dom'],
+          axios: ['axios'],
+          lucide: ['lucide-react'],
+          stripe: ['@stripe/stripe-js'],
+          keycloak: ['keycloak-js', '@react-keycloak/web'],
+          markdown: ['react-markdown'],
+          reactDraft: ['react-draft-wysiwyg'],
+          draftjs: ['draft-js', 'draft-js-export-markdown', 'draft-js-import-markdown'],
+        },
+      },
+    },
+  }
 });
