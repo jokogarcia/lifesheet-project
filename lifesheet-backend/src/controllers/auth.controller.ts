@@ -3,17 +3,10 @@ import jwt from 'jsonwebtoken';
 import User, { IUser } from '../models/user.model';
 import { ApiError } from '../middleware/errorHandler';
 
-
-
-
 // @desc    Get current user profile
 // @route   GET /api/auth/me
 // @access  Private
-export const getMe = async (
-  req: Request, 
-  res: Response, 
-  next: NextFunction
-) => {
+export const getMe = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await User.findById(req.user!.id);
 
@@ -37,11 +30,7 @@ export const getMe = async (
 // @desc    Update user profile
 // @route   PUT /api/auth/me
 // @access  Private
-export const updateMe = async (
-  req: Request, 
-  res: Response, 
-  next: NextFunction
-) => {
+export const updateMe = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { name, email } = req.body;
     const user = await User.findById(req.user!.id);

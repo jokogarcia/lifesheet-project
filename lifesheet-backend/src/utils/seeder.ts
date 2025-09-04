@@ -2,17 +2,20 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import User from '../models/user.model';
 import CV from '../models/cv.model';
-import {constants } from '../constants';
+import { constants } from '../constants';
 // Load env vars
 dotenv.config();
 
 // Connect to DB
-mongoose.connect(constants.MONGODB_URI as string).then(() => {
-  console.log('MongoDB Connected...');
-}).catch((err) => {
-  console.error('MongoDB Connection Error:', err);
-  process.exit(1);
-});
+mongoose
+  .connect(constants.MONGODB_URI as string)
+  .then(() => {
+    console.log('MongoDB Connected...');
+  })
+  .catch(err => {
+    console.error('MongoDB Connection Error:', err);
+    process.exit(1);
+  });
 
 // Sample user data
 const sampleUsers = [
@@ -42,7 +45,8 @@ const createSampleCV = async (userId: mongoose.Types.ObjectId) => {
       website: 'johndoe.dev',
       linkedin: 'linkedin.com/in/johndoe',
       github: 'github.com/johndoe',
-      summary: 'Experienced software developer with expertise in JavaScript, TypeScript, and React.',
+      summary:
+        'Experienced software developer with expertise in JavaScript, TypeScript, and React.',
     },
     sections: [
       {
@@ -59,8 +63,8 @@ const createSampleCV = async (userId: mongoose.Types.ObjectId) => {
             items: [
               'Led a team of 5 developers to deliver a major product feature',
               'Improved application performance by 40%',
-              'Implemented CI/CD pipelines'
-            ]
+              'Implemented CI/CD pipelines',
+            ],
           },
           {
             title: 'Software Developer',
@@ -72,10 +76,10 @@ const createSampleCV = async (userId: mongoose.Types.ObjectId) => {
             items: [
               'Built responsive web applications',
               'Collaborated with design and product teams',
-              'Implemented RESTful APIs'
-            ]
-          }
-        ]
+              'Implemented RESTful APIs',
+            ],
+          },
+        ],
       },
       {
         type: 'education',
@@ -87,7 +91,7 @@ const createSampleCV = async (userId: mongoose.Types.ObjectId) => {
             description: 'Focus on artificial intelligence and machine learning',
             startDate: new Date('2016-09-01'),
             endDate: new Date('2018-06-30'),
-            location: 'Stanford, CA'
+            location: 'Stanford, CA',
           },
           {
             title: 'B.S. Computer Science',
@@ -95,9 +99,9 @@ const createSampleCV = async (userId: mongoose.Types.ObjectId) => {
             description: 'Minor in Mathematics',
             startDate: new Date('2012-09-01'),
             endDate: new Date('2016-05-30'),
-            location: 'Berkeley, CA'
-          }
-        ]
+            location: 'Berkeley, CA',
+          },
+        ],
       },
       {
         type: 'skills',
@@ -105,23 +109,17 @@ const createSampleCV = async (userId: mongoose.Types.ObjectId) => {
         items: [
           {
             title: 'Programming Languages',
-            items: [
-              'JavaScript', 'TypeScript', 'Python', 'Java', 'C++'
-            ]
+            items: ['JavaScript', 'TypeScript', 'Python', 'Java', 'C++'],
           },
           {
             title: 'Frameworks & Libraries',
-            items: [
-              'React', 'Node.js', 'Express', 'Next.js', 'Django'
-            ]
+            items: ['React', 'Node.js', 'Express', 'Next.js', 'Django'],
           },
           {
             title: 'Tools & Platforms',
-            items: [
-              'Git', 'Docker', 'AWS', 'CI/CD', 'MongoDB', 'PostgreSQL'
-            ]
-          }
-        ]
+            items: ['Git', 'Docker', 'AWS', 'CI/CD', 'MongoDB', 'PostgreSQL'],
+          },
+        ],
       },
       {
         type: 'projects',
@@ -130,23 +128,23 @@ const createSampleCV = async (userId: mongoose.Types.ObjectId) => {
           {
             title: 'Lifesheet CV Builder',
             description: 'A web application for creating and managing professional CVs',
-            url: 'github.com/johndoe/lifesheet'
+            url: 'github.com/johndoe/lifesheet',
           },
           {
             title: 'Smart Home Dashboard',
             description: 'IoT dashboard for monitoring and controlling smart home devices',
-            url: 'github.com/johndoe/smart-home'
-          }
-        ]
-      }
+            url: 'github.com/johndoe/smart-home',
+          },
+        ],
+      },
     ],
     isPublic: false,
     customStyles: {
       template: 'modern',
       primaryColor: '#0066cc',
       fontFamily: 'Roboto, sans-serif',
-      fontSize: '11pt'
-    }
+      fontSize: '11pt',
+    },
   };
 };
 
@@ -156,17 +154,19 @@ const importData = async () => {
     // Clear existing data
     await User.deleteMany({});
     await CV.deleteMany({});
-    
+
     console.log('Data cleared...');
-    
+
     // Insert users
-    const createdUsers = await User.insertMany(sampleUsers) as mongoose.Document<{ _id: mongoose.Types.ObjectId }>[]; // Explicitly type the result
+    const createdUsers = (await User.insertMany(sampleUsers)) as mongoose.Document<{
+      _id: mongoose.Types.ObjectId;
+    }>[]; // Explicitly type the result
     console.log('Users created...');
     const firstUser = createdUsers[0];
     // Create sample CVs for the first user
     const sampleCV = await createSampleCV(firstUser._id as mongoose.Types.ObjectId);
     await CV.create(sampleCV);
-    
+
     console.log('Sample CV created...');
     console.log('Data import completed successfully');
     process.exit();
@@ -181,7 +181,7 @@ const deleteData = async () => {
   try {
     await User.deleteMany({});
     await CV.deleteMany({});
-    
+
     console.log('Data deleted...');
     process.exit();
   } catch (err) {
