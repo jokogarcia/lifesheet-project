@@ -10,8 +10,7 @@ export function useSaasPlans() {
 
   const fetchSaaSPlans = useCallback(async () => {
     setIsLoading(true);
-    const token = auth ? await auth.getAccessTokenSilently() : undefined;
-    const plans = await SaasService.getSaaSPlans(token);
+    const plans = await SaasService.getSaaSPlans();
     setSaasPlans(plans);
     setIsLoading(false);
   }, [auth]);
@@ -32,21 +31,20 @@ export function useSaaSActiveSubscription() {
 
   const fetchActiveSubscription = useCallback(async () => {
     setIsLoading(true);
-    const token = await auth.getAccessTokenSilently();
     const {
       activeSubscription,
       todaysConsumptions,
       thisWeeksConsumptions,
       dailyRateLimit,
       weeklyRateLimit,
-    } = await SaasService.getActiveSubscription(token);
+    } = await SaasService.getActiveSubscription();
     setActiveSubscription(activeSubscription);
     setTodaysConsumptions(todaysConsumptions);
     setThisWeeksConsumptions(thisWeeksConsumptions);
     setCanUseAI(
       dailyRateLimit !== -1 &&
-        todaysConsumptions < dailyRateLimit &&
-        (weeklyRateLimit === -1 || thisWeeksConsumptions < weeklyRateLimit)
+      todaysConsumptions < dailyRateLimit &&
+      (weeklyRateLimit === -1 || thisWeeksConsumptions < weeklyRateLimit)
     );
     setIsLoading(false);
   }, [auth]);
