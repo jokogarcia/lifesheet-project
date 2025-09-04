@@ -1,11 +1,14 @@
+# For dev environment just run docker compose up --build -d
+# For prod environment run ENV_FILE=.env.prod docker compose up --build -d
+# Ensure to manualy copy the required env files, they are not part of the repo
+# see lifesheet-backend/.env.example as a guide
+
 services:
   frontend:
     build:
       context: .
     ports:
       - "5500:80"
-    environment:
-      - NEXT_PUBLIC_API_URL=http://backend:3001
     depends_on:
       - backend
     networks:
@@ -14,7 +17,7 @@ services:
     build:
       context: ./lifesheet-backend
     env_file:
-      - ./lifesheet-backend/.env
+      - ./lifesheet-backend/${ENV_FILE:-.env}
     environment:
       - MONGODB_URI=mongodb://mongo:27017/lifesheet
       - PORT=3001
@@ -47,7 +50,7 @@ services:
       #   code and print a message, when the variable is not set or empty
       - redis-server --requirepass "$${REDIS_PASSWORD:?REDIS_PASSWORD variable is not set}"
     env_file:
-      - ./lifesheet-backend/.env
+      - ./lifesheet-backend/${ENV_FILE:-.env}
 
 networks:
   lifesheet-network:

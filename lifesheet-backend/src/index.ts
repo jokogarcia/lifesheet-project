@@ -1,10 +1,7 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
-import express, { Express, Request, Response, NextFunction } from 'express';
+import './loadenv';
+import express, { Express } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import path from 'path';
 
 import apiRouter from './routes/api';
 import privateRoutes from './routes/private.routes';
@@ -40,7 +37,13 @@ const gracefulShutdown = async (signal: string) => {
 };
 
 // Middleware
-app.use(cors());
+if (constants.NODE_ENV === 'development') {
+  app.use(cors({
+    origin: ['http://localhost:3000', 'http://localhost:4000']
+  }));
+} else {
+  app.use(cors());
+}
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -58,9 +61,6 @@ mongoose.connect(constants.MONGODB_URI as string)
 
 app.use('/api', apiRouter);
 app.use('/private', privateRoutes);
-
-
-
 
 
 // Proxy all non-API requests to localhost:4000
