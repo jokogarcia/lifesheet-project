@@ -1,108 +1,108 @@
-import axios, { Axios } from "axios"
-import { constants } from "../constants"
+import axios, { Axios } from 'axios';
+import { constants } from '../constants';
 // User profile interface
 export interface UserProfile {
-  _id: string
-  name: string
-  email: string
+  _id: string;
+  name: string;
+  email: string;
 }
 
 // Update profile request structure
 export interface UpdateProfileRequest {
-  name?: string
-  email?: string
+  name?: string;
+  email?: string;
 }
 
 class UserService {
-  private client:Axios
+  private client: Axios;
 
   constructor(baseUrl: string = constants.API_URL) {
     this.client = axios.create({
       baseURL: baseUrl,
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
-    })
+    });
     this.client.interceptors.response.use(
       response => response,
       error => {
         if (error.response?.status === 401) {
           // Could emit an event that components can listen to
-          console.error("Authentication token expired or invalid")
+          console.error('Authentication token expired or invalid');
         }
-        return Promise.reject(error)
+        return Promise.reject(error);
       }
-    )
+    );
   }
   setAuthToken(token: string) {
-    this.client.defaults.headers.common["Authorization"] = `Bearer ${token}`
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   }
 
-  
-
- 
   // Get the current user's profile
   async getProfile(): Promise<UserProfile> {
-    console.log("🔄 UserService: Fetching user profile...")
+    console.log('🔄 UserService: Fetching user profile...');
 
-    const response = await this.client.get<UserProfile>('/user/me')
-      
-     return response.data
-      
+    const response = await this.client.get<UserProfile>('/user/me');
+
+    return response.data;
   }
 
   // Update the current user's profile
   async updateProfile(profileData: UpdateProfileRequest): Promise<UserProfile> {
-    console.log("🔄 UserService: Updating user profile...")
+    console.log('🔄 UserService: Updating user profile...');
 
-    const response = await this.client.put<UserProfile>('/user/me', profileData)
-    
-    return response.data
+    const response = await this.client.put<UserProfile>('/user/me', profileData);
+
+    return response.data;
   }
   async getUserPictures(): Promise<string[]> {
-    console.log("🔄 UserService: Fetching user pictures...")
-    const response = await this.client.get<{pictureIds:string[]}>('/user/me/pictures')
-    return response.data.pictureIds
+    console.log('🔄 UserService: Fetching user pictures...');
+    const response = await this.client.get<{ pictureIds: string[] }>('/user/me/pictures');
+    return response.data.pictureIds;
   }
-  
+
   async uploadPicture(file: File): Promise<string> {
-    console.log("🔄 UserService: Uploading picture...")
-    const formData = new FormData()
-    formData.append("picture", file)
+    console.log('🔄 UserService: Uploading picture...');
+    const formData = new FormData();
+    formData.append('picture', file);
 
-    const response = await this.client.post<{pictureId:string}>('/user/me/picture', formData, {
+    const response = await this.client.post<{ pictureId: string }>('/user/me/picture', formData, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
-    })
+    });
 
-    return response.data.pictureId
+    return response.data.pictureId;
   }
 
   async deletePicture(pictureId: string): Promise<void> {
-    console.log("🔄 UserService: Deleting picture...")
-    await this.client.delete(`/user/me/picture/${pictureId}`)
+    console.log('🔄 UserService: Deleting picture...');
+    await this.client.delete(`/user/me/picture/${pictureId}`);
   }
-  
+
   async getPicture(pictureId: string): Promise<string> {
-    console.log("🔄 UserService: Fetching picture...")
+    console.log('🔄 UserService: Fetching picture...');
     const response = await this.client.get(`/user/me/picture/${pictureId}`, {
-      responseType: 'blob'
-    })
-    
+      responseType: 'blob',
+    });
+
     // Create blob URL from the response
-    const blob = new Blob([response.data], { type: response.headers['content-type'] || 'image/jpeg' })
-    const blobUrl = URL.createObjectURL(blob)
-    
-    return blobUrl
+    const blob = new Blob([response.data], {
+      type: response.headers['content-type'] || 'image/jpeg',
+    });
+    const blobUrl = URL.createObjectURL(blob);
+
+    return blobUrl;
   }
   async getPictureShareLink(pictureId: string): Promise<string> {
-    console.log("🔄 UserService: Fetching picture share link...")
-    const response = await this.client.get<{ shareLink: string }>(`/user/me/picture/${pictureId}/share-link`)
-    return response.data.shareLink
+    console.log('🔄 UserService: Fetching picture share link...');
+    const response = await this.client.get<{ shareLink: string }>(
+      `/user/me/picture/${pictureId}/share-link`
+    );
+    return response.data.shareLink;
   }
 }
 
 // Export a singleton instance
-const userService = new UserService()
-export default userService
+const userService = new UserService();
+export default userService;

@@ -1,35 +1,35 @@
-import { GraduationCap, Plus } from "lucide-react"
-import type { CV, Education } from "../../services/cvs-service"
+import { GraduationCap, Plus } from 'lucide-react';
+import type { CV, Education } from '../../services/cvs-service';
 
 interface EducationTabProps {
-  isEditing: boolean
-  education: Education[]
-  setEducation: (edu: Education[]) => void
-  cv: CV | null
+  isEditing: boolean;
+  education: Education[];
+  setEducation: (edu: Education[]) => void;
+  cv: CV | null;
 }
 
 export function EducationTab({ isEditing, education, setEducation, cv }: EducationTabProps) {
   const addEducation = () => {
     const newEdu: Education = {
       id: Date.now().toString(),
-      institution: "",
-      degree: "",
-      field: "",
-      startDate: "",
-      endDate: "",
-      gpa: "",
-      location: "",
-    }
-    setEducation([...education, newEdu])
-  }
+      institution: '',
+      degree: '',
+      field: '',
+      startDate: '',
+      endDate: '',
+      gpa: '',
+      location: '',
+    };
+    setEducation([...education, newEdu]);
+  };
 
   const removeEducation = (id: string) => {
-    setEducation(education.filter((edu) => edu.id !== id))
-  }
+    setEducation(education.filter(edu => edu.id !== id));
+  };
 
   const updateEducation = (id: string, field: keyof Education, value: string) => {
-    setEducation(education.map((edu) => (edu.id === id ? { ...edu, [field]: value } : edu)))
-  }
+    setEducation(education.map(edu => (edu.id === id ? { ...edu, [field]: value } : edu)));
+  };
 
   return (
     <div className="space-y-4">
@@ -42,7 +42,10 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
           {isEditing ? (
             <>
               {education.map((edu, index) => (
-                <div key={edu.id} className="space-y-4 p-4 border rounded-lg transition-all hover:shadow-md">
+                <div
+                  key={edu.id}
+                  className="space-y-4 p-4 border rounded-lg transition-all hover:shadow-md"
+                >
                   <div className="flex justify-between items-center">
                     <h3 className="font-semibold">Education {index + 1}</h3>
                     {education.length > 1 && (
@@ -61,7 +64,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                         id={`institution-${edu.id}`}
                         required
                         value={edu.institution}
-                        onChange={(e) => updateEducation(edu.id, "institution", e.target.value)}
+                        onChange={e => updateEducation(edu.id, 'institution', e.target.value)}
                         placeholder="University Name"
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
@@ -72,7 +75,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                         id={`degree-${edu.id}`}
                         required
                         value={edu.degree}
-                        onChange={(e) => updateEducation(edu.id, "degree", e.target.value)}
+                        onChange={e => updateEducation(edu.id, 'degree', e.target.value)}
                         placeholder="Bachelor's, Master's, etc."
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
@@ -82,7 +85,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                       <input
                         id={`field-${edu.id}`}
                         value={edu.field}
-                        onChange={(e) => updateEducation(edu.id, "field", e.target.value)}
+                        onChange={e => updateEducation(edu.id, 'field', e.target.value)}
                         placeholder="Computer Science, Business, etc."
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
@@ -93,7 +96,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                         id={`gpa-${edu.id}`}
                         type="number"
                         value={edu.gpa}
-                        onChange={(e) => updateEducation(edu.id, "gpa", e.target.value)}
+                        onChange={e => updateEducation(edu.id, 'gpa', e.target.value)}
                         placeholder="3.8/4.0"
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
@@ -104,7 +107,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                         id={`location-${edu.id}`}
                         required
                         value={edu.location}
-                        onChange={(e) => updateEducation(edu.id, "location", e.target.value)}
+                        onChange={e => updateEducation(edu.id, 'location', e.target.value)}
                         placeholder="City, State/Country"
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
@@ -116,7 +119,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                         required
                         type="date"
                         value={edu.startDate}
-                        onChange={(e) => updateEducation(edu.id, "startDate", e.target.value)}
+                        onChange={e => updateEducation(edu.id, 'startDate', e.target.value)}
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
@@ -126,14 +129,17 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                         id={`endDate-${edu.id}`}
                         type="date"
                         value={edu.endDate}
-                        onChange={(e) => updateEducation(edu.id, "endDate", e.target.value)}
+                        onChange={e => updateEducation(edu.id, 'endDate', e.target.value)}
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
                   </div>
                 </div>
               ))}
-              <button onClick={addEducation} className="bg-green-100 text-green-600 px-4 py-2 rounded btn-custom">
+              <button
+                onClick={addEducation}
+                className="bg-green-100 text-green-600 px-4 py-2 rounded btn-custom"
+              >
                 <Plus className="h-4 w-4 mr-2 inline-block" />
                 Add Education
               </button>
@@ -151,13 +157,17 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                           {edu.degree} in {edu.field}
                         </h3>
                         <p className="text-muted-foreground">{edu.institution}</p>
-                        {edu.location && <p className="text-sm text-muted-foreground">{edu.location}</p>}
+                        {edu.location && (
+                          <p className="text-sm text-muted-foreground">{edu.location}</p>
+                        )}
                       </div>
                       <div className="text-right">
                         <div className="bg-gray-100 px-2 py-1 rounded">
                           {edu.startDate} - {edu.endDate}
                         </div>
-                        {edu.gpa && <p className="text-sm text-muted-foreground mt-1">GPA: {edu.gpa}</p>}
+                        {edu.gpa && (
+                          <p className="text-sm text-muted-foreground mt-1">GPA: {edu.gpa}</p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -168,5 +178,5 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
         </div>
       </div>
     </div>
-  )
+  );
 }

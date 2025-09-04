@@ -1,5 +1,5 @@
-export { PersonalInfoTab } from "./personal-info-tab"
-export { WorkExperienceTab } from "./work-experience-tab"
-export { EducationTab } from "./education-tab"
-export { SkillsTab } from "./skills-tab"
-export { PicturesTab } from "./pictures-tab"
+export { PersonalInfoTab } from './personal-info-tab';
+export { WorkExperienceTab } from './work-experience-tab';
+export { EducationTab } from './education-tab';
+export { SkillsTab } from './skills-tab';
+export { PicturesTab } from './pictures-tab';

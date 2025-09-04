@@ -1,17 +1,17 @@
-import { Award, Plus } from "lucide-react"
-import type { Skill, LanguageSkill, CV } from "../../services/cvs-service"
+import { Award, Plus } from 'lucide-react';
+import type { Skill, LanguageSkill, CV } from '../../services/cvs-service';
 
 interface SkillsTabProps {
-  isEditing: boolean
-  skills: Skill[]
-  setSkills: (skills: Skill[]) => void
-  newSkill: { name: string; level: string }
-  setNewSkill: (skill: { name: string; level: string }) => void
-  languageSkills: LanguageSkill[]
-  setLanguageSkills: (skills: LanguageSkill[]) => void
-  newLanguageSkill: { language: string; level: string }
-  setNewLanguageSkill: (skill: { language: string; level: string }) => void
-  cv: CV | null | null
+  isEditing: boolean;
+  skills: Skill[];
+  setSkills: (skills: Skill[]) => void;
+  newSkill: { name: string; level: string };
+  setNewSkill: (skill: { name: string; level: string }) => void;
+  languageSkills: LanguageSkill[];
+  setLanguageSkills: (skills: LanguageSkill[]) => void;
+  newLanguageSkill: { language: string; level: string };
+  setNewLanguageSkill: (skill: { language: string; level: string }) => void;
+  cv: CV | null | null;
 }
 
 export function SkillsTab({
@@ -24,7 +24,7 @@ export function SkillsTab({
   setLanguageSkills,
   newLanguageSkill,
   setNewLanguageSkill,
-  cv
+  cv,
 }: SkillsTabProps) {
   const addSkill = () => {
     if (newSkill.name.trim()) {
@@ -32,15 +32,15 @@ export function SkillsTab({
         id: Date.now().toString(),
         name: newSkill.name,
         level: newSkill.level,
-      }
-      setSkills([...skills, skill])
-      setNewSkill({ name: "", level: "Intermediate" })
+      };
+      setSkills([...skills, skill]);
+      setNewSkill({ name: '', level: 'Intermediate' });
     }
-  }
+  };
 
   const removeSkill = (id: string) => {
-    setSkills(skills.filter((skill) => skill.id !== id))
-  }
+    setSkills(skills.filter(skill => skill.id !== id));
+  };
 
   const addLanguageSkill = () => {
     if (newLanguageSkill.language.trim()) {
@@ -48,15 +48,15 @@ export function SkillsTab({
         id: Date.now().toString(),
         language: newLanguageSkill.language,
         level: newLanguageSkill.level,
-      }
-      setLanguageSkills([...languageSkills, languageSkill])
-      setNewLanguageSkill({ language: "", level: "Intermediate" })
+      };
+      setLanguageSkills([...languageSkills, languageSkill]);
+      setNewLanguageSkill({ language: '', level: 'Intermediate' });
     }
-  }
+  };
 
   const removeLanguageSkill = (id: string) => {
-    setLanguageSkills(languageSkills.filter((langSkill) => langSkill.id !== id))
-  }
+    setLanguageSkills(languageSkills.filter(langSkill => langSkill.id !== id));
+  };
 
   return (
     <div className="space-y-4">
@@ -72,13 +72,13 @@ export function SkillsTab({
                 <input
                   value={newSkill.name}
                   required
-                  onChange={(e) => setNewSkill({ ...newSkill, name: e.target.value })}
+                  onChange={e => setNewSkill({ ...newSkill, name: e.target.value })}
                   placeholder="Skill name (e.g., JavaScript, Project Management)"
                   className="flex-1 border rounded-lg p-2 placeholder-gray-500"
                 />
                 <select
                   value={newSkill.level}
-                  onChange={(e) => setNewSkill({ ...newSkill, level: e.target.value })}
+                  onChange={e => setNewSkill({ ...newSkill, level: e.target.value })}
                   className="px-3 py-2 border rounded-md"
                 >
                   <option value="Beginner">Beginner</option>
@@ -86,7 +86,10 @@ export function SkillsTab({
                   <option value="Advanced">Advanced</option>
                   <option value="Expert">Expert</option>
                 </select>
-                <button onClick={addSkill} className="bg-green-100 text-green-600 px-4 py-2 rounded btn-custom">
+                <button
+                  onClick={addSkill}
+                  className="bg-green-100 text-green-600 px-4 py-2 rounded btn-custom"
+                >
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
@@ -95,10 +98,16 @@ export function SkillsTab({
                 <div className="space-y-2">
                   <label>Your Skills</label>
                   <div className="flex flex-wrap gap-2">
-                    {skills.map((skill) => (
-                      <div key={skill.id} className="bg-gray-100 px-2 py-1 rounded flex items-center gap-2 transition-colors hover:bg-gray-200">
+                    {skills.map(skill => (
+                      <div
+                        key={skill.id}
+                        className="bg-gray-100 px-2 py-1 rounded flex items-center gap-2 transition-colors hover:bg-gray-200"
+                      >
                         {skill.name} ({skill.level})
-                        <button onClick={() => removeSkill(skill.id)} className="ml-1 hover:text-destructive">
+                        <button
+                          onClick={() => removeSkill(skill.id)}
+                          className="ml-1 hover:text-destructive"
+                        >
                           ×
                         </button>
                       </div>
@@ -114,13 +123,17 @@ export function SkillsTab({
                   <input
                     required
                     value={newLanguageSkill.language}
-                    onChange={(e) => setNewLanguageSkill({ ...newLanguageSkill, language: e.target.value })}
+                    onChange={e =>
+                      setNewLanguageSkill({ ...newLanguageSkill, language: e.target.value })
+                    }
                     placeholder="Language (e.g., English, Spanish, French)"
                     className="flex-1 border rounded-lg p-2 placeholder-gray-500"
                   />
                   <select
                     value={newLanguageSkill.level}
-                    onChange={(e) => setNewLanguageSkill({ ...newLanguageSkill, level: e.target.value })}
+                    onChange={e =>
+                      setNewLanguageSkill({ ...newLanguageSkill, level: e.target.value })
+                    }
                     className="px-3 py-2 border rounded-md"
                   >
                     <option value="Beginner">Beginner</option>
@@ -129,7 +142,10 @@ export function SkillsTab({
                     <option value="Native">Native</option>
                     <option value="Fluent">Fluent</option>
                   </select>
-                  <button onClick={addLanguageSkill} className="bg-green-100 text-green-600 px-4 py-2 rounded btn-custom">
+                  <button
+                    onClick={addLanguageSkill}
+                    className="bg-green-100 text-green-600 px-4 py-2 rounded btn-custom"
+                  >
                     <Plus className="h-4 w-4" />
                   </button>
                 </div>
@@ -138,10 +154,16 @@ export function SkillsTab({
                   <div className="space-y-2">
                     <label>Your Languages</label>
                     <div className="flex flex-wrap gap-2">
-                      {languageSkills.map((langSkill) => (
-                        <div key={langSkill.id} className="bg-blue-50 px-2 py-1 rounded flex items-center gap-2 transition-colors hover:bg-blue-100">
+                      {languageSkills.map(langSkill => (
+                        <div
+                          key={langSkill.id}
+                          className="bg-blue-50 px-2 py-1 rounded flex items-center gap-2 transition-colors hover:bg-blue-100"
+                        >
                           {langSkill.language} ({langSkill.level})
-                          <button onClick={() => removeLanguageSkill(langSkill.id)} className="ml-1 hover:text-destructive">
+                          <button
+                            onClick={() => removeLanguageSkill(langSkill.id)}
+                            className="ml-1 hover:text-destructive"
+                          >
                             ×
                           </button>
                         </div>
@@ -158,7 +180,10 @@ export function SkillsTab({
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {cv?.skills.map((skill: Skill) => (
-                    <div key={skill.id} className="bg-gray-100 px-2 py-1 rounded transition-colors hover:bg-gray-200">
+                    <div
+                      key={skill.id}
+                      className="bg-gray-100 px-2 py-1 rounded transition-colors hover:bg-gray-200"
+                    >
                       {skill.name} ({skill.level})
                     </div>
                   ))}
@@ -171,7 +196,10 @@ export function SkillsTab({
                   <h4 className="font-semibold text-lg mb-4">Language Skills</h4>
                   <div className="flex flex-wrap gap-2">
                     {cv.language_skills.map((langSkill: LanguageSkill) => (
-                      <div key={langSkill.id} className="bg-blue-50 px-2 py-1 rounded transition-colors hover:bg-blue-100">
+                      <div
+                        key={langSkill.id}
+                        className="bg-blue-50 px-2 py-1 rounded transition-colors hover:bg-blue-100"
+                      >
                         {langSkill.language} ({langSkill.level})
                       </div>
                     ))}
@@ -183,5 +211,5 @@ export function SkillsTab({
         </div>
       </div>
     </div>
-  )
+  );
 }

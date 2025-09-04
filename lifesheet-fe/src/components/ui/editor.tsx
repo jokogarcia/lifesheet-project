@@ -7,7 +7,7 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 interface RichTextEditorProps {
   content: string;
   onContentUpdate: (content: string) => void;
-    style?: React.CSSProperties;
+  style?: React.CSSProperties;
 }
 
 const RichTextEditor: React.FC<RichTextEditorProps> = ({ content, onContentUpdate, style }) => {
@@ -29,7 +29,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ content, onContentUpdat
       <Editor
         editorState={editorState}
         onEditorStateChange={setEditorState}
-        wrapperStyle={{ height: '100%' , border: '1px solid #F1F1F1', borderRadius: '8px' }}
+        wrapperStyle={{ height: '100%', border: '1px solid #F1F1F1', borderRadius: '8px' }}
         toolbar={{
           options: ['inline', 'blockType', 'list', 'textAlign', 'link', 'history'],
           inline: { options: ['bold', 'italic', 'underline'] },

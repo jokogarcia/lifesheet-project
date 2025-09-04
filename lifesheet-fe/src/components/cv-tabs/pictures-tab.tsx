@@ -1,52 +1,52 @@
-import { FileText, Upload, Trash2 } from "lucide-react"
-import { SecureImg } from "../ui/secure-img"
-import { useState } from "react"
+import { FileText, Upload, Trash2 } from 'lucide-react';
+import { SecureImg } from '../ui/secure-img';
+import { useState } from 'react';
 
 interface PicturesTabProps {
-  pictures: string[]
-  isUploadingPicture: boolean
-  handlePictureUpload: (event: React.ChangeEvent<HTMLInputElement>) => void
-  handleDeletePicture: (pictureId: string) => void
+  pictures: string[];
+  isUploadingPicture: boolean;
+  handlePictureUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleDeletePicture: (pictureId: string) => void;
 }
 
 export function PicturesTab({
   pictures,
   isUploadingPicture,
   handlePictureUpload,
-  handleDeletePicture
+  handleDeletePicture,
 }: PicturesTabProps) {
-  const [isDraggingOver, setIsDraggingOver] = useState(false)
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    event.stopPropagation()
-  }
+    event.preventDefault();
+    event.stopPropagation();
+  };
 
   const handleDragEnter = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    event.stopPropagation()
-    setIsDraggingOver(true)
-  }
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDraggingOver(true);
+  };
 
   const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    event.stopPropagation()
-    setIsDraggingOver(false)
-  }
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDraggingOver(false);
+  };
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    event.stopPropagation()
-    setIsDraggingOver(false)
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDraggingOver(false);
 
-    const files = event.dataTransfer.files
+    const files = event.dataTransfer.files;
     if (files && files.length > 0) {
       const syntheticEvent = {
         target: { files },
-      } as unknown as React.ChangeEvent<HTMLInputElement>
-      handlePictureUpload(syntheticEvent)
+      } as unknown as React.ChangeEvent<HTMLInputElement>;
+      handlePictureUpload(syntheticEvent);
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
@@ -63,7 +63,7 @@ export function PicturesTab({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           className={`border-2 border-dashed rounded-lg p-8 text-center mb-6 transition-colors ${
-            isDraggingOver ? "border-primary bg-primary/10" : "border-muted-foreground/25"
+            isDraggingOver ? 'border-primary bg-primary/10' : 'border-muted-foreground/25'
           }`}
         >
           <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
@@ -132,5 +132,5 @@ export function PicturesTab({
         </div>
       </div>
     </div>
-  )
+  );
 }
