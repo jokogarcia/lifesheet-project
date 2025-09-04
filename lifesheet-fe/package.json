@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev-remote": "VITE_API_URL=https://lifesheet.irazu.zapto.org/api vite",
+    "dev":"vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
