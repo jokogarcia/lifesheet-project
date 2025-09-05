@@ -79,7 +79,7 @@ export function PersonalInfoTab({
               {isEditing ? (
                 <input
                   id="phone"
-                  value={personalInfo.phone}
+                  value={personalInfo.phone || ''}
                   onChange={e => setPersonalInfo({ ...personalInfo, phone: e.target.value })}
                   placeholder="+1 (555) 123-4567"
                   className="border rounded-lg p-2 placeholder-gray-500"
@@ -95,7 +95,7 @@ export function PersonalInfoTab({
               {isEditing ? (
                 <input
                   id="location"
-                  value={personalInfo.location}
+                  value={personalInfo.location || ''}
                   onChange={e => setPersonalInfo({ ...personalInfo, location: e.target.value })}
                   placeholder="New York, NY"
                   className="border rounded-lg p-2 placeholder-gray-500"
@@ -111,7 +111,7 @@ export function PersonalInfoTab({
               {isEditing ? (
                 <input
                   id="linkedIn"
-                  value={personalInfo.linkedIn}
+                  value={personalInfo.linkedIn || ''}
                   onChange={e => setPersonalInfo({ ...personalInfo, linkedIn: e.target.value })}
                   placeholder="linkedin.com/in/johndoe"
                   className="border rounded-lg p-2 placeholder-gray-500"
@@ -127,7 +127,7 @@ export function PersonalInfoTab({
               {isEditing ? (
                 <input
                   id="website"
-                  value={personalInfo.website}
+                  value={personalInfo.website || ''}
                   onChange={e => setPersonalInfo({ ...personalInfo, website: e.target.value })}
                   placeholder="www.johndoe.com"
                   className="border rounded-lg p-2 placeholder-gray-500"
