@@ -1,3 +1,4 @@
+import { Request } from 'express';
 export function getSecondsUntilTomorrow(): number {
   const now = new Date();
   const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
@@ -11,4 +12,7 @@ export function getSecondsUntilNextWeek(): number {
     now.getDate() + ((8 - now.getDay()) % 7)
   );
   return Math.floor((nextMonday.getTime() - now.getTime()) / 1000);
+}
+export function getApiUrl(req: Request): string {
+  return `${req.protocol}://${req.get('host')}`;
 }
