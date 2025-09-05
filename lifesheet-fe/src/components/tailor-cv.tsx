@@ -88,7 +88,7 @@ export function TailorCV() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-4">
-            <div className="border rounded-lg p-6 space-y-4 card-hover bg-gradient-subtle">
+            <div className="border rounded-lg p-6 space-y-4 card-hover">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
@@ -130,14 +130,10 @@ export function TailorCV() {
               <RichTextEditor
                 content={jobDescription}
                 onContentUpdate={setJobDescription}
-                style={{ height: '12em' }}
+                style={{ height: '30em' }}
               />
 
-              <div className="pt-2">
-                <p className="text-sm text-muted-foreground mb-2">
-                  Supports Markdown formatting for better organization
-                </p>
-              </div>
+
             </div>
           </div>
 
