@@ -27,7 +27,7 @@ export function CVPreviewer({ cvData, options, printMode, onHtmlUpdate }: CVPrev
 
   const template = options.template || 'single-column-1';
   const cssVars = getStyleOverrides(options);
-
+  console.log("Profile picture URL:", cvData.personal_info.profilePictureUrl);
   return (
     <div className={moduleStyles.reset}>
       <div

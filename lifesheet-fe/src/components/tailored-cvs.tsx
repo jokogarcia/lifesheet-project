@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useUsersTailoredCVs } from '@/hooks/use-users-tailored-cvs';
 import { Button } from './ui/button';
-import { Plus } from 'lucide-react';
+import { ArrowLeft, Plus } from 'lucide-react';
 
 export default function TailoredCVs() {
   const navigate = useNavigate();
@@ -9,11 +9,17 @@ export default function TailoredCVs() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      {/* Header */}
+
+      <h2 className="text-2xl font-semibold mb-4">Tailored CVs</h2>
       <div className="flex justify-between items-center">
         <div>
+
           <div className="flex gap-2">
-            <h2 className="text-2xl font-semibold mb-4">Tailored CVs</h2>
+            <Button onClick={() => navigate('/')} variant="outline" className="btn-custom">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+
 
             <Button
               onClick={() => navigate('/tailor-cv')}
