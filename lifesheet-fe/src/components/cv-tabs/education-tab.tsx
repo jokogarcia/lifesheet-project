@@ -32,7 +32,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-6xl mx-auto">
       <div className="border rounded-lg p-6 card-hover bg-gradient-subtle">
         <div className="flex items-center gap-2 mb-4">
           <GraduationCap className="h-5 w-5" />

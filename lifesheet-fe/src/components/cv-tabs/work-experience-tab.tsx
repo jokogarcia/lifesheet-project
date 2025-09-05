@@ -57,10 +57,10 @@ export function WorkExperienceTab({
       workExperience.map(exp =>
         exp.id === expId
           ? {
-              ...exp,
-              achievements:
-                exp.achievements?.map((ach, idx) => (idx === achievementIndex ? value : ach)) || [],
-            }
+            ...exp,
+            achievements:
+              exp.achievements?.map((ach, idx) => (idx === achievementIndex ? value : ach)) || [],
+          }
           : exp
       )
     );
@@ -71,16 +71,16 @@ export function WorkExperienceTab({
       workExperience.map(exp =>
         exp.id === expId
           ? {
-              ...exp,
-              achievements: exp.achievements?.filter((_, idx) => idx !== achievementIndex) || [],
-            }
+            ...exp,
+            achievements: exp.achievements?.filter((_, idx) => idx !== achievementIndex) || [],
+          }
           : exp
       )
     );
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-6xl mx-auto">
       <div className="border rounded-lg p-6 card-hover bg-gradient-subtle">
         <div className="flex items-center gap-2 mb-4">
           <Briefcase className="h-5 w-5" />

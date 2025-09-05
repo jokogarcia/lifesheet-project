@@ -49,7 +49,7 @@ export function PicturesTab({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-6xl mx-auto">
       <div className="border rounded-lg p-6 card-hover bg-gradient-subtle">
         <div className="flex items-center gap-2 mb-4">
           <FileText className="h-5 w-5" />
@@ -62,9 +62,8 @@ export function PicturesTab({
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`border-2 border-dashed rounded-lg p-8 text-center mb-6 transition-colors ${
-            isDraggingOver ? 'border-primary bg-primary/10' : 'border-muted-foreground/25'
-          }`}
+          className={`border-2 border-dashed rounded-lg p-8 text-center mb-6 transition-colors ${isDraggingOver ? 'border-primary bg-primary/10' : 'border-muted-foreground/25'
+            }`}
         >
           <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
           <div className="space-y-2">

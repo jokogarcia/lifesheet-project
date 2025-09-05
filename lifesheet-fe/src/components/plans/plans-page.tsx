@@ -16,7 +16,7 @@ export function PlansPage() {
 
   if (isSaasPlansLoading || isAcriveSubscriptionLoading) {
     return (
-      <div className="container mx-auto py-12" style={{ maxWidth: '100%', width: '100vw', marginLeft: 'calc(-50vw + 50%)' }}>
+      <div className="container max-w-6xl mx-auto py-12" style={{ maxWidth: '100%', width: '100vw', marginLeft: 'calc(-50vw + 50%)' }}>
         <div className="flex justify-center">
           <div className="animate-pulse h-8 w-1/3 bg-gray-200 rounded mb-8"></div>
         </div>
@@ -33,7 +33,7 @@ export function PlansPage() {
   const currentPlan = saasPlans.find(plan => plan._id === activeSubscription?.planId);
 
   return (
-    <div className="w-full mx-auto py-12 " >
+    <div className="w-full max-w-6xl mx-auto py-12">
       <div className="flex justify-between">
         <Button onClick={() => navigate('/')} variant="ghost" className="flex items-center gap-2">
           <ArrowLeft className="h-4 w-4 float-end" />

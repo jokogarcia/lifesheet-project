@@ -20,12 +20,13 @@ export function Dashboard() {
     return <LoadingIndicator />;
   }
   return (
-    <><header className="mb-8">
-      <div className="flex flex-col items-center">
-        <h1 className="text-4xl text-gradient mb-2">Welcome, {cv?.personal_info.fullName || 'User'}</h1>
-        <p className="text-muted-foreground">Manage your CVs, subscriptions, and more</p>
-      </div>
-    </header>
+    <div className="max-w-6xl mx-auto">
+      <header className="mb-8">
+        <div className="flex flex-col items-center">
+          <h1 className="text-4xl text-gradient mb-2">Welcome, {cv?.personal_info.fullName || 'User'}</h1>
+          <p className="text-muted-foreground">Manage your CVs, subscriptions, and more</p>
+        </div>
+      </header>
       {/* Dashboard Cards */}
       <div className="flex mt-16 mb-8 flex-wrap justify-center" >
         <DashboardCard title="Export my CV" img='export.png' bottomText="Export your full, untailored CV as a PDF file." onClick={() => navigate('/export-pdf')} />
@@ -37,7 +38,7 @@ export function Dashboard() {
       </div>
 
 
-    </>
+    </div>
   );
 }
 function DashboardCard({ title, img, bottomText, onClick }: { title: string; img: string; bottomText: string; onClick: () => void }) {
