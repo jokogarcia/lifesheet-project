@@ -24,7 +24,7 @@ import Picture, { IPicture } from '../models/picture.model';
 import PictureShare, { IPictureShare } from '../models/picture-share.model';
 import { Consumption } from '../models/consumption.model';
 import { SaaSPlan, SaaSSubscription } from '../models/saaS-plan.model';
-import { getSecondsUntilNextWeek, getSecondsUntilTomorrow } from '../utils/utils';
+import { getApiUrl, getSecondsUntilNextWeek, getSecondsUntilTomorrow } from '../utils/utils';
 import path from 'path';
 import { checkUserCanDoOperation, getUsersConsumptions } from '../services/saas';
 import TailorCVQueue from '../q/tailorcv';
@@ -398,7 +398,7 @@ export const getUserPictureShareLink = async (req: Request, res: Response, next:
       pictureId: picture._id,
       expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
     });
-    const url = `${constants.API_URL}/api/utils/picture-link/${shareLink._id}`;
+    const url = `${getApiUrl(req)}/api/utils/picture-link/${shareLink._id}`;
     res.json({ shareLink: url });
   } catch (err) {
     next(err);

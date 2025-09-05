@@ -16,7 +16,7 @@ router.post('/generate-pdf', async (req, res) => {
   const filename = docTitle?.replace(/\s+/g, '-') || 'CV';
   let fullPage = `<html><head>
     <title>${docTitle || 'CV'}</title>
-    <link rel="stylesheet" href="${constants.API_URL}/private/cv-printer/styles.css">
+    <link rel="stylesheet" href="${constants.PRIVATE_API_URL}/private/cv-printer/styles.css">
     </head><body>${html}</body></html>`;
   if (imageId) {
     Picture.findById(imageId).then(picture => {
