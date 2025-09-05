@@ -1,7 +1,5 @@
 import { useSaaSActiveSubscription, useSaasPlans } from '@/hooks/use-saas';
 import { PlanCard } from '@/components/plans/plan-card';
-import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -18,7 +16,7 @@ export function PlansPage() {
 
   if (isSaasPlansLoading || isAcriveSubscriptionLoading) {
     return (
-      <div className="container mx-auto py-12">
+      <div className="container mx-auto py-12" style={{ maxWidth: '100%', width: '100vw', marginLeft: 'calc(-50vw + 50%)' }}>
         <div className="flex justify-center">
           <div className="animate-pulse h-8 w-1/3 bg-gray-200 rounded mb-8"></div>
         </div>
@@ -35,40 +33,14 @@ export function PlansPage() {
   const currentPlan = saasPlans.find(plan => plan._id === activeSubscription?.planId);
 
   return (
-    <div className="container mx-auto py-12">
-      <h1 className="text-3xl font-bold text-center mb-8">Subscription Plans</h1>
+    <div className="w-full mx-auto py-12 " >
+      <div className="flex justify-between">
+        <Button onClick={() => navigate('/')} variant="ghost" className="flex items-center gap-2">
+          <ArrowLeft className="h-4 w-4 float-end" />
+        </Button>
+        <h1 className="text-3xl font-bold text-center mb-8 ml-auto mr-auto">Subscription Plans</h1>
 
-      {currentPlan && (
-        <Card className="p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-2">Your Current Plan</h2>
-          <p className="text-muted-foreground mb-4">{currentPlan.name}</p>
-          <span className="text-sm ml-4">
-            Purchased on {new Date(activeSubscription!.startDate).toLocaleDateString()} - Expires on{' '}
-            {new Date(activeSubscription!.endDate).toLocaleDateString()}
-          </span>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Daily Limits</span>
-              <span>{todaysConsumptions} AI Operations</span>
-              <Progress
-                value={(currentPlan.dailyRateLimit / todaysConsumptions) * 100}
-                className="h-2"
-              />
-              <span> of {currentPlan.dailyRateLimit}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span>Weekly Limits</span>
-              <span>{thisWeeksConsumptions} AI Operations</span>
-              <Progress
-                value={(currentPlan.weeklyRateLimit / thisWeeksConsumptions) * 100}
-                className="h-2"
-              />
-              <span> of {currentPlan.weeklyRateLimit}</span>
-            </div>
-          </div>
-        </Card>
-      )}
-
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {saasPlans.map(plan => (
           <PlanCard
@@ -76,17 +48,16 @@ export function PlansPage() {
             plan={plan}
             isCurrentPlan={activeSubscription?.planId === plan._id}
             isBetterPlan={plan.priceCents > (currentPlan?.priceCents || 0)}
-            isCurrentFreePlan={plan.priceCents === 0}
+            isCurrentFreePlan={currentPlan?.priceCents === 0}
           />
         ))}
       </div>
-
-      <div className="flex justify-center mt-12">
-        <Button onClick={() => navigate('/')} variant="outline" className="flex items-center gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          Return to Dashboard
-        </Button>
+      <div className="border rounded-lg p-6 mt-6">
+        <p><b>Your Current Subscription</b></p>
+        <p className="text-xs">Since {new Date(activeSubscription?.startDate || '').toLocaleDateString()}. Expires on {new Date(activeSubscription?.endDate || '').toLocaleDateString()}.</p>
+        <p className="text-xs">You used {todaysConsumptions} AI Operations today and {thisWeeksConsumptions} this week.</p>
       </div>
+
     </div>
   );
 }

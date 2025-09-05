@@ -21,7 +21,11 @@ export function PlanCard({
 }: PlanCardProps) {
   const navigate = useNavigate();
   const handlePurchase = () => {
-    navigate(`/checkout?planId=${plan._id}`);
+    if (isCurrentPlan) {
+      navigate('/');
+    } else {
+      navigate(`/checkout?planId=${plan._id}`);
+    }
   };
   function getFormattedPrice(plan: SaaSPlan) {
     const currency = plan.currency;
@@ -30,7 +34,16 @@ export function PlanCard({
       currency,
     }).format(plan.priceCents / 100);
   }
-
+  let buttonText = '';
+  if (isCurrentPlan) {
+    buttonText = 'Keep using this plan';
+  } else if (isCurrentFreePlan && plan.priceCents > 0) {
+    buttonText = 'Buy';
+  } else if (!isBetterPlan) {
+    buttonText = 'Your current plan is better';
+  } else {
+    buttonText = 'Upgrade';
+  }
   return (
     <Card
       className={`flex flex-col border-2 ${isCurrentPlan ? 'border-primary' : 'border-border'}`}
@@ -61,13 +74,7 @@ export function PlanCard({
           onClick={handlePurchase}
           disabled={!isCurrentPlan && !isBetterPlan}
         >
-          {isCurrentPlan
-            ? 'Renew'
-            : isCurrentFreePlan
-              ? 'Buy'
-              : !isBetterPlan
-                ? 'Your current plan is better'
-                : 'Upgrade'}
+          {buttonText}
         </Button>
       </CardFooter>
     </Card>
