@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import UserRouter from './user/user.routes';
-import { SaaSPlan } from '../../models/saaS-plan.model';
+import { getActivePlans, SaaSPlan } from '../../models/saaS-plan.model';
 import UtilsRouter from './utils';
 import { constants } from '../../constants';
 const router = Router();
@@ -13,9 +13,7 @@ router.get('/health', (req, res) => {
 });
 router.get('/saas/plans', async (req, res) => {
   try {
-    const plans = await SaaSPlan.find({
-      deletedAt: null,
-    });
+    const plans = await getActivePlans();
     res.status(200).json(plans);
   } catch (error) {
     console.error('Error fetching SaaS plans:', error);

@@ -23,13 +23,14 @@ import { constants } from '../constants';
 import Picture, { IPicture } from '../models/picture.model';
 import PictureShare, { IPictureShare } from '../models/picture-share.model';
 import { Consumption } from '../models/consumption.model';
-import { SaaSPlan, SaaSSubscription } from '../models/saaS-plan.model';
+import { getActivePlans, SaaSPlan, SaaSSubscription } from '../models/saaS-plan.model';
 import { getApiUrl, getSecondsUntilNextWeek, getSecondsUntilTomorrow } from '../utils/utils';
 import path from 'path';
 import { checkUserCanDoOperation, getUsersConsumptions } from '../services/saas';
 import TailorCVQueue from '../q/tailorcv';
 import { JobState } from 'bullmq';
 import stripe from 'stripe';
+import { get } from 'http';
 
 // Helper to resolve 'me' to the authenticated user's id
 function resolveUserId(req: Request): string {
@@ -431,7 +432,7 @@ async function _getUsersActiveSubscription(userId: string) {
   });
   if (subscriptions.length === 0) {
     //Assign free plan
-    const freePlan = await SaaSPlan.findOne({ name: 'Free Plan' });
+    const freePlan = (await getActivePlans()).find(p => p.name === 'Free Plan');
     if (!freePlan) {
       throw new ApiError(500, 'Free plan not found');
     }
@@ -523,6 +524,9 @@ export const initiatePlanPurchase = async (req: Request, res: Response, next: Ne
     const plan = await SaaSPlan.findById(planId);
     if (!plan) {
       throw new ApiError(400, 'Invalid plan ID');
+    }
+    if (plan.deletedAt) {
+      throw new ApiError(400, 'Selected plan is no longer available');
     }
     const s = await SaaSSubscription.create({
       userId,

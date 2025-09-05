@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-
+const minPlanVersion = 1;
 export interface ISaaSPlan extends Document {
   _id: mongoose.Types.ObjectId;
   name: string;
@@ -14,6 +14,7 @@ export interface ISaaSPlan extends Document {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
+  version?: number;
 }
 
 const SaaSPlanSchema: Schema = new Schema({
@@ -29,6 +30,7 @@ const SaaSPlanSchema: Schema = new Schema({
   createdAt: { type: Date, required: true, default: Date.now },
   updatedAt: { type: Date, required: true, default: Date.now },
   deletedAt: { type: Date, default: null },
+  version: { type: Number, default: 0 },
 });
 
 export interface ISaasSubscription extends Document {
@@ -57,10 +59,16 @@ export const SaaSSubscription = mongoose.model<ISaasSubscription>(
   'SaaSSubscription',
   SaasSubscriptionSchema
 );
-
+export async function getActivePlans() {
+  return SaaSPlan.find({ deletedAt: null, version: { $exists: true, $gte: minPlanVersion } });
+}
 //Initial seed
 async function initialSeed() {
-  const numberOfExistingPlans = await SaaSPlan.countDocuments();
+  const now = new Date();
+  await SaaSPlan.updateMany({ version: { $exists: false } }, { $set: { version: 0 } });
+  const numberOfExistingPlans = await SaaSPlan.find({
+    version: { $exists: true, $gte: minPlanVersion },
+  }).countDocuments();
   if (numberOfExistingPlans === 0) {
     console.log('Seeding initial SaaS plans...');
     await SaaSPlan.create([
@@ -73,6 +81,7 @@ async function initialSeed() {
         features: [
           'Unlimited export PDF documents',
           'Unlimited manual edits of your PDFs',
+          'Supported by ads',
           'Up to 10 Profile pictures uploaded to the site at one time.',
           'Up to 3 AI Enhanced operations per day',
           'Up to 10 AI Enhanced operations per week',
@@ -82,19 +91,21 @@ async function initialSeed() {
         days: 365,
         dailyRateLimit: 3,
         weeklyRateLimit: 10,
+        version: minPlanVersion,
       },
 
       {
         name: 'Premium Plan 30',
         description:
           'Contribute to the project and get a much more AI Operations for tailoring your CVs and generating Cover Letters.',
-        priceCents: 2000,
+        priceCents: 499,
         days: 30,
         currency: 'EUR',
         iconUrl: 'plan-premium.png',
         features: [
           'Unlimited export PDF documents',
           'Unlimited manual edits of your PDFs',
+          'No Ads!',
           'Up to 50 Profile pictures uploaded to the site at one time.',
           'Up to 50 AI Enhanced operations per day',
           'Up to 500 AI Enhanced operations per week',
@@ -105,17 +116,19 @@ async function initialSeed() {
         ],
         dailyRateLimit: 50,
         weeklyRateLimit: 500,
+        version: minPlanVersion,
       },
       {
         name: 'Premium Plan 365',
         description: 'Commit to a full year and enjoy a hefty discount.',
-        priceCents: 20000,
+        priceCents: 4999,
         days: 365,
         currency: 'EUR',
         iconUrl: 'plan-premium-365.png',
         features: [
           'Unlimited export PDF documents',
           'Unlimited manual edits of your PDFs',
+          'No Ads!',
           'Up to 50 Profile pictures uploaded to the site at one time.',
           'Up to 50 AI Enhanced operations per day',
           'Up to 500 AI Enhanced operations per week',
@@ -126,6 +139,7 @@ async function initialSeed() {
         ],
         dailyRateLimit: 50,
         weeklyRateLimit: 500,
+        version: minPlanVersion,
       },
     ]);
     console.log('Seeding complete.');
