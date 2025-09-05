@@ -18,6 +18,7 @@ import type {
   LanguageSkill,
 } from '@/services/cvs-service';
 import userService from '@/services/user-service';
+import { LoadingIndicator } from './ui/loading-indicator';
 
 export const Onboarding = () => {
   const navigate = useNavigate();
@@ -159,7 +160,7 @@ export const Onboarding = () => {
     }
   };
   if (isLoadingCV) {
-    return <p>Loading...</p>;
+    return <LoadingIndicator />;
   }
   return (
     <div>

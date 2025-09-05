@@ -16,6 +16,7 @@ import { ExportPdf } from './components/export-pdf';
 import TailoredCVs from './components/tailored-cvs';
 import { Onboarding } from './components/onboarding';
 import { Dashboard } from './components/dashboard';
+import { LoadingIndicator } from './components/ui/loading-indicator';
 
 function App() {
   const { keycloak, initialized } = useKeycloak();
@@ -33,7 +34,7 @@ function App() {
   }, [initialized, keycloak]);
 
   if (!initialized) {
-    return <div>Authenticating...</div>;
+    return <LoadingIndicator />;
   }
   if (!keycloak?.authenticated || !hasToken) {
     return <Welcome />;
