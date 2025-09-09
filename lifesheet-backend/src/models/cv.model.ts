@@ -98,7 +98,6 @@ export interface ICV extends Document {
   sections: ISection[];
   language_skills: LanguageSkill[];
   isPublic: boolean;
-
   created_at: Date;
   updated_at: Date;
   // Field to store tailored content

@@ -42,8 +42,7 @@ const worker = new Worker(
     let mainCv = await CV.findOne({
       user_id: userId,
       deletedAt: null,
-      tailored: { $exists: false },
-    });
+    }).sort({ created_at: 1 });
     if (!mainCv) {
       throw new Error(`Main CV not found`);
     }
