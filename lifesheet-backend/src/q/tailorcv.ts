@@ -5,10 +5,11 @@ import { redisConfig } from '../constants';
 import { Consumption } from '../models/consumption.model';
 import { getSecondsUntilNextWeek, getSecondsUntilTomorrow } from '../utils/utils';
 import User, { IUser } from '../models/user.model';
-import CV from '../models/cv.model';
+import CV, { defaultLeftColumnSections, defaultSectionOrder } from '../models/cv.model';
 import * as cvTailoringService from '../services/cv-tailoring-service';
 import JobDescription from '../models/job-description';
 import { checkUserCanDoOperation } from '../services/saas';
+import pictureModel from '../models/picture.model';
 interface TailorCVJobData {
   userId: string;
   jobDescriptionId: string;
@@ -59,10 +60,28 @@ const worker = new Worker(
       throw new Error(`Failed to tailor CV`);
     }
     const tailoredCv = r.tailored_cv;
+    const defaultPictureId = await pictureModel.findOne({ userId, isDefault: true });
     tailoredCv.tailored = {
       jobDescription_id: jobDescriptionId,
       tailoredDate: new Date(),
       updatedByUser: false,
+      coverLetterOnTop: false,
+      sectionOrder: defaultSectionOrder,
+      hiddenSections: new Set<string>(),
+      leftColumnSections: defaultLeftColumnSections,
+      pdfOptions: {
+        pictureId: defaultPictureId?._id.toString() || '',
+        template: 'single-column-1',
+        primaryColorOverride: 'blue',
+        secondaryColorOverride: 'green',
+        textColorOverride: 'black',
+        text2ColorOverride: 'gray',
+        backgroundColorOverride: 'white',
+        includeEmail: true,
+        includeAddress: true,
+        includeDateOfBirth: false,
+        includePhone: true,
+      },
     };
     if (includeCoverLetter) {
       const coverLetter = await cvTailoringService.generateCoverLetter(

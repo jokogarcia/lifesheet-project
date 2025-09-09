@@ -238,3 +238,13 @@ const cvSchema = new Schema(
 );
 
 export default mongoose.model<ICV>('CV', cvSchema);
+export const defaultSectionOrder = [
+  'cover-letter',
+  'personalInfo',
+  'summary',
+  'skills',
+  'workExperience',
+  'education',
+  'languages',
+];
+export const defaultLeftColumnSections = new Set(['personalInfo', 'skills', 'languages']);
