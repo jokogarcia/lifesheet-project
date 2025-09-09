@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   cvsService,
   defaultLeftColumnSections,
+  defaultPdfOptions,
   defaultSectionOrder,
   type CV,
   type CVToPDFOptions,
@@ -30,26 +31,33 @@ export function ExportPdf() {
   const [printMode, setPrintMode] = useState(false);
   const [coverLetter, setCoverLetter] = useState('');
   const [isCoverLetterVisible, setIsCoverLetterVisible] = useState(true);
-  const [pdfOptions, setPdfOptions] = useState<CVToPDFOptions>({
-    primaryColorOverride: '#3b82f6',
-    secondaryColorOverride: '#f97316',
-    textColorOverride: '#111827',
-    text2ColorOverride: '#4b5563',
-    backgroundColorOverride: '#ffffff',
-    template: 'single-column-1',
-    includeAddress: true,
-    includePhone: true,
-  });
+  // const [pdfOptions, setPdfOptions] = useState<CVToPDFOptions>({
+  //   primaryColorOverride: '#3b82f6',
+  //   secondaryColorOverride: '#f97316',
+  //   textColorOverride: '#111827',
+  //   text2ColorOverride: '#4b5563',
+  //   backgroundColorOverride: '#ffffff',
+  //   template: 'single-column-1',
+  //   includeAddress: true,
+  //   includePhone: true,
+  // });
+  function setPdfOptions(options: CVToPDFOptions) {
+    if (!cv?.tailored) return;
+    const newCv = { ...cv, tailored: { ...cv.tailored, pdfOptions: options } };
+    setCV(newCv);
+  }
+  const pdfOptions = cv?.tailored?.pdfOptions || defaultPdfOptions;
   useEffect(() => {
     if (!originalCV) return;
-    const tailored = originalCV.tailored ?? {
+    const tailored: TailoredData = originalCV.tailored ?? {
       jobDescription_id: '',
       coverLetter: '',
       tailoredDate: '',
       updatedByUser: true,
       sectionOrder: defaultSectionOrder,
       leftColumnSections: defaultLeftColumnSections,
-    }
+      pdfOptions: defaultPdfOptions
+    };
     if (!originalCV.tailored?.sectionOrder) {
       tailored.sectionOrder = defaultSectionOrder;
     }
@@ -145,151 +153,7 @@ export function ExportPdf() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-xs" style={{ textAlign: 'left' }}>
         <div className="card-hover bg-gradient-subtle">
 
-          <TabContainer tabs={[{
-            label: 'Data',
-            content: (<EditableCV cv={cv} reRender={() => { console.log("updating...."); setCV({ ...cv }) }} />)
-          },
-          {
-            label: 'Cover Letter',
-            content: (<RichTextEditor
-              content={coverLetter}
-              onContentUpdate={setCoverLetter}
-              style={{
-                height: '500px',
-              }}
-            />)
-          }, {
-            label: 'Settings',
-            content: (<div className="space-y-6">
-              <div className="mb-1 font-medium">Template</div>
-              <div className="flex gap-3 ml-5">
-                <label className="inline-flex items-center ">
-                  <input
-                    type="radio"
-                    name="template"
-                    value="two-column-1"
-                    checked={pdfOptions.template === 'two-column-1'}
-                    onChange={() => setPdfOptions({ ...pdfOptions, template: 'two-column-1' })}
-                    className="form-radio"
-                  />
-                  <span className="ml-2">Two column</span>
-                </label>
-                <label className="inline-flex items-center ">
-                  <input
-                    type="radio"
-                    name="template"
-                    value="single-column-1"
-                    checked={pdfOptions.template === 'single-column-1'}
-                    onChange={() => setPdfOptions({ ...pdfOptions, template: 'single-column-1' })}
-                    className="form-radio"
-                  />
-                  <span className="ml-2">Single column</span>
-                </label>
-              </div>
-              <div>
-                <div className="mb-1 font-medium">Personal info</div>
-                <div className="grid grid-cols-2 gap-2 ml-5">
-                  <label className="inline-flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={!!cv?.personal_info.email && (pdfOptions.includeEmail ?? true)}
-                      disabled={!cv?.personal_info.email}
-                      onChange={e => setPdfOptions({ ...pdfOptions, includeEmail: e.target.checked })}
-                      className="form-checkbox"
-                    />
-                    <span>Include email</span>
-                  </label>
-                  <label className="inline-flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={!!cv?.personal_info.phone && (pdfOptions.includePhone ?? true)}
-                      disabled={!cv?.personal_info.phone}
-                      onChange={e => setPdfOptions({ ...pdfOptions, includePhone: e.target.checked })}
-                      className="form-checkbox"
-                    />
-                    <span>Include phone</span>
-                  </label>
-                  <label className="inline-flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={!!cv?.personal_info.location && (pdfOptions.includeAddress ?? true)}
-                      disabled={!cv?.personal_info.location}
-                      onChange={e =>
-                        setPdfOptions({ ...pdfOptions, includeAddress: e.target.checked })
-                      }
-                      className="form-checkbox"
-                    />
-                    <span>Include address</span>
-                  </label>
-                  <label className="inline-flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={
-                        !!cv?.personal_info.dateOfBirth && (pdfOptions.includeDateOfBirth ?? true)
-                      }
-                      disabled={!cv?.personal_info.dateOfBirth}
-                      onChange={e =>
-                        setPdfOptions({ ...pdfOptions, includeDateOfBirth: e.target.checked })
-                      }
-                      className="form-checkbox"
-                    />
-                    <span>Include DOB</span>
-                  </label>
-                </div>
-                <div>
-                  <div className="mb-1 font-medium">Colors</div>
-                  <div className="grid grid-cols-2 gap-2 ml-5">
-                    <div className="flex ">
-                      <input
-                        type="color"
-                        value={pdfOptions.primaryColorOverride}
-                        onChange={e =>
-                          setPdfOptions({ ...pdfOptions, primaryColorOverride: e.target.value })
-                        }
-                        className="h-6 w-6 p-0"
-                      />
-                      <span className="ml-2">Primary</span>
-                    </div>
-                    <div className="flex ">
-                      <input
-                        type="color"
-                        value={pdfOptions.secondaryColorOverride}
-                        onChange={e =>
-                          setPdfOptions({ ...pdfOptions, secondaryColorOverride: e.target.value })
-                        }
-                        className="h-6 w-6 p-0"
-                      />
-                      <span className="ml-2">Secondary</span>
-                    </div>
-                    <div className="flex ">
-                      <input
-                        type="color"
-                        value={pdfOptions.textColorOverride}
-                        onChange={e =>
-                          setPdfOptions({ ...pdfOptions, textColorOverride: e.target.value })
-                        }
-                        className="h-6 w-6 p-0"
-                      />
-                      <span className="ml-2">Text</span>
-                    </div>
-                    <div className="flex ">
-                      <input
-                        type="color"
-                        value={pdfOptions.backgroundColorOverride}
-                        onChange={e =>
-                          setPdfOptions({ ...pdfOptions, backgroundColorOverride: e.target.value })
-                        }
-                        className="h-6 w-6 p-0"
-                      />
-                      <span className="ml-2">Background</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <PictureSelector onPictureSelected={handlePictureSelected} />
-            </div>)
-          }
-          ]} />
+          <EditableCV cv={cv} reRender={() => { console.log("updating...."); setCV({ ...cv }) }} />
         </div>
 
         {/* Preview */}
@@ -328,7 +192,7 @@ export function ExportPdf() {
                   <p className="mt-2">Loading preview...</p>
                 </div>
               ) : (
-                <CVPreviewer cvData={cv!} options={pdfOptions} printMode={printMode} />
+                <CVPreviewer cvData={cv!} printMode={printMode} />
               )}
             </div>
           </div>

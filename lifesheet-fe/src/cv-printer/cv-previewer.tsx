@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 /* eslint-disable react-refresh/only-export-components */
 import moduleStyles from './cv-previewer.module.css';
-import { defaultLeftColumnSections, defaultSectionOrder, type CV, type CVToPDFOptions } from '@/services/cvs-service';
+import { defaultLeftColumnSections, defaultPdfOptions, defaultSectionOrder, type CV, type CVToPDFOptions } from '@/services/cvs-service';
 interface CVDataWithTitle extends CV {
   summaryTitle?: string;
   skillsTitle?: string;
@@ -12,18 +12,18 @@ interface CVDataWithTitle extends CV {
 }
 interface CVPreviewerProps {
   cvData: CVDataWithTitle;
-  options: CVToPDFOptions;
   printMode: boolean;
   onHtmlUpdate?: (html: string) => void;
 }
-export function CVPreviewer({ cvData, options, printMode, onHtmlUpdate }: CVPreviewerProps) {
+export function CVPreviewer({ cvData, printMode, onHtmlUpdate }: CVPreviewerProps) {
+
   useEffect(() => {
     if (onHtmlUpdate) {
       const container = document.querySelector(`.${moduleStyles.container}`);
       const html = container?.outerHTML || '';
       onHtmlUpdate(html);
     }
-  }, [cvData, options, printMode, onHtmlUpdate]);
+  }, [cvData, printMode, onHtmlUpdate]);
   if (!cvData.tailored) {
     cvData.tailored = {
       hiddenSections: new Set<string>(),
@@ -33,9 +33,11 @@ export function CVPreviewer({ cvData, options, printMode, onHtmlUpdate }: CVPrev
       jobDescription_id: '',
       tailoredDate: '',
       updatedByUser: false,
-    }
-  }
+      pdfOptions: defaultPdfOptions,
+    };
 
+  }
+  const options = cvData.tailored.pdfOptions || defaultPdfOptions;
   const template = options.template || 'single-column-1';
   const cssVars = getStyleOverrides(options);
   console.log("Profile picture URL:", cvData.personal_info.profilePictureUrl);
@@ -49,9 +51,10 @@ export function CVPreviewer({ cvData, options, printMode, onHtmlUpdate }: CVPrev
         style={cssVars}
       >
         {(!hiddenSections.has('cover-letter') && cvData.tailored.coverLetter && cvData.tailored.coverLetterOnTop && <CoverLetter text={cvData.tailored?.coverLetter || ''} />)}
-        {template.startsWith('two-column') && renderTwoColumns({ cvData, options, printMode })}
-        {template.startsWith('single-column') && renderOneColumn({ cvData, options, printMode })}
-        {(!hiddenSections.has('cover-letter') && cvData.tailored.coverLetter && !cvData.tailored.coverLetterOnTop && <CoverLetter text={cvData.tailored?.coverLetter || ''} />)}
+        {template.startsWith('two-column') && renderTwoColumns({ cvData, printMode })}
+        {template.startsWith('single-column') && renderOneColumn({ cvData, printMode })}
+        {(!hiddenSections.has('cover-letter') && cvData.tailored.coverLetter && !cvData.tailored.coverLetterOnTop
+          && <CoverLetter style={{ marginTop: printMode ? undefined : '20em', breakBefore: 'always' }} text={cvData.tailored?.coverLetter || ''} />)}
       </div>
     </div>
   );
@@ -75,6 +78,7 @@ function getStyleOverrides(options: CVToPDFOptions) {
   return cssVars;
 }
 export function renderTwoColumns({ cvData, printMode }: CVPreviewerProps) {
+
 
   const hiddenSections = cvData.tailored?.hiddenSections || new Set<string>();
 
@@ -148,8 +152,9 @@ export function renderTwoColumns({ cvData, printMode }: CVPreviewerProps) {
     </div>
   );
 }
-export function renderOneColumn({ cvData, options, printMode }: CVPreviewerProps) {
+export function renderOneColumn({ cvData, printMode }: CVPreviewerProps) {
   const hiddenSections = cvData.tailored?.hiddenSections || new Set<string>();
+  const options = cvData.tailored!.pdfOptions || defaultPdfOptions;
   return (
     <div
       className={`container one-column ${printMode ? 'printable' : ''} ${moduleStyles.container} ${moduleStyles['one-column']} ${printMode ? moduleStyles.printable : ''}`}
@@ -229,11 +234,11 @@ export function renderOneColumn({ cvData, options, printMode }: CVPreviewerProps
       })}
     </div>);
 }
-const CoverLetter = ({ text }: { text: string }) => {
+const CoverLetter = ({ text, style }: { text: string, style?: React.CSSProperties }) => {
   const lines = text.split('\n').filter(line => line.trim() !== '');
   if (!lines.length) return null;
   return (
-    <div className={`${moduleStyles.coverLetter} coverLetter`}>
+    <div className={`${moduleStyles.coverLetter} coverLetter`} style={style}>
       {lines.map((line, index) => (
         <p key={index}>{line}</p>
       ))}

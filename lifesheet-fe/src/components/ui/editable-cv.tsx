@@ -4,28 +4,33 @@ import { useState, useEffect } from "react";
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { CardContent, CardHeader, Card } from './card';
 import { Button } from "./button";
-import { ChevronDown } from "lucide-react";
+import { ArrowDown, ArrowDownToLine, ArrowUp, ArrowUpToLine, ChevronDown, Pencil } from "lucide-react";
+import PictureSelector from "../export/picture-selector";
+import userService from "@/services/user-service";
 
 interface EditableSectionCardProps {
     title: string;
     children: React.ReactNode;
-    onMoveUp: () => void;
-    onMoveDown: () => void;
-    onIncludeChange: (state: boolean) => void;
-    onEdit: () => void;
+    toolBarOptions: { name: string, icon: React.ReactNode, action: () => void }[];
     menuOptions?: { name: string, action: () => void }[];
+    onIncludeChange: (state: boolean) => void;
+    disableInclude?: boolean;
+
 }
 
-function EditableSectionCard({ title, children, onMoveUp, onMoveDown, onEdit, menuOptions, onIncludeChange }: EditableSectionCardProps) {
+function EditableSectionCard({ title, children, toolBarOptions, menuOptions, onIncludeChange, disableInclude }: EditableSectionCardProps) {
     const [hidden, setIsHidden] = useState(true);
     const [include, setOnInclude] = useState(true);
     return <Card className="border rounded-lg p-2 group hover:shadow-lg transition-shadow duration-300">
         <CardHeader className='p-6 pb-0'>
             <div className="flex flex-row-reverse justify-between items-center mb-2">
                 <div className="flex space-x-1">
-                    <Button variant="outline" size="icon" onClick={onMoveUp} title="Move Up">↑</Button>
-                    <Button variant="outline" size="icon" onClick={onMoveDown} title="Move Down">↓</Button>
-                    <Button variant="outline" size="icon" onClick={onEdit} title="Edit">✎</Button>
+                    {toolBarOptions.map(option => (
+
+                        option.name && <Button key={option.name} variant="outline" size="icon" onClick={option.action} title={option.name}>
+                            {option.icon}
+                        </Button>
+                    ))}
                     <Button variant="outline" size="icon" onClick={() => { setIsHidden(prev => !prev) }} title="Show/Hide"><ChevronDown style={{ rotate: hidden ? "0deg" : "180deg" }} /></Button>
                     {menuOptions && menuOptions.length > 0 && (
                         <DropdownMenu.Root>
@@ -49,7 +54,7 @@ function EditableSectionCard({ title, children, onMoveUp, onMoveDown, onEdit, me
                         </DropdownMenu.Root>
                     )}
                 </div>
-                <div className="flex space-x-2 align-middle"><input type="checkbox" checked={include} onChange={() => setOnInclude(prev => {
+                <div className="flex space-x-2 align-middle"><input type="checkbox" checked={include} disabled={disableInclude} onChange={() => setOnInclude(prev => {
                     onIncludeChange(!prev);
                     return !prev;
                 })} />
@@ -115,7 +120,112 @@ export function EditableCV({ cv, reRender }: { cv: CV, reRender: () => void }) {
     if (!cv) {
         return <></>
     }
+    function toggleLeftColumn(section: string) {
+        if (!cv.tailored) return;
+        if (!cv.tailored.leftColumnSections) {
+            cv.tailored.leftColumnSections = new Set<string>();
+        }
+        if (cv.tailored.leftColumnSections.has(section)) {
+            cv.tailored.leftColumnSections.delete(section);
+        } else {
+            cv.tailored.leftColumnSections.add(section);
+        }
+        reRender();
+    }
+    function isInLeftColumn(section: string): boolean {
+        if (!cv.tailored || !cv.tailored.leftColumnSections) return false;
+        return cv.tailored.leftColumnSections.has(section);
+    }
+    function moveCoverLetter(to: 'top' | 'bottom') {
+        const toTop = to === 'top';
+        if (!cv.tailored) return;
+        cv.tailored.coverLetterOnTop = toTop;
+        const s = [...sections];
+        const clIndex = s.indexOf('cover-letter');
+        if (clIndex === -1) return;
+        s.splice(clIndex, 1);
+        if (toTop) {
+            s.unshift('cover-letter');
+        } else {
+            s.push('cover-letter');
+        }
+        setSections([...s]);
+    }
+    async function handlePictureSelected(pictureId: string | undefined): Promise<void> {
+        //setPdfOptions({ pictureId, ...pdfOptions });
+
+        if (cv) {
+            const shareUrl = pictureId ? await userService.getPictureShareLink(pictureId) : '';
+            cv.personal_info.profilePictureUrl = shareUrl;
+            reRender();
+
+        }
+    }
+    function ColumnToggleButton(sectionName: string) {
+        if (cv.tailored?.pdfOptions?.template !== 'two-column-1') {
+            return { name: "", icon: <></>, action: () => { } }
+        }
+        return { name: isInLeftColumn(sectionName) ? "Use Right Column" : "Use Left Column", icon: isInLeftColumn(sectionName) ? <LeftColumnIcon /> : <RightColumnIcon />, action: () => { toggleLeftColumn(sectionName) } };
+    }
     return <div className="space-y-4 text-left text-sm">
+        {/* Template */}
+        <div className="p-4 border rounded-lg ">
+            <div className="flex flex-row space-x-2">
+                <p className="font-semibold mr-4">Template</p>
+                <label className="flex items-center space-x-2 flex-row">
+                    <input type="radio" name="template" value="single-column-1" checked={cv.tailored?.pdfOptions?.template === 'single-column-1'} onChange={() => {
+                        if (!cv.tailored) return;
+                        cv.tailored.pdfOptions = { ...cv.tailored.pdfOptions, template: 'single-column-1' };
+                        reRender();
+                    }} />
+                    <span>Single Column</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                    <input type="radio" name="template" value="two-column-1" checked={cv.tailored?.pdfOptions?.template === 'two-column-1'} onChange={() => {
+                        if (!cv.tailored) return;
+                        cv.tailored.pdfOptions = { ...cv.tailored.pdfOptions, template: 'two-column-1' };
+                        reRender();
+                    }} />
+                    <span>Two Column</span>
+                </label>
+            </div>
+            <div className="flex flex-row space-x-2">
+                <p className="font-semibold mr-4">Colors:</p>
+                <input
+                    type="color"
+                    value={cv.tailored?.pdfOptions?.primaryColorOverride}
+                    onChange={e => {
+                        cv.tailored && (cv.tailored.pdfOptions = { ...cv.tailored.pdfOptions, primaryColorOverride: e.target.value })
+                        reRender();
+                    }}
+                    className="h-6 w-6 p-1"
+                />
+                <span className="ml-2">Primary</span>
+                <input
+                    type="color"
+                    value={cv.tailored?.pdfOptions?.secondaryColorOverride}
+                    onChange={e => {
+                        cv.tailored && (cv.tailored.pdfOptions = { ...cv.tailored.pdfOptions, secondaryColorOverride: e.target.value })
+                        reRender();
+                    }}
+                    className="h-6 w-6 p-1"
+                />
+                <span className="ml-2">Secondary</span>
+                <input
+                    type="color"
+                    value={cv.tailored?.pdfOptions?.textColorOverride}
+                    onChange={e => {
+                        cv.tailored && (cv.tailored.pdfOptions = { ...cv.tailored.pdfOptions, textColorOverride: e.target.value })
+                        reRender();
+                    }}
+                    className="h-6 w-6 p-1"
+                />
+                <span className="ml-2">Main Text</span>
+
+            </div>
+            <PictureSelector onPictureSelected={handlePictureSelected} />
+
+        </div>
         {sections.length === 0 && <p className="text-muted-foreground">No sections to display. Add sections from the toolbar above.</p>}
         {sections.map((section) => {
             console.log('Rendering section:', section);
@@ -123,7 +233,11 @@ export function EditableCV({ cv, reRender }: { cv: CV, reRender: () => void }) {
                 case 'cover-letter':
                     if (cv.tailored?.coverLetter) {
                         return (
-                            <EditableSectionCard title="Cover Letter" onMoveUp={() => { moveSectionUp('cover-letter') }} onMoveDown={() => { moveSectionDown('cover-letter') }} onIncludeChange={s => { onHideSection('cover-letter', s) }} onEdit={() => { editSection('cover-letter') }}>
+                            <EditableSectionCard title="Cover Letter" onIncludeChange={s => { onHideSection('cover-letter', s) }} toolBarOptions={[
+                                { name: 'Edit', icon: <Pencil />, action: () => editSection('cover-letter') },
+                                { name: 'Move to top', icon: <ArrowUpToLine />, action: () => { moveCoverLetter("top") } },
+                                { name: 'Move to bottom', icon: <ArrowDownToLine />, action: () => { moveCoverLetter("bottom") } },
+                            ]}>
                                 <div> {cv.tailored.coverLetter}</div>
                             </EditableSectionCard>
                         );
@@ -131,7 +245,13 @@ export function EditableCV({ cv, reRender }: { cv: CV, reRender: () => void }) {
                     break;
                 case 'personalInfo':
                     return (
-                        <EditableSectionCard title="Personal Info" onMoveUp={() => { moveSectionUp('personalInfo') }} onMoveDown={() => { moveSectionDown('personalInfo') }} onIncludeChange={s => { onHideSection('personalInfo', s) }} onEdit={() => { editSection('personalInfo') }}>
+                        <EditableSectionCard title="Personal Info" onIncludeChange={s => { onHideSection('personalInfo', s) }} disableInclude={true} toolBarOptions={[
+                            ColumnToggleButton('personalInfo'),
+                            { name: 'Edit', icon: <Pencil />, action: () => editSection('personalInfo') },
+                            { name: 'Move up', icon: <ArrowUp />, action: () => { moveSectionUp('personalInfo') } },
+                            { name: 'Move down', icon: <ArrowDown />, action: () => { moveSectionDown('personalInfo') } },
+
+                        ]}>
                             <ul className="flex flex-wrap gap-2 list-disc list-inside">
                                 <li><strong>Full name: </strong><span>{cv.personal_info.fullName}</span></li>
                                 <li><strong>Title: </strong><span>{cv.personal_info.title}</span></li>
@@ -146,12 +266,22 @@ export function EditableCV({ cv, reRender }: { cv: CV, reRender: () => void }) {
                     );
                 case 'summary':
                     return (
-                        <EditableSectionCard title="Summary" onMoveUp={() => { moveSectionUp('summary') }} onMoveDown={() => { moveSectionDown('summary') }} onIncludeChange={s => { onHideSection('summary', s) }} onEdit={() => { editSection('summary') }}>
+                        <EditableSectionCard title="Summary" onIncludeChange={s => { onHideSection('summary', s) }} toolBarOptions={[
+                            ColumnToggleButton('summary'),
+                            { name: 'Edit', icon: <Pencil />, action: () => editSection('summary') },
+                            { name: 'Move up', icon: <ArrowUp />, action: () => { moveSectionUp('summary') } },
+                            { name: 'Move down', icon: <ArrowDown />, action: () => { moveSectionDown('summary') } },
+                        ]}>
                             <div>{cv.personal_info.summary}</div>
                         </EditableSectionCard>
                     );
                 case 'skills':
-                    return (<EditableSectionCard title="Skills" onMoveUp={() => { moveSectionUp('skills') }} onMoveDown={() => { moveSectionDown('skills') }} onIncludeChange={s => { onHideSection('skills', s) }} onEdit={() => { editSection('skills') }}>
+                    return (<EditableSectionCard title="Skills" onIncludeChange={s => { onHideSection('skills', s) }} toolBarOptions={[
+                        ColumnToggleButton('skills'),
+                        { name: 'Edit', icon: <Pencil />, action: () => editSection('skills') },
+                        { name: 'Move up', icon: <ArrowUp />, action: () => { moveSectionUp('skills') } },
+                        { name: 'Move down', icon: <ArrowDown />, action: () => { moveSectionDown('skills') } },
+                    ]}>
                         <ul className="list-disc list-inside flex flex-wrap gap-2">
                             {cv.skills.map(skill => (
                                 <li key={skill.id}>{skill.name}</li>
@@ -160,12 +290,16 @@ export function EditableCV({ cv, reRender }: { cv: CV, reRender: () => void }) {
                     </EditableSectionCard>);
                 case 'workExperience':
                     return (<EditableSectionCard title="Work Experience"
-                        onMoveUp={() => { moveSectionUp('workExperience') }}
-                        onMoveDown={() => { moveSectionDown('workExperience') }}
+
                         onIncludeChange={s => { onHideSection('workExperience', s) }}
-                        onEdit={() => { editSection('workExperience') }}
+
                         menuOptions={[{ name: 'Newest first', action: () => { } }, { name: 'Oldest first', action: () => { } }]}
-                    >
+                        toolBarOptions={[
+                            ColumnToggleButton('workExperience'),
+                            { name: 'Edit', icon: <Pencil />, action: () => editSection('workExperience') },
+                            { name: 'Move up', icon: <ArrowUp />, action: () => { moveSectionUp('workExperience') } },
+                            { name: 'Move down', icon: <ArrowDown />, action: () => { moveSectionDown('workExperience') } }
+                        ]}>
                         {cv.work_experience.map(work => (
                             <div key={work.id} className="mb-2">
                                 <h4 className="font-semibold">{work.position} at {work.company}</h4>
@@ -182,7 +316,12 @@ export function EditableCV({ cv, reRender }: { cv: CV, reRender: () => void }) {
                         ))}
                     </EditableSectionCard>);
                 case 'education':
-                    return (<EditableSectionCard title="Education" onMoveUp={() => { moveSectionUp('education') }} onMoveDown={() => { moveSectionDown('education') }} onIncludeChange={s => { onHideSection('education', s) }} onEdit={() => { editSection('education') }}>
+                    return (<EditableSectionCard title="Education" onIncludeChange={s => { onHideSection('education', s) }} toolBarOptions={[
+                        ColumnToggleButton('education'),
+                        { name: 'Edit', icon: <Pencil />, action: () => editSection('education') },
+                        { name: 'Move up', icon: <ArrowUp />, action: () => { moveSectionUp('education') } },
+                        { name: 'Move down', icon: <ArrowDown />, action: () => { moveSectionDown('education') } },
+                    ]}>
                         {cv.education.map(edu => (
                             <div key={edu.id} className="mb-2">
                                 <h4 className="font-semibold">{edu.degree} in {edu.field}</h4>
@@ -192,7 +331,12 @@ export function EditableCV({ cv, reRender }: { cv: CV, reRender: () => void }) {
                         ))}
                     </EditableSectionCard>);
                 case 'languages':
-                    return (<EditableSectionCard title="Languages" onMoveUp={() => { moveSectionUp('languages') }} onMoveDown={() => { moveSectionDown('languages') }} onIncludeChange={s => { onHideSection('languages', s) }} onEdit={() => { editSection('languages') }}>
+                    return (<EditableSectionCard title="Languages" onIncludeChange={s => { onHideSection('languages', s) }} toolBarOptions={[
+                        ColumnToggleButton('languages'),
+                        { name: 'Edit', icon: <Pencil />, action: () => editSection('languages') },
+                        { name: 'Move up', icon: <ArrowUp />, action: () => { moveSectionUp('languages') } },
+                        { name: 'Move down', icon: <ArrowDown />, action: () => { moveSectionDown('languages') } },
+                    ]}>
                         <ul className="list-disc list-inside flex flex-wrap gap-2">{cv.language_skills.map(lang => (
                             <li key={lang.id} className="font-semibold">{lang.language} <span className='font-normal'>{lang.level}</span></li>
                         ))}
@@ -202,3 +346,10 @@ export function EditableCV({ cv, reRender }: { cv: CV, reRender: () => void }) {
         })}
     </div>;
 }
+
+function LeftColumnIcon() {
+    return <img src="/left-column.svg" alt="Left Column Icon" className="h-5 w-5" />;
+}
+function RightColumnIcon() {
+    return <img src="/right-column.svg" alt="Right Column Icon" className="h-5 w-5" />;
+} 

@@ -79,6 +79,17 @@ export interface CreateOrUpdateCVRequest {
 }
 export const defaultSectionOrder = ['cover-letter', 'personalInfo', 'summary', 'skills', 'workExperience', 'education', 'languages'];
 export const defaultLeftColumnSections = new Set(['personalInfo', 'skills', 'languages']);
+export const defaultPdfOptions: CVToPDFOptions = {
+  includeEmail: true,
+  includePhone: true,
+  includeAddress: true,
+  primaryColorOverride: '',
+  secondaryColorOverride: '',
+  textColorOverride: '',
+  text2ColorOverride: '',
+  backgroundColorOverride: '',
+  template: 'single-column-1',
+};
 // No need for mock data anymore, we're using real API calls
 export interface CVToPDFOptions {
   pictureId?: string;
@@ -286,6 +297,7 @@ export interface TailoredData {
   hiddenSections?: Set<string>;
   leftColumnSections?: Set<string>;
   coverLetterOnTop?: boolean;
+  pdfOptions?: CVToPDFOptions;
 }
 async function wait(miliseconds: number) {
   return new Promise(resolve => setTimeout(resolve, miliseconds));
