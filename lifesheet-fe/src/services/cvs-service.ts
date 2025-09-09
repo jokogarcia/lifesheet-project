@@ -77,7 +77,8 @@ export interface CreateOrUpdateCVRequest {
   skills: Skill[];
   language_skills?: LanguageSkill[];
 }
-
+export const defaultSectionOrder = ['cover-letter', 'personalInfo', 'summary', 'skills', 'workExperience', 'education', 'languages'];
+export const defaultLeftColumnSections = new Set(['personalInfo', 'skills', 'languages']);
 // No need for mock data anymore, we're using real API calls
 export interface CVToPDFOptions {
   pictureId?: string;
@@ -281,6 +282,10 @@ export interface TailoredData {
   coverLetter: string;
   tailoredDate: string;
   updatedByUser: boolean;
+  sectionOrder?: string[];
+  hiddenSections?: Set<string>;
+  leftColumnSections?: Set<string>;
+  coverLetterOnTop?: boolean;
 }
 async function wait(miliseconds: number) {
   return new Promise(resolve => setTimeout(resolve, miliseconds));

@@ -1,26 +1,38 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, FileText, Wand2 } from 'lucide-react';
 import { useUserCV } from '@/hooks/use-cv';
 import { useNavigate } from 'react-router-dom';
-import cvsService from '@/services/cvs-service';
+import cvsService, { type CV } from '@/services/cvs-service';
 import { useSaaSActiveSubscription } from '@/hooks/use-saas';
 import RichTextEditor from './ui/editor';
 import { LoadingIndicator } from './ui/loading-indicator';
+
 
 export function TailorCV() {
   const { cv, isLoading } = useUserCV();
   const navigate = useNavigate();
   const [jobDescription, setJobDescription] = useState('');
   const [isTailoring, setIsTailoring] = useState(false);
-  const [includeCoverLetter, setIncludeCoverLetter] = useState(false);
-  const [useAiTailoring, setUseAiTailoring] = useState(false);
+  const [includeCoverLetter, setIncludeCoverLetter] = useState(true);
   const [companyName, setCompanyName] = useState('');
-
+  const [tempCV, setTempCV] = useState<CV | null>(null);
   const { canUseAI, isLoading: isLoadingSubscription } = useSaaSActiveSubscription();
 
+  useEffect(() => {
+    if (cv) {
+      const tailored = cv.tailored ?? {
+        jobDescription_id: '',
+        coverLetter: '',
+        tailoredDate: '',
+        updatedByUser: true,
+        sectionOrder: ['cover-letter', 'personalInfo', 'summary', 'skills', 'workExperience', 'education', 'languages'],
+      }
+      setTempCV({ ...cv, tailored, id: '' });
+    }
+  }, [cv]);
   const handleTailorCV = async () => {
     if (!canUseAI) {
       alert('You have reached your usage limits for this feature.');
@@ -37,7 +49,7 @@ export function TailorCV() {
         jobDescription,
         companyName,
         includeCoverLetter,
-        useAiTailoring
+        true
       );
       await navigate(`/export-pdf?cvId=${tailoredCVId}`);
     } catch (error) {
@@ -48,7 +60,28 @@ export function TailorCV() {
       setIsTailoring(false);
     }
   };
+  const handleManualTailoring = async () => {
 
+
+    setIsTailoring(true);
+
+    try {
+      // Call the real API endpoint to tailor the CV
+      const { cvId: tailoredCVId } = await cvsService.tailorCV(
+        jobDescription,
+        companyName,
+        includeCoverLetter,
+        false
+      );
+      await navigate(`/export-pdf?cvId=${tailoredCVId}`);
+    } catch (error) {
+      console.error('Error tailoring CV:', error);
+      // Show error message to user
+      alert('Failed to tailor CV. Please try again.');
+    } finally {
+      setIsTailoring(false);
+    }
+  };
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -61,7 +94,7 @@ export function TailorCV() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="pl-12 pr-12 mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -86,8 +119,8 @@ export function TailorCV() {
           <Button onClick={() => navigate('/')}>Go to Dashboard</Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="space-y-4 col-span-2">
             <div className="border rounded-lg p-6 space-y-4 card-hover">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -101,26 +134,7 @@ export function TailorCV() {
                 placeholder="Company Name"
                 className="w-full border rounded-lg p-4 font-mono"
               />
-              <div className="flex items-center gap-6">
-                <span>
-                  <input
-                    type="checkbox"
-                    checked={includeCoverLetter}
-                    onChange={e => setIncludeCoverLetter(e.target.checked)}
-                    className="mt-4 mr-2"
-                  />
-                  Include Cover Letter
-                </span>
-                <span>
-                  <input
-                    type="checkbox"
-                    checked={useAiTailoring}
-                    onChange={e => setUseAiTailoring(e.target.checked)}
-                    className="mt-4 mr-2"
-                  />
-                  Tailor using AI
-                </span>
-              </div>
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
@@ -139,32 +153,45 @@ export function TailorCV() {
 
           <div className="space-y-4">
             <div className="border rounded-lg p-6 card-hover">
-              <p className="mb-6">
-                Click the button below to tailor your CV. You will be able to further customize it
-                in the next step.
-              </p>
-              {/* Tailor Button */}
-              <div className="space-y-3">
-                <Button
-                  onClick={handleTailorCV}
-                  disabled={
-                    !jobDescription.trim() || isTailoring || isLoadingSubscription || !companyName
-                  }
-                  className="w-full"
-                >
-                  {isTailoring ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Tailoring...
-                    </>
-                  ) : (
-                    <>
-                      <Wand2 className="h-4 w-4 mr-2" />
-                      Tailor My CV
-                    </>
-                  )}
-                </Button>
+              <div className="border pb-4 mb-4">
+                <span>
+                  <input
+                    type="checkbox"
+                    checked={includeCoverLetter}
+                    onChange={e => setIncludeCoverLetter(e.target.checked)}
+                    className="mt-4 mr-2"
+                  />
+                  Include Cover Letter
+                </span>
+
+                {/* Tailor Button */}
+                <div className="space-y-3 m-4">
+                  <Button
+                    onClick={handleTailorCV}
+                    disabled={
+                      !jobDescription.trim() || isTailoring || isLoadingSubscription || !companyName
+                    }
+                    className="w-full"
+                  >
+                    {isTailoring ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Tailoring...
+                      </>
+                    ) : (
+                      <>
+                        <Wand2 className="h-4 w-4 mr-2" />
+                        Tailor using AI
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
+              <Button className={`mt-6 cursor-pointer ${!jobDescription.trim() || isLoadingSubscription || !companyName
+                ? "hidden" : ""}`} variant="link" onClick={handleManualTailoring} disabled={isTailoring}  >
+                {includeCoverLetter ? "Continue without AI Tailoring.   Use AI only for the cover letter" : "Continue without AI Tailoring"}
+              </Button>
+
             </div>
           </div>
         </div>
@@ -172,3 +199,4 @@ export function TailorCV() {
     </div>
   );
 }
+
