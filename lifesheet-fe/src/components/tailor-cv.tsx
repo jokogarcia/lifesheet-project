@@ -18,21 +18,8 @@ export function TailorCV() {
   const [isTailoring, setIsTailoring] = useState(false);
   const [includeCoverLetter, setIncludeCoverLetter] = useState(true);
   const [companyName, setCompanyName] = useState('');
-  const [tempCV, setTempCV] = useState<CV | null>(null);
   const { canUseAI, isLoading: isLoadingSubscription } = useSaaSActiveSubscription();
 
-  useEffect(() => {
-    if (cv) {
-      const tailored = cv.tailored ?? {
-        jobDescription_id: '',
-        coverLetter: '',
-        tailoredDate: '',
-        updatedByUser: true,
-        sectionOrder: ['cover-letter', 'personalInfo', 'summary', 'skills', 'workExperience', 'education', 'languages'],
-      }
-      setTempCV({ ...cv, tailored, _id: '' });
-    }
-  }, [cv]);
   const handleTailorCV = async () => {
     if (!canUseAI) {
       alert('You have reached your usage limits for this feature.');

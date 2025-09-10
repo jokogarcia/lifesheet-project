@@ -9,7 +9,6 @@ import {
   defaultPdfOptions,
   defaultSectionOrder,
   type CV,
-  type CVToPDFOptions,
   type TailoredData,
 } from '@/services/cvs-service';
 import { CVPreviewer } from '@/cv-printer/cv-previewer';
@@ -28,8 +27,7 @@ export function ExportPdf() {
   const [printMode, setPrintMode] = useState(false);
   const [coverLetter, setCoverLetter] = useState('');
   const [isCoverLetterVisible, setIsCoverLetterVisible] = useState(true);
-
-
+  const isMainCV = queryParams.get('cvId') === null;
   const pdfOptions = cv?.tailored?.pdfOptions || defaultPdfOptions;
   useEffect(() => {
     if (!originalCV) return;
@@ -42,7 +40,7 @@ export function ExportPdf() {
       leftColumnSections: defaultLeftColumnSections,
       pdfOptions: defaultPdfOptions
     };
-    if (!originalCV.tailored?.sectionOrder) {
+    if (!originalCV.tailored?.sectionOrder || originalCV.tailored.sectionOrder.length === 0) {
       tailored.sectionOrder = defaultSectionOrder;
     }
     setCV({ ...originalCV, tailored });
@@ -136,7 +134,7 @@ export function ExportPdf() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-xs" style={{ textAlign: 'left' }}>
         <div className="card-hover bg-gradient-subtle">
 
-          <EditableCV cv={cv} setCV={setCV} />
+          <EditableCV cv={cv} setCV={setCV} hideEditButton={isMainCV} />
         </div>
 
         {/* Preview */}

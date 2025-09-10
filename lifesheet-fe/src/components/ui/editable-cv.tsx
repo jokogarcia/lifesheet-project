@@ -1,5 +1,5 @@
 import type { CV } from "@/services/cvs-service";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { CardContent, CardHeader, Card } from './card';
@@ -72,7 +72,7 @@ function EditableSectionCard({ title, children, toolBarOptions, menuOptions, onI
         <CardContent>{!hidden && children}</CardContent>
     </Card>;
 }
-export function EditableCV({ cv, setCV }: { cv: CV, setCV: (cv: CV) => void }) {
+export function EditableCV({ cv, setCV, hideEditButton }: { cv: CV, setCV: (cv: CV) => void, hideEditButton?: boolean }) {
     const navigate = useNavigate();
     const sections = cv.tailored?.sectionOrder || [];
     const reRender = () => { setCV({ ...cv }) };
@@ -175,9 +175,9 @@ export function EditableCV({ cv, setCV }: { cv: CV, setCV: (cv: CV) => void }) {
     return <div className="space-y-4 text-left text-sm">
         {/* Template */}
         <div className="p-4 border rounded-lg ">
-            <Button variant="outline" size="icon" onClick={() => {
+            {!hideEditButton && <Button variant="outline" onClick={() => {
                 navigate(`/cv-data?cvId=${cv._id}`);
-            }} title="Edit CV details"><Pencil /></Button>
+            }} title="Edit CV details"><Pencil />Edit Information</Button>}
             <div className="flex flex-row space-x-2">
                 <p className="font-semibold mr-4">Template</p>
                 <label className="flex items-center space-x-2 flex-row">
