@@ -92,7 +92,7 @@ export const getUserCV = async (req: Request, res: Response, next: NextFunction)
     if (!userInfo) {
       throw new ApiError(404, 'User Not Found');
     }
-    let cv = await CV.findOne({ user_id: userId, deletedAt: null, tailored: { $exists: false } });
+    let cv = await CV.findOne({ user_id: userId, deletedAt: null }).sort({ created_at: 1 });
     if (!cv) {
       const newcv = createBlankCV(userId, userInfo.email, userInfo.name || userInfo.email);
       // Create and save a blank CV if it doesn't exist
@@ -113,12 +113,14 @@ export const getUsersTailoredCvs = async (req: Request, res: Response, next: Nex
     let cvs = await CV.find({
       user_id: userId,
       deletedAt: null,
-      tailored: { $exists: true },
-    }).populate('tailored.jobDescription_id');
+    })
+      .sort({ created_at: 1 })
+      .skip(1)
+      .populate('tailored.jobDescription_id');
     const response = cvs.map(cv => {
       // Safely handle populated document or string ID
       let jobDescription: any = cv.tailored!.jobDescription_id;
-      const companyName = (jobDescription.companyName as string) || 'Unknown Company';
+      const companyName = (jobDescription?.companyName as string) || 'Unknown Company';
       return {
         _id: cv._id,
         updatedAt: cv.updated_at,
@@ -167,17 +169,19 @@ export const getUserTailoredCV = async (req: Request, res: Response, next: NextF
   }
 };
 
-export const updateUsersMainCV = async (
+export const updateUsersCV = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
     const userId = resolveUserId(req);
+    const cvId = req.params.cvId;
     const payload = req.body as ICV;
+    payload.updated_at = new Date();
     const result = await CV.findOneAndUpdate(
-      { user_id: userId, deletedAt: null, tailored: { $exists: false } },
-      { $set: payload, $currentDate: { updated_at: true } },
+      { user_id: userId, deletedAt: null, _id: cvId },
+      { $set: payload },
       { new: true, runValidators: true }
     );
 
@@ -186,6 +190,7 @@ export const updateUsersMainCV = async (
     next(err);
   }
 };
+
 export const upsertUserTailoredCV = async (
   req: Request,
   res: Response,

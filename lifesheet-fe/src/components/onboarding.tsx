@@ -110,7 +110,7 @@ export const Onboarding = () => {
         console.log('Step 3 valid:', valid);
         break;
       case 4:
-        valid = pictures.length > 0;
+        valid = true;// picture is optional
         console.log('Step 4 valid:', valid);
         break;
       default:
@@ -148,7 +148,10 @@ export const Onboarding = () => {
   };
   const handleSave = async () => {
     try {
-      await saveCV({
+      if (!cv) {
+        throw new Error('No CV to save');
+      }
+      await saveCV(cv._id, {
         personal_info: personalInfo,
         work_experience: workExperience,
         education: education,

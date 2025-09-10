@@ -52,8 +52,17 @@ function App() {
       <Route path="/export-pdf" element={<ExportPdf />} />
       <Route path="/tailored-cvs" element={<TailoredCVs />} />
       <Route path="/onboarding" element={<Onboarding />} />
+      <Route path="/logout" element={<Logout />} />
     </Routes>
   );
 }
-
+function Logout() {
+  const { keycloak } = useKeycloak();
+  const url = new URL(window.location.href);
+  const redirect = url.protocol + '//' + url.host;
+  useEffect(() => {
+    keycloak.logout({ redirectUri: redirect })
+  }, [keycloak]);
+  return <div>Logging out...</div>;
+}
 export default App;

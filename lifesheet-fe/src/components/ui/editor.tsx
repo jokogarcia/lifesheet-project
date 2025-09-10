@@ -29,7 +29,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ content, onContentUpdat
       <Editor
         editorState={editorState}
         onEditorStateChange={setEditorState}
-        wrapperStyle={{ height: '100%', border: '1px solid #F1F1F1', borderRadius: '8px' }}
+        wrapperStyle={{ height: '80%', border: '1px solid #F1F1F1', borderRadius: '8px', paddingBottom: '80px' }}
         toolbar={{
           options: ['inline', 'blockType', 'list', 'textAlign', 'link', 'history'],
           inline: { options: ['bold', 'italic', 'underline'] },

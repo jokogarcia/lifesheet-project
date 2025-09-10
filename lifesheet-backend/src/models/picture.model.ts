@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IPicture extends Document {
+  _id: mongoose.Types.ObjectId;
   user_id: mongoose.Schema.Types.ObjectId;
   filepath: string;
   contentType: string;
@@ -10,6 +11,7 @@ export interface IPicture extends Document {
 }
 const pictureSchema: Schema = new Schema(
   {
+    _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,

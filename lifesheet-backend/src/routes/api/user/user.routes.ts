@@ -13,7 +13,7 @@ import {
   deleteUserCV,
   getUserTailoredCV,
   tailorCV,
-  updateUsersMainCV,
+  updateUsersCV,
   renderCVAsPDF,
   uploadPicture,
   getUserPicture,
@@ -34,7 +34,7 @@ router.put('/:id/', updateUserProfile);
 router.delete('/:id', deleteUserProfile);
 router.get('/:id/cv', getUserCV);
 router.get('/:id/cv/tailored-list', getUsersTailoredCvs);
-router.put('/:id/cv', updateUsersMainCV);
+router.put('/:id/cv/:cvId', updateUsersCV);
 router.get('/:id/cv/:cvId', getUserTailoredCV);
 router.get('/:id/cv/:cvId/pdf', renderCVAsPDF);
 router.post('/:id/cv/tailor', tailorCV);

@@ -63,6 +63,30 @@ interface ISection extends Document {
     [key: string]: any;
   }[];
 }
+interface CVToPDFOptions {
+  pictureId?: string;
+  template?: string;
+  primaryColorOverride?: string;
+  secondaryColorOverride?: string;
+  textColorOverride?: string;
+  text2ColorOverride?: string;
+  backgroundColorOverride?: string;
+  includeEmail?: boolean;
+  includeAddress?: boolean;
+  includeDateOfBirth?: boolean;
+  includePhone?: boolean;
+}
+export interface TailoredData {
+  jobDescription_id: string;
+  coverLetter?: string;
+  tailoredDate: Date;
+  updatedByUser: boolean;
+  sectionOrder?: string[];
+  hiddenSections?: string[];
+  leftColumnSections?: string[];
+  coverLetterOnTop?: boolean;
+  pdfOptions?: CVToPDFOptions;
+}
 
 // CV Schema
 export interface ICV extends Document {
@@ -74,22 +98,10 @@ export interface ICV extends Document {
   sections: ISection[];
   language_skills: LanguageSkill[];
   isPublic: boolean;
-  customStyles?: {
-    template?: string;
-    primaryColor?: string;
-    fontFamily?: string;
-    fontSize?: string;
-    [key: string]: any;
-  };
   created_at: Date;
   updated_at: Date;
   // Field to store tailored content
-  tailored?: {
-    jobDescription_id: string;
-    coverLetter?: string;
-    tailoredDate: Date;
-    updatedByUser: boolean;
-  };
+  tailored?: TailoredData;
 }
 
 const sectionSchema = new Schema({
@@ -194,17 +206,29 @@ const cvSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    customStyles: {
-      template: String,
-      primaryColor: String,
-      fontFamily: String,
-      fontSize: String,
-    },
+
     tailored: {
       jobDescription_id: { type: Schema.Types.ObjectId, ref: 'JobDescription' },
       coverLetter: String,
       tailoredDate: Date,
       updatedByUser: Boolean,
+      sectionOrder: [String],
+      hiddenSections: { type: [String], default: [] },
+      leftColumnSections: { type: [String], default: [] },
+      coverLetterOnTop: { type: Boolean, default: false },
+      pdfOptions: {
+        pictureId: { type: String, default: '' },
+        template: { type: String, default: 'single-column-1' },
+        primaryColorOverride: { type: String, default: '' },
+        secondaryColorOverride: { type: String, default: '' },
+        textColorOverride: { type: String, default: '' },
+        text2ColorOverride: { type: String, default: '' },
+        backgroundColorOverride: { type: String, default: '' },
+        includeEmail: { type: Boolean, default: true },
+        includeAddress: { type: Boolean, default: true },
+        includeDateOfBirth: { type: Boolean, default: false },
+        includePhone: { type: Boolean, default: true },
+      },
     },
   },
   {
@@ -213,3 +237,13 @@ const cvSchema = new Schema(
 );
 
 export default mongoose.model<ICV>('CV', cvSchema);
+export const defaultSectionOrder = [
+  'cover-letter',
+  'personalInfo',
+  'summary',
+  'skills',
+  'workExperience',
+  'education',
+  'languages',
+];
+export const defaultLeftColumnSections = ['personalInfo', 'skills', 'languages'];

@@ -51,7 +51,7 @@ export interface LanguageSkill {
   level: string;
 }
 export interface CV {
-  id: string;
+  _id: string;
 
   personal_info: PersonalInfo;
   work_experience: WorkExperience[];
@@ -76,8 +76,21 @@ export interface CreateOrUpdateCVRequest {
   education: Education[];
   skills: Skill[];
   language_skills?: LanguageSkill[];
+  tailored?: TailoredData;
 }
-
+export const defaultSectionOrder = ['cover-letter', 'personalInfo', 'summary', 'skills', 'workExperience', 'education', 'languages'];
+export const defaultLeftColumnSections = ['personalInfo', 'skills', 'languages'];
+export const defaultPdfOptions: CVToPDFOptions = {
+  includeEmail: true,
+  includePhone: true,
+  includeAddress: true,
+  primaryColorOverride: '',
+  secondaryColorOverride: '',
+  textColorOverride: '',
+  text2ColorOverride: '',
+  backgroundColorOverride: '',
+  template: 'single-column-1',
+};
 // No need for mock data anymore, we're using real API calls
 export interface CVToPDFOptions {
   pictureId?: string;
@@ -133,18 +146,47 @@ class CVsService {
   }
 
   // Create or update user's CV
-  async createOrUpdateCV(cvData: CreateOrUpdateCVRequest): Promise<CV> {
-    const response = await this.client.put<CV>('/user/me/cv', cvData);
+  async createOrUpdateCV(cvId: string, cvData: CreateOrUpdateCVRequest): Promise<CV> {
+    const response = await this.client.put<CV>('/user/me/cv/' + cvId, cvData);
     if (!response.data) {
       throw new Error('Failed to create or update CV');
     }
     return response.data;
   }
 
+
   // Delete user's CV TODO: verify this is not missing an id
   async deleteCV(): Promise<void> {
     console.log('🔄 CVsService: Deleting user CV...');
     await this.client.delete('/user/me/cv');
+  }
+
+  // Helper method to transform Sets to Arrays for JSON serialization
+  private static transformSetsToArrays(data: any): any {
+    console.log('Transforming data:');
+    if (data === null || data === undefined) {
+      return data;
+    }
+
+    if (data instanceof Set) {
+      return Array.from(data);
+    }
+
+    if (Array.isArray(data)) {
+      return data.map(item => this.transformSetsToArrays(item));
+    }
+
+    if (typeof data === 'object') {
+      const result: Record<string, any> = {};
+      for (const key in data) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+          result[key] = this.transformSetsToArrays(data[key]);
+        }
+      }
+      return result;
+    }
+
+    return data;
   }
 
   // Tailor CV to job description
@@ -281,6 +323,11 @@ export interface TailoredData {
   coverLetter: string;
   tailoredDate: string;
   updatedByUser: boolean;
+  sectionOrder?: string[];
+  hiddenSections?: string[];
+  leftColumnSections?: string[];
+  coverLetterOnTop?: boolean;
+  pdfOptions?: CVToPDFOptions;
 }
 async function wait(miliseconds: number) {
   return new Promise(resolve => setTimeout(resolve, miliseconds));

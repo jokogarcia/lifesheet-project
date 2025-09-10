@@ -139,12 +139,6 @@ const createSampleCV = async (userId: mongoose.Types.ObjectId) => {
       },
     ],
     isPublic: false,
-    customStyles: {
-      template: 'modern',
-      primaryColor: '#0066cc',
-      fontFamily: 'Roboto, sans-serif',
-      fontSize: '11pt',
-    },
   };
 };
 
