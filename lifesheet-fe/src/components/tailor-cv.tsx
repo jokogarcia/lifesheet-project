@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, FileText, Wand2 } from 'lucide-react';
 import { useUserCV } from '@/hooks/use-cv';
 import { useNavigate } from 'react-router-dom';
-import cvsService, { type CV } from '@/services/cvs-service';
+import cvsService from '@/services/cvs-service';
 import { useSaaSActiveSubscription } from '@/hooks/use-saas';
 import RichTextEditor from './ui/editor';
 import { LoadingIndicator } from './ui/loading-indicator';
