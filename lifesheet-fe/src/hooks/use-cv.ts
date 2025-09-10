@@ -24,11 +24,11 @@ export function useUserCV(cvId?: string) {
     }
   }, [cvId]);
 
-  const saveCV = async (cvData: CreateOrUpdateCVRequest): Promise<CV> => {
+  const saveCV = async (cvId: string, cvData: CreateOrUpdateCVRequest): Promise<CV> => {
     try {
       setIsSaving(true);
       setError(null);
-      const savedCV = await cvsService.createOrUpdateCV(cvData);
+      const savedCV = await cvsService.createOrUpdateCV(cvId, cvData);
       setCV(savedCV);
       return savedCV;
     } catch (err) {

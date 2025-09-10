@@ -54,7 +54,7 @@ export function CVPreviewer({ cvData, printMode, onHtmlUpdate }: CVPreviewerProp
         {template.startsWith('two-column') && renderTwoColumns({ cvData, printMode })}
         {template.startsWith('single-column') && renderOneColumn({ cvData, printMode })}
         {(!hiddenSections.has('cover-letter') && cvData.tailored.coverLetter && !cvData.tailored.coverLetterOnTop
-          && <CoverLetter style={{ marginTop: printMode ? undefined : '20em', breakBefore: 'always' }} text={cvData.tailored?.coverLetter || ''} />)}
+          && <CoverLetter style={{ marginTop: printMode ? undefined : '20em', breakBefore: 'always', borderTop: printMode ? 'none' : '2px solid black' }} text={cvData.tailored?.coverLetter || ''} />)}
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import { useUserCV } from '@/hooks/use-cv';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
-import { ArrowDown, ArrowLeft, ChevronDown, File, FileX, Settings } from 'lucide-react';
+import { ArrowDown, ArrowLeft } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import {
   cvsService,
@@ -12,12 +12,9 @@ import {
   type CVToPDFOptions,
   type TailoredData,
 } from '@/services/cvs-service';
-import PictureSelector from '@/components/export/picture-selector';
 import { CVPreviewer } from '@/cv-printer/cv-previewer';
 import userService from '@/services/user-service';
-import RichTextEditor from './ui/editor';
 import ReactMarkdown from 'react-markdown';
-import { TabContainer } from './ui/tab-container';
 import { EditableCV } from './ui/editable-cv';
 export function ExportPdf() {
   const queryParams = new URLSearchParams(useLocation().search);

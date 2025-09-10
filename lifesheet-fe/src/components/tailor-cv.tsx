@@ -30,7 +30,7 @@ export function TailorCV() {
         updatedByUser: true,
         sectionOrder: ['cover-letter', 'personalInfo', 'summary', 'skills', 'workExperience', 'education', 'languages'],
       }
-      setTempCV({ ...cv, tailored, id: '' });
+      setTempCV({ ...cv, tailored, _id: '' });
     }
   }, [cv]);
   const handleTailorCV = async () => {
