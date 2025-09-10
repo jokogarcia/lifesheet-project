@@ -82,8 +82,8 @@ export interface TailoredData {
   tailoredDate: Date;
   updatedByUser: boolean;
   sectionOrder?: string[];
-  hiddenSections?: Set<string>;
-  leftColumnSections?: Set<string>;
+  hiddenSections?: string[];
+  leftColumnSections?: string[];
   coverLetterOnTop?: boolean;
   pdfOptions?: CVToPDFOptions;
 }
@@ -246,4 +246,4 @@ export const defaultSectionOrder = [
   'education',
   'languages',
 ];
-export const defaultLeftColumnSections = new Set(['personalInfo', 'skills', 'languages']);
+export const defaultLeftColumnSections = ['personalInfo', 'skills', 'languages'];

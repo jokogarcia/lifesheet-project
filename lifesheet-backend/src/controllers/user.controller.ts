@@ -120,7 +120,7 @@ export const getUsersTailoredCvs = async (req: Request, res: Response, next: Nex
     const response = cvs.map(cv => {
       // Safely handle populated document or string ID
       let jobDescription: any = cv.tailored!.jobDescription_id;
-      const companyName = (jobDescription.companyName as string) || 'Unknown Company';
+      const companyName = (jobDescription?.companyName as string) || 'Unknown Company';
       return {
         _id: cv._id,
         updatedAt: cv.updated_at,
@@ -169,18 +169,19 @@ export const getUserTailoredCV = async (req: Request, res: Response, next: NextF
   }
 };
 
-export const updateUsersMainCV = async (
+export const updateUsersCV = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
     const userId = resolveUserId(req);
+    const cvId = req.params.cvId;
     const payload = req.body as ICV;
     const result = await CV.findOneAndUpdate(
-      { user_id: userId, deletedAt: null },
+      { user_id: userId, deletedAt: null, _id: cvId },
       { $set: payload, $currentDate: { updated_at: true } },
-      { new: true, runValidators: true, sort: { created_at: 1 } }
+      { new: true, runValidators: true }
     );
 
     res.json(result);
@@ -188,6 +189,7 @@ export const updateUsersMainCV = async (
     next(err);
   }
 };
+
 export const upsertUserTailoredCV = async (
   req: Request,
   res: Response,
