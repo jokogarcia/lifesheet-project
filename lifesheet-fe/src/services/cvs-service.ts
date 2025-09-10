@@ -51,7 +51,7 @@ export interface LanguageSkill {
   level: string;
 }
 export interface CV {
-  id: string;
+  _id: string;
 
   personal_info: PersonalInfo;
   work_experience: WorkExperience[];
@@ -132,6 +132,18 @@ class CVsService {
   async getUserCV(cvId?: string): Promise<CV | null> {
     console.log('🔄 CVsService: Fetching user CV ', cvId || '');
     const response = await this.client.get<CV>(`/user/me/cv${cvId ? `/${cvId}` : ''}`);
+    if (response.data) {
+      const cv = response.data;
+      if (cv.tailored) {
+        cv.tailored.hiddenSections = new Set(cv.tailored.hiddenSections || []);
+        cv.tailored.leftColumnSections = new Set(cv.tailored.leftColumnSections || defaultLeftColumnSections);
+        cv.tailored.sectionOrder = cv.tailored.sectionOrder && cv.tailored.sectionOrder.length > 0 ? cv.tailored.sectionOrder : defaultSectionOrder;
+        if (cv.tailored.leftColumnSections.size === 0) {
+          cv.tailored.leftColumnSections = new Set(defaultLeftColumnSections);
+        }
+
+      }
+    }
     return response.data;
   }
 
@@ -145,13 +157,14 @@ class CVsService {
   }
 
   // Create or update user's CV
-  async createOrUpdateCV(cvData: CreateOrUpdateCVRequest): Promise<CV> {
-    const response = await this.client.put<CV>('/user/me/cv', cvData);
+  async createOrUpdateCV(cvId: string, cvData: CreateOrUpdateCVRequest): Promise<CV> {
+    const response = await this.client.put<CV>('/user/me/cv/' + cvId, cvData);
     if (!response.data) {
       throw new Error('Failed to create or update CV');
     }
     return response.data;
   }
+
 
   // Delete user's CV TODO: verify this is not missing an id
   async deleteCV(): Promise<void> {
