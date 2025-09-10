@@ -72,52 +72,48 @@ function EditableSectionCard({ title, children, toolBarOptions, menuOptions, onI
         <CardContent>{!hidden && children}</CardContent>
     </Card>;
 }
-export function EditableCV({ cv, reRender }: { cv: CV, reRender: () => void }) {
-    const [sections, setSections] = useState<string[]>(cv.tailored?.sectionOrder || []);
+export function EditableCV({ cv, setCV }: { cv: CV, setCV: (cv: CV) => void }) {
     const navigate = useNavigate();
-    useEffect(() => {
-        if (cv.tailored?.sectionOrder) {
-            setSections(cv.tailored.sectionOrder);
-        }
-    }, [cv.tailored?.sectionOrder]);
-    useEffect(() => {
-        if (cv.tailored) {
-            cv.tailored.sectionOrder = sections;
-            reRender();
-        }
-    }, [sections, cv.tailored]);
+    const sections = cv.tailored?.sectionOrder || [];
+    const reRender = () => { setCV({ ...cv }) };
+    const setSections = (newOrder: string[]) => {
+        if (!cv.tailored) return;
+        setCV({ ...cv, tailored: { ...cv.tailored, sectionOrder: newOrder } });
+    };
+
+
     const moveSectionUp = (section: string) => {
         if (!sections) return;
         const index = sections.indexOf(section);
         if (index > 0) {
-            setSections(prev => {
-                const newOrder = [...prev];
-                [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
-                return newOrder;
-            });
+            const newOrder = [...sections];
+            [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
+            setSections(newOrder);
         }
     }
     const moveSectionDown = (section: string) => {
         if (!sections) return;
         const index = sections.indexOf(section);
         if (index < sections.length - 1) {
-            setSections(prev => {
-                const newOrder = [...prev];
-                [newOrder[index + 1], newOrder[index]] = [newOrder[index], newOrder[index + 1]];
-                return newOrder;
-            });
+            const newOrder = [...sections];
+            [newOrder[index + 1], newOrder[index]] = [newOrder[index], newOrder[index + 1]];
+            setSections(newOrder);
         }
     }
     const onHideSection = (_section: string, state: boolean) => {
-        console.log("Hiding section:", _section, "State:", state);
+
         if (!cv.tailored) return;
         if (!cv.tailored.hiddenSections) {
-            cv.tailored.hiddenSections = new Set<string>();
+            cv.tailored.hiddenSections = [];
         }
         if (state) {
-            cv.tailored.hiddenSections.delete(_section);
+            //remove from hidden
+            const index = cv.tailored.hiddenSections.indexOf(_section);
+            if (index > -1) {
+                cv.tailored.hiddenSections.splice(index, 1);
+            }
         } else {
-            cv.tailored.hiddenSections.add(_section);
+            cv.tailored.hiddenSections.push(_section);
         }
         // Force re-render
         reRender();
@@ -132,18 +128,18 @@ export function EditableCV({ cv, reRender }: { cv: CV, reRender: () => void }) {
     function toggleLeftColumn(section: string) {
         if (!cv.tailored) return;
         if (!cv.tailored.leftColumnSections) {
-            cv.tailored.leftColumnSections = new Set<string>();
+            cv.tailored.leftColumnSections = [];
         }
-        if (cv.tailored.leftColumnSections.has(section)) {
-            cv.tailored.leftColumnSections.delete(section);
+        if (cv.tailored.leftColumnSections.includes(section)) {
+            cv.tailored.leftColumnSections.splice(cv.tailored.leftColumnSections.indexOf(section), 1);
         } else {
-            cv.tailored.leftColumnSections.add(section);
+            cv.tailored.leftColumnSections.push(section);
         }
         reRender();
     }
     function isInLeftColumn(section: string): boolean {
         if (!cv.tailored || !cv.tailored.leftColumnSections) return false;
-        return cv.tailored.leftColumnSections.has(section);
+        return cv.tailored.leftColumnSections.includes(section);
     }
     function moveCoverLetter(to: 'top' | 'bottom') {
         const toTop = to === 'top';
@@ -240,7 +236,6 @@ export function EditableCV({ cv, reRender }: { cv: CV, reRender: () => void }) {
         </div>
         {sections.length === 0 && <p className="text-muted-foreground">No sections to display. Add sections from the toolbar above.</p>}
         {sections.map((section) => {
-            console.log('Rendering section:', section);
             switch (section) {
                 case 'cover-letter':
                     if (cv.tailored?.coverLetter) {

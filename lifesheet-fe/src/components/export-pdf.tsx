@@ -13,7 +13,6 @@ import {
   type TailoredData,
 } from '@/services/cvs-service';
 import { CVPreviewer } from '@/cv-printer/cv-previewer';
-import userService from '@/services/user-service';
 import ReactMarkdown from 'react-markdown';
 import { EditableCV } from './ui/editable-cv';
 export function ExportPdf() {
@@ -22,27 +21,15 @@ export function ExportPdf() {
     cv: originalCV,
     isLoading,
     error: cvError,
+    saveCV,
   } = useUserCV(queryParams.get('cvId') || undefined);
   const navigate = useNavigate();
   const [cv, setCV] = useState<CV | null>(originalCV);
   const [printMode, setPrintMode] = useState(false);
   const [coverLetter, setCoverLetter] = useState('');
   const [isCoverLetterVisible, setIsCoverLetterVisible] = useState(true);
-  // const [pdfOptions, setPdfOptions] = useState<CVToPDFOptions>({
-  //   primaryColorOverride: '#3b82f6',
-  //   secondaryColorOverride: '#f97316',
-  //   textColorOverride: '#111827',
-  //   text2ColorOverride: '#4b5563',
-  //   backgroundColorOverride: '#ffffff',
-  //   template: 'single-column-1',
-  //   includeAddress: true,
-  //   includePhone: true,
-  // });
-  function setPdfOptions(options: CVToPDFOptions) {
-    if (!cv?.tailored) return;
-    const newCv = { ...cv, tailored: { ...cv.tailored, pdfOptions: options } };
-    setCV(newCv);
-  }
+
+
   const pdfOptions = cv?.tailored?.pdfOptions || defaultPdfOptions;
   useEffect(() => {
     if (!originalCV) return;
@@ -83,8 +70,12 @@ export function ExportPdf() {
 
   async function handleSave() {
     setPrintMode(true);
+    if (!cv) return;
+    await saveCV(cv._id, cv);
     try {
+      console.log('Generating PDF...');
       const html = document.getElementById('rendered-cv-container')?.outerHTML;
+
       if (!html) throw new Error('Error getting raw HTML');
       const pdfBlob = await cvsService.getPDFv2(
         html,
@@ -94,8 +85,10 @@ export function ExportPdf() {
       const url = URL.createObjectURL(pdfBlob);
       const a = document.createElement('a');
       a.href = url;
-      //a.download = "cv.pdf";
+      a.target = "_blank"
       document.body.appendChild(a);
+      //a.download = `${originalCV?.personal_info.fullName || 'my-cv'}.pdf`;
+
       a.click();
       document.body.removeChild(a);
     } catch (error) {
@@ -105,14 +98,7 @@ export function ExportPdf() {
     }
   }
 
-  async function handlePictureSelected(pictureId: string | undefined): Promise<void> {
-    setPdfOptions({ pictureId, ...pdfOptions });
-    if (cv) {
-      const shareUrl = pictureId ? await userService.getPictureShareLink(pictureId) : '';
-      setCV({ ...cv, personal_info: { ...cv.personal_info, profilePictureUrl: shareUrl } });
-      console.log('Got picture URL:', shareUrl);
-    }
-  }
+
   if (cvError) {
     return (
       <div>
@@ -150,7 +136,7 @@ export function ExportPdf() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-xs" style={{ textAlign: 'left' }}>
         <div className="card-hover bg-gradient-subtle">
 
-          <EditableCV cv={cv} reRender={() => { console.log("updating...."); setCV({ ...cv }) }} />
+          <EditableCV cv={cv} setCV={setCV} />
         </div>
 
         {/* Preview */}

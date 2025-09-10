@@ -178,9 +178,10 @@ export const updateUsersCV = async (
     const userId = resolveUserId(req);
     const cvId = req.params.cvId;
     const payload = req.body as ICV;
+    payload.updated_at = new Date();
     const result = await CV.findOneAndUpdate(
       { user_id: userId, deletedAt: null, _id: cvId },
-      { $set: payload, $currentDate: { updated_at: true } },
+      { $set: payload },
       { new: true, runValidators: true }
     );
 

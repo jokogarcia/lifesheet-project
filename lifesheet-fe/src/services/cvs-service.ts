@@ -76,9 +76,10 @@ export interface CreateOrUpdateCVRequest {
   education: Education[];
   skills: Skill[];
   language_skills?: LanguageSkill[];
+  tailored?: TailoredData;
 }
 export const defaultSectionOrder = ['cover-letter', 'personalInfo', 'summary', 'skills', 'workExperience', 'education', 'languages'];
-export const defaultLeftColumnSections = new Set(['personalInfo', 'skills', 'languages']);
+export const defaultLeftColumnSections = ['personalInfo', 'skills', 'languages'];
 export const defaultPdfOptions: CVToPDFOptions = {
   includeEmail: true,
   includePhone: true,
@@ -132,18 +133,6 @@ class CVsService {
   async getUserCV(cvId?: string): Promise<CV | null> {
     console.log('🔄 CVsService: Fetching user CV ', cvId || '');
     const response = await this.client.get<CV>(`/user/me/cv${cvId ? `/${cvId}` : ''}`);
-    if (response.data) {
-      const cv = response.data;
-      if (cv.tailored) {
-        cv.tailored.hiddenSections = new Set(cv.tailored.hiddenSections || []);
-        cv.tailored.leftColumnSections = new Set(cv.tailored.leftColumnSections || defaultLeftColumnSections);
-        cv.tailored.sectionOrder = cv.tailored.sectionOrder && cv.tailored.sectionOrder.length > 0 ? cv.tailored.sectionOrder : defaultSectionOrder;
-        if (cv.tailored.leftColumnSections.size === 0) {
-          cv.tailored.leftColumnSections = new Set(defaultLeftColumnSections);
-        }
-
-      }
-    }
     return response.data;
   }
 
@@ -170,6 +159,34 @@ class CVsService {
   async deleteCV(): Promise<void> {
     console.log('🔄 CVsService: Deleting user CV...');
     await this.client.delete('/user/me/cv');
+  }
+
+  // Helper method to transform Sets to Arrays for JSON serialization
+  private static transformSetsToArrays(data: any): any {
+    console.log('Transforming data:');
+    if (data === null || data === undefined) {
+      return data;
+    }
+
+    if (data instanceof Set) {
+      return Array.from(data);
+    }
+
+    if (Array.isArray(data)) {
+      return data.map(item => this.transformSetsToArrays(item));
+    }
+
+    if (typeof data === 'object') {
+      const result: Record<string, any> = {};
+      for (const key in data) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+          result[key] = this.transformSetsToArrays(data[key]);
+        }
+      }
+      return result;
+    }
+
+    return data;
   }
 
   // Tailor CV to job description
@@ -307,8 +324,8 @@ export interface TailoredData {
   tailoredDate: string;
   updatedByUser: boolean;
   sectionOrder?: string[];
-  hiddenSections?: Set<string>;
-  leftColumnSections?: Set<string>;
+  hiddenSections?: string[];
+  leftColumnSections?: string[];
   coverLetterOnTop?: boolean;
   pdfOptions?: CVToPDFOptions;
 }

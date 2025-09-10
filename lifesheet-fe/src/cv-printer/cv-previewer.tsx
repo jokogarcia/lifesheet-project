@@ -26,7 +26,7 @@ export function CVPreviewer({ cvData, printMode, onHtmlUpdate }: CVPreviewerProp
   }, [cvData, printMode, onHtmlUpdate]);
   if (!cvData.tailored) {
     cvData.tailored = {
-      hiddenSections: new Set<string>(),
+      hiddenSections: [],
       coverLetter: '',
       sectionOrder: defaultSectionOrder,
       leftColumnSections: defaultLeftColumnSections,
@@ -40,9 +40,7 @@ export function CVPreviewer({ cvData, printMode, onHtmlUpdate }: CVPreviewerProp
   const options = cvData.tailored.pdfOptions || defaultPdfOptions;
   const template = options.template || 'single-column-1';
   const cssVars = getStyleOverrides(options);
-  console.log("Profile picture URL:", cvData.personal_info.profilePictureUrl);
-  const hiddenSections = cvData.tailored?.hiddenSections || new Set<string>();
-  console.log("Rendering CVPreviewer with hidden sections:", hiddenSections);
+  const hiddenSections = new Set(cvData.tailored?.hiddenSections || []);
   return (
     <div className={moduleStyles.reset}>
       <div
@@ -80,8 +78,8 @@ function getStyleOverrides(options: CVToPDFOptions) {
 export function renderTwoColumns({ cvData, printMode }: CVPreviewerProps) {
 
 
-  const hiddenSections = cvData.tailored?.hiddenSections || new Set<string>();
-
+  const hiddenSections = new Set(cvData.tailored?.hiddenSections || []);
+  const leftColumnSections = new Set(cvData.tailored?.leftColumnSections || []);
 
   return (
     <div
@@ -98,8 +96,7 @@ export function renderTwoColumns({ cvData, printMode }: CVPreviewerProps) {
         {
           cvData.tailored?.sectionOrder && cvData.tailored?.sectionOrder.map(sectionKey => {
             if (hiddenSections.has(sectionKey)) return null;
-            if (!cvData.tailored?.leftColumnSections?.has(sectionKey)) {
-              console.log("Skipping section in left column:", sectionKey);
+            if (!leftColumnSections.has(sectionKey)) {
               return null;
             };
             switch (sectionKey) {
@@ -127,7 +124,7 @@ export function renderTwoColumns({ cvData, printMode }: CVPreviewerProps) {
       <div className={`right-panel ${moduleStyles['right-panel']}`}>
         {
           cvData.tailored?.sectionOrder && cvData.tailored?.sectionOrder.map(sectionKey => {
-            if (hiddenSections.has(sectionKey) || cvData.tailored?.leftColumnSections?.has(sectionKey)) return null;
+            if (hiddenSections.has(sectionKey) || leftColumnSections.has(sectionKey)) return null;
             switch (sectionKey) {
               case 'cover-letter':
                 return null; // Cover letter is rendered above the columns
@@ -153,7 +150,7 @@ export function renderTwoColumns({ cvData, printMode }: CVPreviewerProps) {
   );
 }
 export function renderOneColumn({ cvData, printMode }: CVPreviewerProps) {
-  const hiddenSections = cvData.tailored?.hiddenSections || new Set<string>();
+  const hiddenSections = new Set(cvData.tailored?.hiddenSections || []);
   const options = cvData.tailored!.pdfOptions || defaultPdfOptions;
   return (
     <div
