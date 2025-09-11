@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 /* eslint-disable react-refresh/only-export-components */
 import moduleStyles from './cv-previewer.module.css';
 import { defaultLeftColumnSections, defaultPdfOptions, defaultSectionOrder, type CV, type CVToPDFOptions } from '@/services/cvs-service';
+import ReactMarkdown from 'react-markdown';
 interface CVDataWithTitle extends CV {
   summaryTitle?: string;
   skillsTitle?: string;
@@ -232,13 +233,10 @@ export function renderOneColumn({ cvData, printMode }: CVPreviewerProps) {
     </div>);
 }
 const CoverLetter = ({ text, style }: { text: string, style?: React.CSSProperties }) => {
-  const lines = text.split('\n').filter(line => line.trim() !== '');
-  if (!lines.length) return null;
+  if (!text || !text.trim()) return null;
   return (
     <div className={`${moduleStyles.coverLetter} coverLetter`} style={style}>
-      {lines.map((line, index) => (
-        <p key={index}>{line}</p>
-      ))}
+      <ReactMarkdown>{text}</ReactMarkdown>
     </div>
   );
 };
