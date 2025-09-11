@@ -13,7 +13,7 @@ General:
 - Bring AI functionality to node project and get rid of python project X
 - Add option to generate cover letter. X
 - Add multilingual support for the AI
-- Implement real payment system
+- Implement real payment system X
 - Migrate Auth0 tenant X
 - Async AI operations with BullMQ X
 - Improve AI Tailoring
