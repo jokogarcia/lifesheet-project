@@ -1,4 +1,4 @@
-import type { CV } from "@/services/cvs-service";
+import { defaultSectionOrder, type CV } from "@/services/cvs-service";
 import { useState } from "react";
 
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
@@ -72,14 +72,38 @@ function EditableSectionCard({ title, children, toolBarOptions, menuOptions, onI
         <CardContent>{!hidden && children}</CardContent>
     </Card>;
 }
-export function EditableCV({ cv, setCV, hideEditButton }: { cv: CV, setCV: (cv: CV) => void, hideEditButton?: boolean }) {
+function getSections(cv: CV): string[] {
+    let sections
+    if (!cv.tailored || !cv.tailored?.sectionOrder) {
+        sections = defaultSectionOrder;
+    } else {
+        sections = cv.tailored.sectionOrder;
+    }
+    const i = sections.indexOf('cover-letter');
+    if (i == -1) {
+        return sections;
+    }
+    if (cv.tailored?.coverLetterOnTop && i != 0) {
+        sections.splice(i, 1);
+        sections.unshift('cover-letter');
+    } else {
+        if (i != sections.length - 1) {
+            sections.splice(i, 1);
+            sections.push('cover-letter');
+        }
+    }
+    return sections;
+}
+export function EditableCV({ cv, setCV }: { cv: CV, setCV: (cv: CV) => void }) {
     const navigate = useNavigate();
-    const sections = cv.tailored?.sectionOrder || [];
+    const sections = getSections(cv);
+
     const reRender = () => { setCV({ ...cv }) };
     const setSections = (newOrder: string[]) => {
         if (!cv.tailored) return;
         setCV({ ...cv, tailored: { ...cv.tailored, sectionOrder: newOrder } });
     };
+
 
 
     const moveSectionUp = (section: string) => {
@@ -119,8 +143,13 @@ export function EditableCV({ cv, setCV, hideEditButton }: { cv: CV, setCV: (cv: 
         reRender();
     }
 
-    const editSection = (_section: string) => {
-        // Implementation will be added later
+    const editSection = (section: string) => {
+        if (section === 'summary' || section === 'personalInfo') section = 'personal';
+        if (section === 'workExperience') section = 'experience';
+        if (section === 'cover-letter') section = 'coverLetter';
+        if (section === 'languages') section = 'skills';
+
+        navigate(`/cv-data?edit=true&tab=${section}&cvId=${cv._id}`);
     }
     if (!cv) {
         return <></>
@@ -156,6 +185,7 @@ export function EditableCV({ cv, setCV, hideEditButton }: { cv: CV, setCV: (cv: 
         }
         setSections([...s]);
     }
+
     async function handlePictureSelected(pictureId: string | undefined): Promise<void> {
         //setPdfOptions({ pictureId, ...pdfOptions });
 
@@ -175,9 +205,6 @@ export function EditableCV({ cv, setCV, hideEditButton }: { cv: CV, setCV: (cv: 
     return <div className="space-y-4 text-left text-sm">
         {/* Template */}
         <div className="p-4 border rounded-lg ">
-            {!hideEditButton && <Button variant="outline" onClick={() => {
-                navigate(`/cv-data?cvId=${cv._id}`);
-            }} title="Edit CV details"><Pencil />Edit Information</Button>}
             <div className="flex flex-row space-x-2">
                 <p className="font-semibold mr-4">Template</p>
                 <label className="flex items-center space-x-2 flex-row">
@@ -254,6 +281,7 @@ export function EditableCV({ cv, setCV, hideEditButton }: { cv: CV, setCV: (cv: 
                     return (
                         <EditableSectionCard title="Personal Info" onIncludeChange={s => { onHideSection('personalInfo', s) }} disableInclude={true} toolBarOptions={[
                             ColumnToggleButton('personalInfo'),
+                            { name: 'Edit', icon: <Pencil />, action: () => editSection('personalInfo') },
                             { name: 'Move up', icon: <ArrowUp />, action: () => { moveSectionUp('personalInfo') } },
                             { name: 'Move down', icon: <ArrowDown />, action: () => { moveSectionDown('personalInfo') } },
 
@@ -274,6 +302,7 @@ export function EditableCV({ cv, setCV, hideEditButton }: { cv: CV, setCV: (cv: 
                     return (
                         <EditableSectionCard title="Summary" onIncludeChange={s => { onHideSection('summary', s) }} toolBarOptions={[
                             ColumnToggleButton('summary'),
+                            { name: 'Edit', icon: <Pencil />, action: () => editSection('summary') },
                             { name: 'Move up', icon: <ArrowUp />, action: () => { moveSectionUp('summary') } },
                             { name: 'Move down', icon: <ArrowDown />, action: () => { moveSectionDown('summary') } },
                         ]}>
@@ -283,6 +312,7 @@ export function EditableCV({ cv, setCV, hideEditButton }: { cv: CV, setCV: (cv: 
                 case 'skills':
                     return (<EditableSectionCard title="Skills" onIncludeChange={s => { onHideSection('skills', s) }} toolBarOptions={[
                         ColumnToggleButton('skills'),
+                        { name: 'Edit', icon: <Pencil />, action: () => editSection('skills') },
                         { name: 'Move up', icon: <ArrowUp />, action: () => { moveSectionUp('skills') } },
                         { name: 'Move down', icon: <ArrowDown />, action: () => { moveSectionDown('skills') } },
                     ]}>
@@ -300,6 +330,7 @@ export function EditableCV({ cv, setCV, hideEditButton }: { cv: CV, setCV: (cv: 
                         menuOptions={[{ name: 'Newest first', action: () => { } }, { name: 'Oldest first', action: () => { } }]}
                         toolBarOptions={[
                             ColumnToggleButton('workExperience'),
+                            { name: 'Edit', icon: <Pencil />, action: () => editSection('workExperience') },
                             { name: 'Move up', icon: <ArrowUp />, action: () => { moveSectionUp('workExperience') } },
                             { name: 'Move down', icon: <ArrowDown />, action: () => { moveSectionDown('workExperience') } }
                         ]}>
@@ -321,6 +352,7 @@ export function EditableCV({ cv, setCV, hideEditButton }: { cv: CV, setCV: (cv: 
                 case 'education':
                     return (<EditableSectionCard title="Education" onIncludeChange={s => { onHideSection('education', s) }} toolBarOptions={[
                         ColumnToggleButton('education'),
+                        { name: 'Edit', icon: <Pencil />, action: () => editSection('education') },
                         { name: 'Move up', icon: <ArrowUp />, action: () => { moveSectionUp('education') } },
                         { name: 'Move down', icon: <ArrowDown />, action: () => { moveSectionDown('education') } },
                     ]}>
@@ -335,6 +367,7 @@ export function EditableCV({ cv, setCV, hideEditButton }: { cv: CV, setCV: (cv: 
                 case 'languages':
                     return (<EditableSectionCard title="Languages" onIncludeChange={s => { onHideSection('languages', s) }} toolBarOptions={[
                         ColumnToggleButton('languages'),
+                        { name: 'Edit', icon: <Pencil />, action: () => editSection('languages') },
                         { name: 'Move up', icon: <ArrowUp />, action: () => { moveSectionUp('languages') } },
                         { name: 'Move down', icon: <ArrowDown />, action: () => { moveSectionDown('languages') } },
                     ]}>

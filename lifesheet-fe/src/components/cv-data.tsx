@@ -10,6 +10,7 @@ import {
   AlertCircle,
   Plus,
   ArrowLeft,
+  ImageIcon,
 } from 'lucide-react';
 import { useUserCV } from '../hooks/use-cv';
 import type {
@@ -29,15 +30,18 @@ import {
   SkillsTab,
   PicturesTab,
 } from './cv-tabs';
+import { CoverLetterTab } from './cv-tabs/cover-letter-tab';
 
 export function CVData() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(useLocation().search);
   const givenCvId = queryParams.get('cvId') || undefined;
+  const jumpToTab = queryParams.get('tab') || undefined;
+  const qIsEditing = queryParams.get('edit') === 'true';
   const { cv, isLoading, isSaving, error, saveCV } = useUserCV(givenCvId);
-  const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState('personal');
+  const [isEditing, setIsEditing] = useState(qIsEditing);
+  const [activeTab, setActiveTab] = useState(jumpToTab || 'personal');
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [pictures, setPictures] = useState<string[]>([]);
   const [isUploadingPicture, setIsUploadingPicture] = useState(false);
@@ -143,6 +147,7 @@ export function CVData() {
         education: education,
         skills: skills,
         language_skills: languageSkills,
+        tailored: cv.tailored,
       });
 
       setIsEditing(false);
@@ -314,9 +319,16 @@ export function CVData() {
                 onClick={() => setActiveTab('pictures')}
                 className="flex items-center gap-2 cursor-pointer"
               >
-                <FileText className="h-4 w-4" />
+                <ImageIcon className="h-4 w-4" />
                 Pictures
               </div>
+              {cv?.tailored?.coverLetter && <div
+                onClick={() => setActiveTab('coverLetter')}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <FileText className="h-4 w-4" />
+                Cover Letter
+              </div>}
             </div>
 
             {/* Personal Information Tab */}
@@ -374,6 +386,18 @@ export function CVData() {
                 handleDeletePicture={handleDeletePicture}
               />
             )}
+            {/* Cover Letter Tab */}
+            {activeTab === 'coverLetter' && cv?.tailored?.coverLetter && (
+              <CoverLetterTab
+                isEditing={isEditing}
+                coverLetter={cv.tailored.coverLetter}
+                setCoverLetter={(newContent: string) => {
+                  cv.tailored!.coverLetter = newContent;
+                }}
+                cv={cv}
+              />
+            )}
+
           </div>
 
           {/* Bottom Action Buttons for Edit Mode */}
