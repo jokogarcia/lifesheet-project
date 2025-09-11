@@ -98,7 +98,7 @@ export async function generateCoverLetter(
     const model = genAI.getGenerativeModel({ model: modelName });
     const result = await model.generateContent(prompt);
     const response = result.response;
-    const text = response.text();
+    const text = markdownPlaceholderHighlighter(response.text());
 
     if (!text) throw new Error('No text returned from model');
 
@@ -108,6 +108,10 @@ export async function generateCoverLetter(
     console.error('Cover letter generation failed:', e?.message || e);
     throw new Error('Cover letter generation failed: ' + (e?.message || String(e)));
   }
+}
+function markdownPlaceholderHighlighter(markdown: string): string {
+  // Highlights markdown placeholders like [placeholder] or {{placeholder}} by wrapping them in backticks
+  return markdown.replace(/(\[.*?\]|\{\{.*?\}\})/g, '`$1`');
 }
 
 function isValidCV(tailored: any) {
