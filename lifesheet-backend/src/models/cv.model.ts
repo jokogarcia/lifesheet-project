@@ -90,6 +90,7 @@ export interface TailoredData {
 
 // CV Schema
 export interface ICV extends Document {
+  _id: mongoose.Schema.Types.ObjectId;
   user_id: mongoose.Schema.Types.ObjectId;
   personal_info: PersonalInfo;
   work_experience: WorkExperience[];
@@ -144,6 +145,10 @@ const sectionSchema = new Schema({
 
 const cvSchema = new Schema(
   {
+    _id: {
+      type: Schema.Types.ObjectId,
+      default: () => new mongoose.Types.ObjectId(),
+    },
     user_id: {
       type: Schema.Types.ObjectId,
       ref: 'User',
