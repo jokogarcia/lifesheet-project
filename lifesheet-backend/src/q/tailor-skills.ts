@@ -17,9 +17,7 @@ const worker = new Worker<JobData>(
   'tailor-skills',
   async job => {
     if (!constants.GEMINI_API_KEY) {
-      throw new Error(
-        'GEMINI_API_KEY is not set. Configure constants.GEMINI_API_KEY before calling tailor-skills queue.'
-      );
+      throw new Error('GEMINI_API_KEY is not set.');
     }
     const { jobDescriptionId, cvId, userId } = job.data;
     const jobDescription = await JobDescription.findOne({

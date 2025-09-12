@@ -37,7 +37,6 @@ const worker = new Worker<JobData>(
     if (!cv) {
       throw new Error(`CV with id ${cvId} not found`);
     }
-    const originalSkills = { ...cv.skills };
     const aiClient = new GoogleGenerativeAI(constants.GEMINI_API_KEY);
     const model = aiClient.getGenerativeModel({ model: constants.MODEL_NAME });
     const briefCv = JSON.stringify(cv.toObject());
@@ -67,7 +66,7 @@ const worker = new Worker<JobData>(
     if (!cv.tailored) {
       throw new Error('CV is not tailored, cannot add cover letter');
     }
-    cv.tailored.coverLetter = text;
+    cv.tailored.coverLetter = placeholderMarker(text);
     await cv.save();
     const tokensUsed = result.response.usageMetadata?.totalTokenCount || 0;
     return { success: true, tokensUsed };
