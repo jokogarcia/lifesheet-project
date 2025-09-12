@@ -59,25 +59,34 @@ export async function _getUsersActiveSubscription(userId: string) {
   }
   return subscriptions[0];
 }
+function isSameDay(d1: Date, d2: Date) {
+  return (
+    d1.getUTCFullYear() === d2.getUTCFullYear() &&
+    d1.getUTCMonth() === d2.getUTCMonth() &&
+    d1.getUTCDate() === d2.getUTCDate()
+  );
+}
+function isSameWeek(d1: Date, d2: Date) {
+  const startOfWeek1 = new Date(d1);
+  startOfWeek1.setUTCDate(d1.getUTCDate() - d1.getUTCDay());
+  startOfWeek1.setUTCHours(0, 0, 0, 0);
+
+  const startOfWeek2 = new Date(d2);
+  startOfWeek2.setUTCDate(d2.getUTCDate() - d2.getUTCDay());
+  startOfWeek2.setUTCHours(0, 0, 0, 0);
+
+  return startOfWeek1.getTime() === startOfWeek2.getTime();
+}
 export async function getUsersConsumptions(userId: string) {
   const now = new Date();
   const usersConsumptions = await Consumption.find({ userId });
   //User's consumption's from today UTC
+
   const todaysConsumptions = usersConsumptions.filter(consumption => {
-    const todayMidnight = new Date(now.toISOString().split('T')[0] + 'T00:00:00Z');
-    const consumptionDateUTC = new Date(
-      consumption.createdAt.toISOString().split('T')[0] + 'T00:00:00Z'
-    );
-    return consumptionDateUTC === todayMidnight;
+    return isSameDay(consumption.createdAt, now);
   });
   const thisWeeksConsumptions = usersConsumptions.filter(consumption => {
-    const consumptionDateUTC = new Date(
-      consumption.createdAt.toISOString().split('T')[0] + 'T00:00:00Z'
-    );
-    const todayUTC = new Date(now.toISOString().split('T')[0] + 'T00:00:00Z');
-    const startOfWeek = new Date(todayUTC);
-    startOfWeek.setDate(todayUTC.getDate() - todayUTC.getDay());
-    return consumptionDateUTC >= startOfWeek;
+    return isSameWeek(consumption.createdAt, now);
   });
   return {
     usersConsumptions,
