@@ -39,7 +39,7 @@ const worker = new Worker<JobData>(
   #Required Skills
   {list of skills}
  
-  #\n\nHere is the Job Description (Markdown):\n${jobDescription}`;
+  #\n\nHere is the Job Description (Markdown):\n${jobDescription.content}`;
     let result: GenerateContentResult;
     try {
       result = await model.generateContent(prompt);
