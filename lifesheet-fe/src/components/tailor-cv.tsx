@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, FileText, Wand2 } from 'lucide-react';
+import { ArrowLeft, FileText, Wand2, X, ArrowUpRight } from 'lucide-react';
 import { useUserCV } from '@/hooks/use-cv';
 import { useNavigate } from 'react-router-dom';
 import cvsService from '@/services/cvs-service';
@@ -10,6 +10,68 @@ import { useSaaSActiveSubscription } from '@/hooks/use-saas';
 import RichTextEditor from './ui/editor';
 import { LoadingIndicator } from './ui/loading-indicator';
 
+// Advertisement component that shows to free tier users
+function AdvertisementModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+          aria-label="Close"
+        >
+          <X size={20} />
+        </button>
+
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold text-gradient mb-2">Upgrade to Premium</h2>
+          <p className="text-gray-600">Enhance your CV with premium features</p>
+        </div>
+
+        <div className="space-y-4 mb-6">
+          <div className="flex items-start">
+            <div className="bg-blue-100 p-2 rounded-full mr-3">
+              <Wand2 className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Unlimited AI Tailoring</h3>
+              <p className="text-sm text-gray-600">Customize your CV for any job without limits</p>
+            </div>
+          </div>
+
+          <div className="flex items-start">
+            <div className="bg-green-100 p-2 rounded-full mr-3">
+              <FileText className="h-5 w-5 text-green-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Advanced CV Templates</h3>
+              <p className="text-sm text-gray-600">Stand out with professional designs</p>
+            </div>
+          </div>
+
+          <div className="flex items-start">
+            <div className="bg-purple-100 p-2 rounded-full mr-3">
+              <ArrowUpRight className="h-5 w-5 text-purple-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Higher Success Rate</h3>
+              <p className="text-sm text-gray-600">Premium users get 3x more interviews</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col space-y-3">
+          <Button onClick={() => window.location.href = '/plans'} className="w-full">
+            Upgrade Now
+          </Button>
+          <Button onClick={onClose} variant="outline" className="w-full">
+            Continue with Free Plan
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function TailorCV() {
   const { cv, isLoading } = useUserCV();
@@ -18,7 +80,11 @@ export function TailorCV() {
   const [isTailoring, setIsTailoring] = useState(false);
   const [includeCoverLetter, setIncludeCoverLetter] = useState(true);
   const [companyName, setCompanyName] = useState('');
-  const { canUseAI, isLoading: isLoadingSubscription } = useSaaSActiveSubscription();
+  const { activeSubscription, isLoading: isLoadingSubscription, canUseAI } = useSaaSActiveSubscription();
+  const [showAd, setShowAd] = useState(false);
+
+  // Check if user is on free plan
+  const isFreePlan = !isLoadingSubscription && (!activeSubscription || activeSubscription.planId === 'free');
 
   const handleTailorCV = async () => {
     if (!canUseAI) {
@@ -26,8 +92,20 @@ export function TailorCV() {
       navigate('/plans');
       return;
     }
+
     if (!jobDescription.trim()) return;
 
+    // Show ad for free tier users before starting the tailoring process
+    if (isFreePlan) {
+      setShowAd(true);
+      return;
+    }
+
+    startTailoring(true);
+  };
+
+  // Function to actually start the tailoring process
+  const startTailoring = async (useAI: boolean) => {
     setIsTailoring(true);
 
     try {
@@ -36,7 +114,7 @@ export function TailorCV() {
         jobDescription,
         companyName,
         includeCoverLetter,
-        true
+        useAI
       );
       await navigate(`/export-pdf?cvId=${tailoredCVId}`);
     } catch (error) {
@@ -47,28 +125,17 @@ export function TailorCV() {
       setIsTailoring(false);
     }
   };
+
   const handleManualTailoring = async () => {
-
-
-    setIsTailoring(true);
-
-    try {
-      // Call the real API endpoint to tailor the CV
-      const { cvId: tailoredCVId } = await cvsService.tailorCV(
-        jobDescription,
-        companyName,
-        includeCoverLetter,
-        false
-      );
-      await navigate(`/export-pdf?cvId=${tailoredCVId}`);
-    } catch (error) {
-      console.error('Error tailoring CV:', error);
-      // Show error message to user
-      alert('Failed to tailor CV. Please try again.');
-    } finally {
-      setIsTailoring(false);
-    }
+    startTailoring(false);
   };
+
+  // Close ad and proceed with tailoring
+  const handleAdClose = () => {
+    setShowAd(false);
+    startTailoring(true);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -82,6 +149,9 @@ export function TailorCV() {
 
   return (
     <div className="pl-12 pr-12 mx-auto p-6 space-y-6">
+      {/* Advertisement Modal */}
+      {showAd && <AdvertisementModal onClose={handleAdClose} />}
+
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>

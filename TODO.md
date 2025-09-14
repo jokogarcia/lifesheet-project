@@ -41,5 +41,6 @@ Other:
 - fix user onboarding X
 
 - fix operation counter
-- add posibility to generate CVs and Cover LEtters in other languages
+- add posibility to generate CVs and Cover Letters in other languages
 - Make UI Internationalized
+- Add signature feature
