@@ -27,7 +27,6 @@ export function ExportPdf() {
   const [printMode, setPrintMode] = useState(false);
   const [coverLetter, setCoverLetter] = useState('');
   const [isCoverLetterVisible, setIsCoverLetterVisible] = useState(true);
-  const isMainCV = queryParams.get('cvId') === null;
   const pdfOptions = cv?.tailored?.pdfOptions || defaultPdfOptions;
   useEffect(() => {
     if (!originalCV) return;

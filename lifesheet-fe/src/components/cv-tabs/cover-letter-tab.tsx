@@ -1,5 +1,5 @@
-import { File, GraduationCap } from 'lucide-react';
-import type { CV, PersonalInfo } from '../../services/cvs-service';
+import { File } from 'lucide-react';
+import type { CV } from '../../services/cvs-service';
 import RichTextEditor from '../ui/editor';
 
 interface CoverLetterTabProps {
@@ -13,7 +13,6 @@ export function CoverLetterTab({
     isEditing,
     coverLetter,
     setCoverLetter,
-    cv,
 }: CoverLetterTabProps) {
     return (
         <div className="space-y-4 max-w-6xl mx-auto">
