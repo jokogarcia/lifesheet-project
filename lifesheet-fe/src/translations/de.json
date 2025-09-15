@@ -60,5 +60,15 @@
     "dashboard.optional": "optional",
     "dashboard.professionalSummary": "Berufliches Profil",
     "dashboard.professionalSummary.placeholder": "Kurzes berufliches Profil mit Ihren wichtigsten Erfolgen und Karrierezielen...",
-    "dashboard.noSummary": "Kein Profil angegeben"
+    "dashboard.noSummary": "Kein Profil angegeben",
+    "dashboard.profilePictures": "Profilbilder",
+    "dashboard.clickToUploadPicture": "Klicken Sie, um ein Bild hochzuladen",
+    "dashboard.orDragAndDrop": "oder ziehen Sie es per Drag & Drop",
+    "dashboard.supportedFormats": "Unterstützte Formate: PNG, JPG, JPEG, GIF, WebP (Max 5MB)",
+    "dashboard.uploading": "Wird hochgeladen...",
+    "dashboard.yourPictures": "Ihre Bilder ({count})",
+    "dashboard.noPicturesUploaded": "Noch keine Bilder hochgeladen",
+    "dashboard.uploadFirstPicture": "Laden Sie Ihr erstes Bild oben hoch",
+    "dashboard.profilePictureNumber": "Profilbild {number}",
+    "dashboard.deletePicture": "Bild löschen"
 }

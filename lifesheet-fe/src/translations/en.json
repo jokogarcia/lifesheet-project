@@ -60,5 +60,15 @@
     "dashboard.optional": "optional",
     "dashboard.professionalSummary": "Professional Summary",
     "dashboard.professionalSummary.placeholder": "Brief professional summary highlighting your key achievements and career objectives...",
-    "dashboard.noSummary": "No summary provided"
+    "dashboard.noSummary": "No summary provided",
+    "dashboard.profilePictures": "Profile Pictures",
+    "dashboard.clickToUploadPicture": "Click to upload a picture",
+    "dashboard.orDragAndDrop": "or drag and drop",
+    "dashboard.supportedFormats": "Supported formats: PNG, JPG, JPEG, GIF, WebP (Max 5MB)",
+    "dashboard.uploading": "Uploading...",
+    "dashboard.yourPictures": "Your Pictures ({count})",
+    "dashboard.noPicturesUploaded": "No pictures uploaded yet",
+    "dashboard.uploadFirstPicture": "Upload your first picture above",
+    "dashboard.profilePictureNumber": "Profile picture {number}",
+    "dashboard.deletePicture": "Delete picture"
 }

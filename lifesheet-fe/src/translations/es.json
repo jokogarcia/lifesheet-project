@@ -60,5 +60,15 @@
     "dashboard.optional": "opcional",
     "dashboard.professionalSummary": "Resumen Profesional",
     "dashboard.professionalSummary.placeholder": "Breve resumen profesional destacando tus logros clave y objetivos profesionales...",
-    "dashboard.noSummary": "No se ha proporcionado resumen"
+    "dashboard.noSummary": "No se ha proporcionado resumen",
+    "dashboard.profilePictures": "Fotos de Perfil",
+    "dashboard.clickToUploadPicture": "Haz clic para subir una foto",
+    "dashboard.orDragAndDrop": "o arrastra y suelta",
+    "dashboard.supportedFormats": "Formatos admitidos: PNG, JPG, JPEG, GIF, WebP (Máx 5MB)",
+    "dashboard.uploading": "Subiendo...",
+    "dashboard.yourPictures": "Tus Fotos ({count})",
+    "dashboard.noPicturesUploaded": "Aún no se han subido fotos",
+    "dashboard.uploadFirstPicture": "Sube tu primera foto arriba",
+    "dashboard.profilePictureNumber": "Foto de perfil {number}",
+    "dashboard.deletePicture": "Eliminar foto"
 }
