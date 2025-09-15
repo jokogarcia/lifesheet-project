@@ -1,10 +1,11 @@
 import { useKeycloak } from '@react-keycloak/web';
 import { Routes, Route } from 'react-router-dom';
+import { IntlProvider } from 'react-intl';
+import { useEffect, useState } from 'react';
 
 import './App.css';
 import { CVData } from './components/cv-data';
 import { Welcome } from './components/welcome';
-import { useEffect, useState } from 'react';
 import cvsService from './services/cvs-service';
 import userService from './services/user-service';
 import { TailorCV } from './components/tailor-cv';
@@ -17,6 +18,7 @@ import TailoredCVs from './components/tailored-cvs';
 import { Onboarding } from './components/onboarding';
 import { Dashboard } from './components/dashboard';
 import { LoadingIndicator } from './components/ui/loading-indicator';
+import { LanguageProvider, useLanguage } from './contexts/language-context';
 
 function App() {
   const { keycloak, initialized } = useKeycloak();
@@ -36,24 +38,71 @@ function App() {
   if (!initialized) {
     return <LoadingIndicator />;
   }
+
+  return (
+    <LanguageProvider>
+      <AppWithLanguage
+        initialized={initialized}
+        keycloak={keycloak}
+        hasToken={hasToken}
+      />
+    </LanguageProvider>
+  );
+}
+
+// Inner component to access language context
+function AppWithLanguage({ initialized, keycloak, hasToken }: {
+  initialized: boolean;
+  keycloak: any;
+  hasToken: boolean;
+}) {
+  const { currentLanguage } = useLanguage();
+  const [messages, setMessages] = useState<Record<string, string>>({});
+
+  // Load the translations for the current language
+  useEffect(() => {
+    const loadMessages = async () => {
+      try {
+        const messagesModule = await import(`./translations/${currentLanguage}.json`);
+        setMessages(messagesModule.default || {});
+      } catch (error) {
+        console.error(`Error loading messages for ${currentLanguage}:`, error);
+        // Fallback to English if translation file can't be loaded
+        const fallbackModule = await import('./translations/en.json');
+        setMessages(fallbackModule.default || {});
+      }
+    };
+    loadMessages();
+  }, [currentLanguage]);
+
+  if (!initialized) {
+    return <LoadingIndicator />;
+  }
+
   if (!keycloak?.authenticated || !hasToken) {
-    return <Welcome />;
+    return (
+      <IntlProvider locale={currentLanguage} messages={messages}>
+        <Welcome />
+      </IntlProvider>
+    );
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<Dashboard />} />
-      <Route path="/cv-data" element={<CVData />} />
-      <Route path="/tailor-cv" element={<TailorCV />} />
-      <Route path="/plans" element={<PlansPage />} />
-      <Route path="/checkout" element={<CheckoutPage />} />
-      <Route path="/checkout-success" element={<CheckoutSuccessPage />} />
-      <Route path="/checkout-cancel" element={<CheckoutCancelPage />} />
-      <Route path="/export-pdf" element={<ExportPdf />} />
-      <Route path="/tailored-cvs" element={<TailoredCVs />} />
-      <Route path="/onboarding" element={<Onboarding />} />
-      <Route path="/logout" element={<Logout />} />
-    </Routes>
+    <IntlProvider locale={currentLanguage} messages={messages}>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/cv-data" element={<CVData />} />
+        <Route path="/tailor-cv" element={<TailorCV />} />
+        <Route path="/plans" element={<PlansPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/checkout-success" element={<CheckoutSuccessPage />} />
+        <Route path="/checkout-cancel" element={<CheckoutCancelPage />} />
+        <Route path="/export-pdf" element={<ExportPdf />} />
+        <Route path="/tailored-cvs" element={<TailoredCVs />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/logout" element={<Logout />} />
+      </Routes>
+    </IntlProvider>
   );
 }
 function Logout() {
