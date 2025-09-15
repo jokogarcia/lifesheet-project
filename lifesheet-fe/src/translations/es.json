@@ -132,5 +132,17 @@
     "cvData.pictureUploadSuccess": "Foto subida correctamente:",
     "cvData.pictureUploadError": "Error al subir la foto:",
     "cvData.pictureDeleteError": "Error al eliminar la foto:",
-    "cvData.loadPicturesError": "Error al cargar las fotos:"
+    "cvData.loadPicturesError": "Error al cargar las fotos:",
+    "app.loggingOut": "Cerrando sesión...",
+    "editor.bold": "Negrita",
+    "editor.italic": "Cursiva",
+    "editor.underline": "Subrayado",
+    "editor.blockType": "Tipo de Bloque",
+    "editor.unorderedList": "Lista sin ordenar",
+    "editor.orderedList": "Lista ordenada",
+    "editor.textAlign": "Alineación de texto",
+    "editor.link": "Enlace",
+    "editor.history": "Historial",
+    "editor.undo": "Deshacer",
+    "editor.redo": "Rehacer"
 }

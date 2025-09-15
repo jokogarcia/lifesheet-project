@@ -1,6 +1,6 @@
 import { useKeycloak } from '@react-keycloak/web';
 import { Routes, Route } from 'react-router-dom';
-import { IntlProvider } from 'react-intl';
+import { IntlProvider, FormattedMessage } from 'react-intl';
 import { useEffect, useState } from 'react';
 
 import './App.css';
@@ -112,6 +112,6 @@ function Logout() {
   useEffect(() => {
     keycloak.logout({ redirectUri: redirect })
   }, [keycloak]);
-  return <div>Logging out...</div>;
+  return <div><FormattedMessage id="app.loggingOut" defaultMessage="Logging out..." /></div>;
 }
 export default App;

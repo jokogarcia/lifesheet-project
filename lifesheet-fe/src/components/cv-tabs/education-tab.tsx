@@ -10,6 +10,8 @@ interface EducationTabProps {
 }
 
 export function EducationTab({ isEditing, education, setEducation, cv }: EducationTabProps) {
+  const intl = useIntl();
+
   const addEducation = () => {
     const newEdu: Education = {
       id: Date.now().toString(),
@@ -66,7 +68,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                         required
                         value={edu.institution}
                         onChange={e => updateEducation(edu.id, 'institution', e.target.value)}
-                        placeholder="University Name"
+                        placeholder={intl.formatMessage({ id: "dashboard.institution", defaultMessage: "Institution" })}
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
@@ -77,7 +79,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                         required
                         value={edu.degree}
                         onChange={e => updateEducation(edu.id, 'degree', e.target.value)}
-                        placeholder="Bachelor's, Master's, etc."
+                        placeholder={intl.formatMessage({ id: "dashboard.degree", defaultMessage: "Degree" })}
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
@@ -87,7 +89,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                         id={`field-${edu.id}`}
                         value={edu.field}
                         onChange={e => updateEducation(edu.id, 'field', e.target.value)}
-                        placeholder="Computer Science, Business, etc."
+                        placeholder={intl.formatMessage({ id: "dashboard.fieldOfStudy", defaultMessage: "Field of Study" })}
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
@@ -98,7 +100,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                         type="number"
                         value={edu.gpa}
                         onChange={e => updateEducation(edu.id, 'gpa', e.target.value)}
-                        placeholder="3.8/4.0"
+                        placeholder={intl.formatMessage({ id: "dashboard.grade", defaultMessage: "Grade" })}
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
@@ -109,7 +111,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                         required
                         value={edu.location}
                         onChange={e => updateEducation(edu.id, 'location', e.target.value)}
-                        placeholder="City, State/Country"
+                        placeholder={intl.formatMessage({ id: "dashboard.location.placeholder.work", defaultMessage: "City, State/Country" })}
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
@@ -155,7 +157,7 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                     <div className="flex justify-between items-start mb-2">
                       <div>
                         <h3 className="font-semibold text-lg">
-                          {edu.degree} in {edu.field}
+                          {edu.degree} {edu.field ? `in ${edu.field}` : ''}
                         </h3>
                         <p className="text-muted-foreground">{edu.institution}</p>
                         {edu.location && (
@@ -164,10 +166,12 @@ export function EducationTab({ isEditing, education, setEducation, cv }: Educati
                       </div>
                       <div className="text-right">
                         <div className="bg-gray-100 px-2 py-1 rounded">
-                          {edu.startDate} - {edu.endDate}
+                          {edu.startDate} - {edu.endDate || <FormattedMessage id="dashboard.present" defaultMessage="Present" />}
                         </div>
                         {edu.gpa && (
-                          <p className="text-sm text-muted-foreground mt-1">GPA: {edu.gpa}</p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            <FormattedMessage id="dashboard.grade" defaultMessage="Grade" />: {edu.gpa}
+                          </p>
                         )}
                       </div>
                     </div>
