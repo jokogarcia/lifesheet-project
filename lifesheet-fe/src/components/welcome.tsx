@@ -30,10 +30,10 @@ export function Welcome() {
           </div>
           <div className="relative h-64 md:h-96">
             <img
-              src="/placeholder.svg"
+              src="/dashboard.png"
               alt="LifeSheet Dashboard Preview"
-              style={{ objectFit: 'contain' }}
-              className="rounded-lg shadow-lg"
+
+              className="rounded-lg shadow-lg h-64 md:h-96 resize-y w-auto"
             />
           </div>
         </div>
