@@ -155,5 +155,19 @@
     "pictureSelector.dontIncludePicture": "No incluir una foto de perfil",
     "pictureSelector.profilePictureNumber": "Foto de perfil {number}",
     "pictureSelector.pictureNumber": "Foto {number}",
-    "pictureSelector.profilePictureOption": "Opción de foto de perfil"
+    "pictureSelector.profilePictureOption": "Opción de foto de perfil",
+    "exportPdf.unableToLoad": "No se puede cargar este CV",
+    "exportPdf.goBack": "Volver",
+    "exportPdf.loadingCV": "Cargando tus datos de CV...",
+    "exportPdf.title": "Exportar tu CV como PDF",
+    "exportPdf.backToDashboard": "Volver al Panel",
+    "exportPdf.preview": "Vista previa",
+    "exportPdf.download": "Descargar",
+    "exportPdf.loadingPreview": "Cargando vista previa...",
+    "exportPdf.generatingPdf": "Generando PDF...",
+    "exportPdf.errorGettingHtml": "Error al obtener HTML",
+    "exportPdf.errorGeneratingPdf": "Error al generar PDF:",
+    "exportPdf.tailoredFor": "Personalizado para {company}",
+    "exportPdf.tailoredOn": "El {date}",
+    "exportPdf.jobDescription": "Descripción del puesto:"
 }

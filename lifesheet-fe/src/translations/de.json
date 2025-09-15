@@ -155,5 +155,19 @@
     "pictureSelector.dontIncludePicture": "Kein Profilbild einfügen",
     "pictureSelector.profilePictureNumber": "Profilbild {number}",
     "pictureSelector.pictureNumber": "Bild {number}",
-    "pictureSelector.profilePictureOption": "Profilbild-Option"
+    "pictureSelector.profilePictureOption": "Profilbild-Option",
+    "exportPdf.unableToLoad": "Lebenslauf konnte nicht geladen werden",
+    "exportPdf.goBack": "Zurück",
+    "exportPdf.loadingCV": "Lade Ihre Lebenslaufdaten...",
+    "exportPdf.title": "Exportieren Sie Ihren Lebenslauf als PDF",
+    "exportPdf.backToDashboard": "Zurück zum Dashboard",
+    "exportPdf.preview": "Vorschau",
+    "exportPdf.download": "Herunterladen",
+    "exportPdf.loadingPreview": "Lade Vorschau...",
+    "exportPdf.generatingPdf": "Generiere PDF...",
+    "exportPdf.errorGettingHtml": "Fehler beim Abrufen des HTML",
+    "exportPdf.errorGeneratingPdf": "Fehler beim Generieren des PDF:",
+    "exportPdf.tailoredFor": "Angepasst für {company}",
+    "exportPdf.tailoredOn": "Am {date}",
+    "exportPdf.jobDescription": "Stellenbeschreibung:"
 }
