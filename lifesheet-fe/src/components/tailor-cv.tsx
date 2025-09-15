@@ -9,9 +9,11 @@ import cvsService from '@/services/cvs-service';
 import { useSaaSActiveSubscription } from '@/hooks/use-saas';
 import RichTextEditor from './ui/editor';
 import { LoadingIndicator } from './ui/loading-indicator';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 
 export function TailorCV() {
+  const intl = useIntl();
   const { cv, isLoading } = useUserCV();
   const navigate = useNavigate();
   const [jobDescription, setJobDescription] = useState('');
@@ -22,7 +24,10 @@ export function TailorCV() {
 
   const handleTailorCV = async () => {
     if (!canUseAI) {
-      alert('You have reached your usage limits for this feature.');
+      alert(intl.formatMessage({
+        id: 'tailorCV.error.usageLimits',
+        defaultMessage: 'You have reached your usage limits for this feature.'
+      }));
       navigate('/plans');
       return;
     }
@@ -40,16 +45,20 @@ export function TailorCV() {
       );
       await navigate(`/export-pdf?cvId=${tailoredCVId}`);
     } catch (error) {
-      console.error('Error tailoring CV:', error);
+      console.error(intl.formatMessage({
+        id: 'tailorCV.error.tailoringFailed',
+        defaultMessage: 'Error tailoring CV:'
+      }), error);
       // Show error message to user
-      alert('Failed to tailor CV. Please try again.');
+      alert(intl.formatMessage({
+        id: 'tailorCV.error.tryAgain',
+        defaultMessage: 'Failed to tailor CV. Please try again.'
+      }));
     } finally {
       setIsTailoring(false);
     }
   };
   const handleManualTailoring = async () => {
-
-
     setIsTailoring(true);
 
     try {
@@ -62,9 +71,15 @@ export function TailorCV() {
       );
       await navigate(`/export-pdf?cvId=${tailoredCVId}`);
     } catch (error) {
-      console.error('Error tailoring CV:', error);
+      console.error(intl.formatMessage({
+        id: 'tailorCV.error.tailoringFailed',
+        defaultMessage: 'Error tailoring CV:'
+      }), error);
       // Show error message to user
-      alert('Failed to tailor CV. Please try again.');
+      alert(intl.formatMessage({
+        id: 'tailorCV.error.tryAgain',
+        defaultMessage: 'Failed to tailor CV. Please try again.'
+      }));
     } finally {
       setIsTailoring(false);
     }
@@ -85,13 +100,17 @@ export function TailorCV() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl text-gradient">Tailor CV to Job</h1>
-          <p className="text-muted-foreground">Customize your CV for a specific job application</p>
+          <h1 className="text-3xl text-gradient">
+            <FormattedMessage id="tailorCV.title" defaultMessage="Tailor CV to Job" />
+          </h1>
+          <p className="text-muted-foreground">
+            <FormattedMessage id="tailorCV.subtitle" defaultMessage="Customize your CV for a specific job application" />
+          </p>
         </div>
         <div className="flex gap-2">
           <Button onClick={() => navigate('/')} variant="outline" className="btn-custom">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
+            <FormattedMessage id="tailorCV.backToDashboard" defaultMessage="Back to Dashboard" />
           </Button>
         </div>
       </div>
@@ -99,11 +118,18 @@ export function TailorCV() {
       {!cv ? (
         <div className="text-center py-12 border rounded-lg p-6">
           <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-semibold mb-2">No CV data available</h3>
+          <h3 className="text-lg font-semibold mb-2">
+            <FormattedMessage id="tailorCV.noCvData" defaultMessage="No CV data available" />
+          </h3>
           <p className="text-muted-foreground mb-4">
-            Please create your CV first before tailoring it to a job
+            <FormattedMessage
+              id="tailorCV.createCvFirst"
+              defaultMessage="Please create your CV first before tailoring it to a job"
+            />
           </p>
-          <Button onClick={() => navigate('/')}>Go to Dashboard</Button>
+          <Button onClick={() => navigate('/')}>
+            <FormattedMessage id="tailorCV.goToDashboard" defaultMessage="Go to Dashboard" />
+          </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -112,20 +138,24 @@ export function TailorCV() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
-                  <h3 className="font-semibold text-lg">Company name</h3>
+                  <h3 className="font-semibold text-lg">
+                    <FormattedMessage id="tailorCV.companyName" defaultMessage="Company name" />
+                  </h3>
                 </div>
               </div>
               <input
                 value={companyName}
                 onChange={e => setCompanyName(e.target.value)}
-                placeholder="Company Name"
+                placeholder={intl.formatMessage({ id: 'tailorCV.companyNamePlaceholder', defaultMessage: 'Company Name' })}
                 className="w-full border rounded-lg p-4 font-mono"
               />
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
-                  <h3 className="font-semibold text-lg">Job Description</h3>
+                  <h3 className="font-semibold text-lg">
+                    <FormattedMessage id="tailorCV.jobDescription" defaultMessage="Job Description" />
+                  </h3>
                 </div>
               </div>
               <RichTextEditor
@@ -148,7 +178,7 @@ export function TailorCV() {
                     onChange={e => setIncludeCoverLetter(e.target.checked)}
                     className="mt-4 mr-2"
                   />
-                  Include Cover Letter
+                  <FormattedMessage id="tailorCV.includeCoverLetter" defaultMessage="Include Cover Letter" />
                 </span>
 
                 {/* Tailor Button */}
@@ -163,12 +193,12 @@ export function TailorCV() {
                     {isTailoring ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Tailoring...
+                        <FormattedMessage id="tailorCV.tailoring" defaultMessage="Tailoring..." />
                       </>
                     ) : (
                       <>
                         <Wand2 className="h-4 w-4 mr-2" />
-                        Tailor using AI
+                        <FormattedMessage id="tailorCV.tailorUsingAI" defaultMessage="Tailor using AI" />
                       </>
                     )}
                   </Button>
@@ -176,7 +206,16 @@ export function TailorCV() {
               </div>
               <Button className={`mt-6 cursor-pointer ${!jobDescription.trim() || isLoadingSubscription || !companyName
                 ? "hidden" : ""}`} variant="link" onClick={handleManualTailoring} disabled={isTailoring}  >
-                {includeCoverLetter ? "Continue without AI Tailoring.   Use AI only for the cover letter" : "Continue without AI Tailoring"}
+                {includeCoverLetter ?
+                  <FormattedMessage
+                    id="tailorCV.continueWithoutAI.coverLetter"
+                    defaultMessage="Continue without AI Tailoring. Use AI only for the cover letter"
+                  /> :
+                  <FormattedMessage
+                    id="tailorCV.continueWithoutAI"
+                    defaultMessage="Continue without AI Tailoring"
+                  />
+                }
               </Button>
 
             </div>
