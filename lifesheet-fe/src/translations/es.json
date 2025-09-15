@@ -144,5 +144,16 @@
     "editor.link": "Enlace",
     "editor.history": "Historial",
     "editor.undo": "Deshacer",
-    "editor.redo": "Rehacer"
+    "editor.redo": "Rehacer",
+    "pictureSelector.errorLoading": "Error al cargar las fotos:",
+    "pictureSelector.failedToLoad": "Error al cargar las fotos. Por favor, inténtalo de nuevo más tarde.",
+    "pictureSelector.loadingPictures": "Cargando fotos...",
+    "pictureSelector.noPictures": "Aún no se han subido fotos",
+    "pictureSelector.uploadFirst": "Sube fotos en tu panel de CV primero",
+    "pictureSelector.choosePicture": "Elige una foto para incluir en tu CV personalizado",
+    "pictureSelector.noPictureOption": "Sin foto",
+    "pictureSelector.dontIncludePicture": "No incluir una foto de perfil",
+    "pictureSelector.profilePictureNumber": "Foto de perfil {number}",
+    "pictureSelector.pictureNumber": "Foto {number}",
+    "pictureSelector.profilePictureOption": "Opción de foto de perfil"
 }

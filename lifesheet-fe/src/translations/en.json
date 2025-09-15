@@ -144,5 +144,16 @@
     "editor.link": "Link",
     "editor.history": "History",
     "editor.undo": "Undo",
-    "editor.redo": "Redo"
+    "editor.redo": "Redo",
+    "pictureSelector.errorLoading": "Error loading pictures:",
+    "pictureSelector.failedToLoad": "Failed to load pictures. Please try again later.",
+    "pictureSelector.loadingPictures": "Loading pictures...",
+    "pictureSelector.noPictures": "No pictures uploaded yet",
+    "pictureSelector.uploadFirst": "Upload pictures in your CV dashboard first",
+    "pictureSelector.choosePicture": "Choose a picture to include in your tailored CV",
+    "pictureSelector.noPictureOption": "No picture",
+    "pictureSelector.dontIncludePicture": "Don't include a profile picture",
+    "pictureSelector.profilePictureNumber": "Profile picture {number}",
+    "pictureSelector.pictureNumber": "Picture {number}",
+    "pictureSelector.profilePictureOption": "Profile picture option"
 }

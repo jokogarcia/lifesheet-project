@@ -144,5 +144,16 @@
     "editor.link": "Link",
     "editor.history": "Verlauf",
     "editor.undo": "Rückgängig",
-    "editor.redo": "Wiederholen"
+    "editor.redo": "Wiederholen",
+    "pictureSelector.errorLoading": "Fehler beim Laden der Bilder:",
+    "pictureSelector.failedToLoad": "Fehler beim Laden der Bilder. Bitte versuchen Sie es später erneut.",
+    "pictureSelector.loadingPictures": "Bilder werden geladen...",
+    "pictureSelector.noPictures": "Noch keine Bilder hochgeladen",
+    "pictureSelector.uploadFirst": "Laden Sie zuerst Bilder in Ihrem Lebenslauf-Dashboard hoch",
+    "pictureSelector.choosePicture": "Wählen Sie ein Bild für Ihren angepassten Lebenslauf",
+    "pictureSelector.noPictureOption": "Kein Bild",
+    "pictureSelector.dontIncludePicture": "Kein Profilbild einfügen",
+    "pictureSelector.profilePictureNumber": "Profilbild {number}",
+    "pictureSelector.pictureNumber": "Bild {number}",
+    "pictureSelector.profilePictureOption": "Profilbild-Option"
 }

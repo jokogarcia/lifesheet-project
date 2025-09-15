@@ -1,7 +1,7 @@
 import { File } from 'lucide-react';
 import type { CV } from '../../services/cvs-service';
 import RichTextEditor from '../ui/editor';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 
 
 interface CoverLetterTabProps {
