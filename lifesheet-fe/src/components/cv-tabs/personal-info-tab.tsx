@@ -112,7 +112,7 @@ export function PersonalInfoTab({
                   id="location"
                   value={personalInfo.location || ''}
                   onChange={e => setPersonalInfo({ ...personalInfo, location: e.target.value })}
-                  placeholder={intl.formatMessage({ id: "dashboard.location.placeholder", defaultMessage: "New York, NY" })}
+                  placeholder={intl.formatMessage({ id: "dashboard.location.placeholder.personal", defaultMessage: "New York, NY" })}
                   className="border rounded-lg p-2 placeholder-gray-500"
                 />
               ) : (

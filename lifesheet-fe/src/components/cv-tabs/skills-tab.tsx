@@ -1,5 +1,6 @@
 import { Award, Plus } from 'lucide-react';
 import type { Skill, LanguageSkill, CV } from '../../services/cvs-service';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 interface SkillsTabProps {
   isEditing: boolean;
@@ -26,6 +27,7 @@ export function SkillsTab({
   setNewLanguageSkill,
   cv,
 }: SkillsTabProps) {
+  const intl = useIntl();
   const addSkill = () => {
     if (newSkill.name.trim()) {
       const skill: Skill = {
@@ -63,7 +65,9 @@ export function SkillsTab({
       <div className="border rounded-lg p-6 card-hover bg-gradient-subtle">
         <div className="flex items-center gap-2 mb-4">
           <Award className="h-5 w-5" />
-          <h3 className="font-semibold text-lg">Skills</h3>
+          <h3 className="font-semibold text-lg">
+            <FormattedMessage id="dashboard.skills" defaultMessage="Skills" />
+          </h3>
         </div>
         <div className="space-y-4">
           {isEditing ? (
@@ -73,7 +77,7 @@ export function SkillsTab({
                   value={newSkill.name}
                   required
                   onChange={e => setNewSkill({ ...newSkill, name: e.target.value })}
-                  placeholder="Skill name (e.g., JavaScript, Project Management)"
+                  placeholder={intl.formatMessage({ id: "dashboard.skillName.placeholder", defaultMessage: "Skill name (e.g., JavaScript, Project Management)" })}
                   className="flex-1 border rounded-lg p-2 placeholder-gray-500"
                 />
                 <select
@@ -81,14 +85,23 @@ export function SkillsTab({
                   onChange={e => setNewSkill({ ...newSkill, level: e.target.value })}
                   className="px-3 py-2 border rounded-md"
                 >
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
-                  <option value="Expert">Expert</option>
+                  <option value="Beginner">
+                    <FormattedMessage id="dashboard.skillLevel.beginner" defaultMessage="Beginner" />
+                  </option>
+                  <option value="Intermediate">
+                    <FormattedMessage id="dashboard.skillLevel.intermediate" defaultMessage="Intermediate" />
+                  </option>
+                  <option value="Advanced">
+                    <FormattedMessage id="dashboard.skillLevel.advanced" defaultMessage="Advanced" />
+                  </option>
+                  <option value="Expert">
+                    <FormattedMessage id="dashboard.skillLevel.expert" defaultMessage="Expert" />
+                  </option>
                 </select>
                 <button
                   onClick={addSkill}
                   className="bg-green-100 text-green-600 px-4 py-2 rounded btn-custom"
+                  aria-label={intl.formatMessage({ id: "dashboard.addSkill", defaultMessage: "Add Skill" })}
                 >
                   <Plus className="h-4 w-4" />
                 </button>
@@ -96,7 +109,9 @@ export function SkillsTab({
 
               {skills.length > 0 && (
                 <div className="space-y-2">
-                  <label>Your Skills</label>
+                  <label>
+                    <FormattedMessage id="dashboard.yourSkills" defaultMessage="Your Skills" />
+                  </label>
                   <div className="flex flex-wrap gap-2">
                     {skills.map(skill => (
                       <div
@@ -118,7 +133,9 @@ export function SkillsTab({
 
               {/* Language Skills Section */}
               <div className="border-t pt-4 mt-6">
-                <h4 className="font-semibold text-lg mb-4">Language Skills</h4>
+                <h4 className="font-semibold text-lg mb-4">
+                  <FormattedMessage id="dashboard.languageSkills" defaultMessage="Language Skills" />
+                </h4>
                 <div className="flex gap-2 mb-4">
                   <input
                     required
@@ -126,7 +143,7 @@ export function SkillsTab({
                     onChange={e =>
                       setNewLanguageSkill({ ...newLanguageSkill, language: e.target.value })
                     }
-                    placeholder="Language (e.g., English, Spanish, French)"
+                    placeholder={intl.formatMessage({ id: "dashboard.language.placeholder", defaultMessage: "Language (e.g., English, Spanish, French)" })}
                     className="flex-1 border rounded-lg p-2 placeholder-gray-500"
                   />
                   <select
@@ -136,15 +153,26 @@ export function SkillsTab({
                     }
                     className="px-3 py-2 border rounded-md"
                   >
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                    <option value="Native">Native</option>
-                    <option value="Fluent">Fluent</option>
+                    <option value="Beginner">
+                      <FormattedMessage id="dashboard.languageLevel.beginner" defaultMessage="Beginner" />
+                    </option>
+                    <option value="Intermediate">
+                      <FormattedMessage id="dashboard.languageLevel.intermediate" defaultMessage="Intermediate" />
+                    </option>
+                    <option value="Advanced">
+                      <FormattedMessage id="dashboard.languageLevel.advanced" defaultMessage="Advanced" />
+                    </option>
+                    <option value="Native">
+                      <FormattedMessage id="dashboard.languageLevel.native" defaultMessage="Native" />
+                    </option>
+                    <option value="Fluent">
+                      <FormattedMessage id="dashboard.languageLevel.fluent" defaultMessage="Fluent" />
+                    </option>
                   </select>
                   <button
                     onClick={addLanguageSkill}
                     className="bg-green-100 text-green-600 px-4 py-2 rounded btn-custom"
+                    aria-label={intl.formatMessage({ id: "dashboard.addLanguage", defaultMessage: "Add Language" })}
                   >
                     <Plus className="h-4 w-4" />
                   </button>
@@ -152,7 +180,9 @@ export function SkillsTab({
 
                 {languageSkills.length > 0 && (
                   <div className="space-y-2">
-                    <label>Your Languages</label>
+                    <label>
+                      <FormattedMessage id="dashboard.yourLanguages" defaultMessage="Your Languages" />
+                    </label>
                     <div className="flex flex-wrap gap-2">
                       {languageSkills.map(langSkill => (
                         <div
@@ -176,7 +206,9 @@ export function SkillsTab({
           ) : (
             <div className="space-y-2">
               {cv?.skills.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">No skills added yet</p>
+                <p className="text-muted-foreground text-center py-8">
+                  <FormattedMessage id="dashboard.noSkills" defaultMessage="No skills added yet" />
+                </p>
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {cv?.skills.map((skill: Skill) => (
@@ -193,7 +225,9 @@ export function SkillsTab({
               {/* Language Skills Display */}
               {cv?.language_skills && cv.language_skills.length > 0 && (
                 <div className="border-t pt-4 mt-6">
-                  <h4 className="font-semibold text-lg mb-4">Language Skills</h4>
+                  <h4 className="font-semibold text-lg mb-4">
+                    <FormattedMessage id="dashboard.languageSkills" defaultMessage="Language Skills" />
+                  </h4>
                   <div className="flex flex-wrap gap-2">
                     {cv.language_skills.map((langSkill: LanguageSkill) => (
                       <div
