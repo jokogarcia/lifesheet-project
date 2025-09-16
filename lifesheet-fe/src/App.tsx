@@ -58,10 +58,12 @@ function AppWithLanguage({ initialized, keycloak, hasToken }: {
 }) {
   const { currentLanguage } = useLanguage();
   const [messages, setMessages] = useState<Record<string, string>>({});
+  const [isLoadingMessages, setIsLoadingMessages] = useState(true);
 
   // Load the translations for the current language
   useEffect(() => {
     const loadMessages = async () => {
+      setIsLoadingMessages(true);
       try {
         const messagesModule = await import(`./translations/${currentLanguage}.json`);
         setMessages(messagesModule.default || {});
@@ -70,6 +72,8 @@ function AppWithLanguage({ initialized, keycloak, hasToken }: {
         // Fallback to English if translation file can't be loaded
         const fallbackModule = await import('./translations/en.json');
         setMessages(fallbackModule.default || {});
+      } finally {
+        setIsLoadingMessages(false);
       }
     };
     loadMessages();
@@ -79,16 +83,43 @@ function AppWithLanguage({ initialized, keycloak, hasToken }: {
     return <LoadingIndicator />;
   }
 
+  if (isLoadingMessages) {
+    return <LoadingIndicator />;
+  }
+
   if (!keycloak?.authenticated || !hasToken) {
     return (
-      <IntlProvider locale={currentLanguage} messages={messages}>
+      <IntlProvider locale={currentLanguage} messages={messages} onError={(err) => {
+        // TODO: Try to translate missing messages on-the-fly
+        // const translation = await translateMissingMessage(
+        //   err.messageId as string, 
+        //   err.message as string
+        // );
+
+        // // The translated message will be used automatically
+        // // since we updated the messages state
+        // return;
+        if (err.code === 'MISSING_TRANSLATION') {
+          // Suppress missing translation console errors by handling them silently
+          return;
+        }
+        // For other errors, log them as usual
+        console.error(err);
+      }}>
         <Welcome />
       </IntlProvider>
     );
   }
 
   return (
-    <IntlProvider locale={currentLanguage} messages={messages}>
+    <IntlProvider locale={currentLanguage} messages={messages} onError={(err) => {
+      if (err.code === 'MISSING_TRANSLATION') {
+        // Suppress missing translation console errors by handling them silently
+        return;
+      }
+      // For other errors, log them as usual
+      console.error(err);
+    }}>
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/cv-data" element={<CVData />} />
