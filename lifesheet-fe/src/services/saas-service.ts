@@ -50,10 +50,14 @@ class SaaSService {
         );
         return response.data;
     }
-    public async getSaaSPlans(): Promise<SaaSPlan[]> {
+    public async getSaaSPlans(language: string): Promise<SaaSPlan[]> {
         //no auth needed. just add token if provided
 
-        const response = await this.client.get<SaaSPlan[]>('/saas/plans');
+        const response = await this.client.get<SaaSPlan[]>('/saas/plans', {
+            params: {
+                language
+            }
+        });
         return response.data;
     }
     public async getStripePK(): Promise<string> {

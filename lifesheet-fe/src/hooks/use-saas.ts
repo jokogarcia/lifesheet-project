@@ -3,6 +3,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import SaasService, { type SaaSSubscription, type SaaSPlan } from '@/services/saas-service';
 import { useAuth } from '@/hooks/auth-hook';
+import { useLanguage } from '@/contexts/language-context';
+const { currentLanguage } = useLanguage();
+
 export function useSaasPlans() {
   const [saasPlans, setSaasPlans] = useState<SaaSPlan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -10,7 +13,7 @@ export function useSaasPlans() {
 
   const fetchSaaSPlans = useCallback(async () => {
     setIsLoading(true);
-    const plans = await SaasService.getSaaSPlans();
+    const plans = await SaasService.getSaaSPlans(currentLanguage);
     setSaasPlans(plans);
     setIsLoading(false);
   }, [auth]);
