@@ -3,7 +3,7 @@ import UserRouter from './user/user.routes';
 import { SaaSPlan } from '../../models/saaS-plan.model';
 import UtilsRouter from './utils';
 import { constants } from '../../constants';
-import { translate } from '../../services/translate-service';
+import { isValidSupportedLanguage, translate } from '../../services/translate-service';
 const router = Router();
 
 router.use('/user', UserRouter);
@@ -15,7 +15,7 @@ router.get('/health', (req, res) => {
 router.get('/saas/plans', async (req, res) => {
   let { language } = req.query;
   language = (language as string)?.toLowerCase() || 'en';
-  if (!['en', 'es', 'de'].includes(language)) {
+  if (!isValidSupportedLanguage(language)) {
     res.status(400).json({ message: 'Unsupported language' });
     return;
   }

@@ -46,23 +46,6 @@ export interface LanguageSkill {
   level: string;
 }
 
-// CV Section Schema (for components like Education, Experience, etc.)
-interface ISection extends Document {
-  type: string;
-  title: string;
-  items: {
-    title: string;
-    subtitle?: string;
-    description?: string;
-    startDate?: Date;
-    endDate?: Date;
-    current?: boolean;
-    location?: string;
-    url?: string;
-    items?: string[];
-    [key: string]: any;
-  }[];
-}
 interface CVToPDFOptions {
   pictureId?: string;
   template?: string;
@@ -96,52 +79,14 @@ export interface ICV extends Document {
   work_experience: WorkExperience[];
   education: Education[];
   skills: Skill[];
-  sections: ISection[];
   language_skills: LanguageSkill[];
   isPublic: boolean;
   created_at: Date;
   updated_at: Date;
+  sectionTitles: { [key: string]: string };
   // Field to store tailored content
   tailored?: TailoredData;
 }
-
-const sectionSchema = new Schema({
-  type: {
-    type: String,
-    required: true,
-    enum: [
-      'education',
-      'experience',
-      'skills',
-      'projects',
-      'languages',
-      'certifications',
-      'achievements',
-      'custom',
-    ],
-  },
-  title: {
-    type: String,
-    required: true,
-  },
-  items: [
-    {
-      title: {
-        type: String,
-        required: true,
-      },
-      subtitle: String,
-      description: String,
-      startDate: Date,
-      endDate: Date,
-      current: Boolean,
-      location: String,
-      url: String,
-      items: [String],
-      // Additional fields can be added dynamically
-    },
-  ],
-});
 
 const cvSchema = new Schema(
   {
@@ -206,7 +151,6 @@ const cvSchema = new Schema(
         level: { type: String, required: true },
       },
     ],
-    sections: [sectionSchema],
     isPublic: {
       type: Boolean,
       default: false,
@@ -233,6 +177,19 @@ const cvSchema = new Schema(
         includeAddress: { type: Boolean, default: true },
         includeDateOfBirth: { type: Boolean, default: false },
         includePhone: { type: Boolean, default: true },
+      },
+    },
+    sectionTitles: {
+      type: Map,
+      of: String,
+      default: {
+        workExperience: 'Work Experience',
+        education: 'Education',
+        summary: 'Professional Summary',
+        skills: 'Technical Skills',
+        languageSkills: 'Language Skills',
+        personalInfo: 'Personal Info',
+        coverLetter: 'Cover Letter',
       },
     },
   },

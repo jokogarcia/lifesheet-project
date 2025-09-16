@@ -21,7 +21,7 @@ export function TailorCV() {
   const [includeCoverLetter, setIncludeCoverLetter] = useState(true);
   const [companyName, setCompanyName] = useState('');
   const { canUseAI, isLoading: isLoadingSubscription } = useSaaSActiveSubscription();
-
+  const [translateTo, setTranslateTo] = useState('none');
   const handleTailorCV = async () => {
     if (!canUseAI) {
       alert(intl.formatMessage({
@@ -41,7 +41,8 @@ export function TailorCV() {
         jobDescription,
         companyName,
         includeCoverLetter,
-        true
+        true,
+        translateTo
       );
       await navigate(`/export-pdf?cvId=${tailoredCVId}`);
     } catch (error) {
@@ -67,7 +68,8 @@ export function TailorCV() {
         jobDescription,
         companyName,
         includeCoverLetter,
-        false
+        false,
+        translateTo
       );
       await navigate(`/export-pdf?cvId=${tailoredCVId}`);
     } catch (error) {
@@ -180,6 +182,17 @@ export function TailorCV() {
                   />
                   <FormattedMessage id="tailorCV.includeCoverLetter" defaultMessage="Include Cover Letter" />
                 </span>
+                <div>
+                  <label className="ml-4" htmlFor='translateTo'>
+                    <FormattedMessage id="tailorCV.translateTo" defaultMessage="Use Translation" />
+                  </label>
+                  <select id='translateTo' className="ml-2 border rounded-lg p-1" onChange={e => setTranslateTo(e.target.value)}>
+                    <option value="none" selected={translateTo === 'none'}>{intl.formatMessage({ id: 'tailorCV.noTranslation', defaultMessage: 'No Translation' })}</option>
+                    <option value="es" selected={translateTo === 'es'}>{intl.formatMessage({ id: 'tailorCV.spanish', defaultMessage: 'Translate to Spanish' })}</option>
+                    <option value="en" selected={translateTo === 'en'}>{intl.formatMessage({ id: 'tailorCV.english', defaultMessage: 'Translate to English' })}</option>
+                    <option value="de" selected={translateTo === 'de'}>{intl.formatMessage({ id: 'tailorCV.german', defaultMessage: 'Translate to German' })}</option>
+                  </select>
+                </div>
 
                 {/* Tailor Button */}
                 <div className="space-y-3 m-4">
@@ -206,15 +219,24 @@ export function TailorCV() {
               </div>
               <Button className={`mt-6 cursor-pointer ${!jobDescription.trim() || isLoadingSubscription || !companyName
                 ? "hidden" : ""}`} variant="link" onClick={handleManualTailoring} disabled={isTailoring}  >
-                {includeCoverLetter ?
+                {includeCoverLetter && translateTo === 'none' ?
                   <FormattedMessage
                     id="tailorCV.continueWithoutAI.coverLetter"
                     defaultMessage="Continue without AI Tailoring. Use AI only for the cover letter"
-                  /> :
-                  <FormattedMessage
-                    id="tailorCV.continueWithoutAI"
-                    defaultMessage="Continue without AI Tailoring"
-                  />
+                  /> : includeCoverLetter && translateTo !== 'none' ?
+                    <FormattedMessage
+                      id="tailorCV.continueWithoutAi.coverLetterAndTranslation"
+                      defaultMessage="Continue without AI Tailoring. Use AI for the cover letter and translation"
+                    /> :
+                    !includeCoverLetter && translateTo !== 'none' ?
+                      <FormattedMessage
+                        id="tailorCV.continueWithoutAi.translation"
+                        defaultMessage="Continue without AI Tailoring. Use AI for the translation"
+                      /> :
+                      <FormattedMessage
+                        id="tailorCV.continueWithoutAI"
+                        defaultMessage="Continue without AI Tailoring"
+                      />
                 }
               </Button>
 

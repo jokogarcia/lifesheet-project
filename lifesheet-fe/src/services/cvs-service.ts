@@ -62,6 +62,7 @@ export interface CV {
   updated_at: string;
   user_id: string;
   tailored?: TailoredData;
+  sectionTitles: { [key: string]: string };
 }
 export interface CVListItem {
   _id: string;
@@ -194,13 +195,15 @@ class CVsService {
     jobDescription: string,
     companyName: string,
     includeCoverLetter: boolean,
-    useAiTailoring: boolean
+    useAiTailoring: boolean,
+    translateTo: string
   ): Promise<{ cvId: string }> {
     const { bullId } = await this.startTailoringOperation(
       jobDescription,
       companyName,
       includeCoverLetter,
-      useAiTailoring
+      useAiTailoring,
+      translateTo
     );
     do {
       await wait(1000);
@@ -220,7 +223,8 @@ class CVsService {
     jobDescription: string,
     companyName: string,
     includeCoverLetter: boolean,
-    useAiTailoring: boolean
+    useAiTailoring: boolean,
+    translateTo: string
   ): Promise<{ bullId: string }> {
     console.log('🔄 CVsService: Tailoring CV to job description...');
     const response = await this.client.post<{ bullId: string }>('/user/me/cv/tailor', {
@@ -228,6 +232,7 @@ class CVsService {
       companyName,
       includeCoverLetter,
       useAiTailoring,
+      translateTo
     });
     if (!response.data) {
       throw new Error('Failed to tailor CV');

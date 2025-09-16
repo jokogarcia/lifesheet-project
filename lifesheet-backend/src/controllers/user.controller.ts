@@ -30,6 +30,7 @@ import { checkUserCanDoOperation, getUsersConsumptions } from '../services/saas'
 import TailorCVQueue from '../q/tailorcv';
 import { JobState } from 'bullmq';
 import stripe from 'stripe';
+import { isValidSupportedLanguage } from '../services/translate-service';
 
 // Helper to resolve 'me' to the authenticated user's id
 function resolveUserId(req: Request): string {
@@ -244,6 +245,10 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
     }
     const includeCoverLetter = !!req.body.includeCoverLetter;
     const useAiTailoring = !!req.body.useAiTailoring;
+    const translateTo = req.body.translateTo || 'none';
+    if (translateTo !== 'none' && !isValidSupportedLanguage(translateTo)) {
+      throw new ApiError(400, 'Unsupported translation language.');
+    }
 
     let jobDescription = req.body.jobDescription || '';
     let jobDescriptionId = req.body.jobDescriptionId || '';
@@ -279,6 +284,7 @@ export const tailorCV = async (req: Request, res: Response, next: NextFunction) 
       includeCoverLetter,
       useAiTailoring,
       pictureId,
+      translateTo,
     });
 
     res.json({

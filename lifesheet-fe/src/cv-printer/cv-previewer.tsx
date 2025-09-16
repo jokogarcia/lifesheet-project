@@ -4,15 +4,9 @@ import { useEffect } from 'react';
 import moduleStyles from './cv-previewer.module.css';
 import { defaultLeftColumnSections, defaultPdfOptions, defaultSectionOrder, type CV, type CVToPDFOptions } from '@/services/cvs-service';
 import ReactMarkdown from 'react-markdown';
-interface CVDataWithTitle extends CV {
-  summaryTitle?: string;
-  skillsTitle?: string;
-  workExperienceTitle?: string;
-  educationTitle?: string;
-  languageSkillsTitle?: string;
-}
+
 interface CVPreviewerProps {
-  cvData: CVDataWithTitle;
+  cvData: CV;
   printMode: boolean;
   onHtmlUpdate?: (html: string) => void;
 }
@@ -240,9 +234,9 @@ const CoverLetter = ({ text, style }: { text: string, style?: React.CSSPropertie
     </div>
   );
 };
-const renderLanguagesSection = (cvData: CVDataWithTitle, moduleStyles: any) => {
+const renderLanguagesSection = (cvData: CV, moduleStyles: any) => {
   return <div className={`section ${moduleStyles.section}`}>
-    <h2>{cvData.languageSkillsTitle || 'Language Skills'}</h2>
+    <h2>{cvData.sectionTitles['languages'] || 'Language Skills'}</h2>
     <ul>
       {cvData.language_skills.map(skill => (
         <li key={skill.id}>
@@ -252,9 +246,9 @@ const renderLanguagesSection = (cvData: CVDataWithTitle, moduleStyles: any) => {
     </ul>
   </div>;
 };
-const renderEducationSection = (cvData: CVDataWithTitle, moduleStyles: any) => {
+const renderEducationSection = (cvData: CV, moduleStyles: any) => {
   return <div className={`section ${moduleStyles.section}`}>
-    <h2>{cvData.educationTitle || 'Education'}</h2>
+    <h2>{cvData.sectionTitles['education'] || 'Education'}</h2>
     {cvData.education.map(edu => (
       <div key={edu.id}>
         <h3>{edu.degree}</h3>
@@ -268,9 +262,9 @@ const renderEducationSection = (cvData: CVDataWithTitle, moduleStyles: any) => {
     ))}
   </div>;
 };
-const renderWorkExperienceSection = (cvData: CVDataWithTitle, moduleStyles: any) => {
+const renderWorkExperienceSection = (cvData: CV, moduleStyles: any) => {
   return <div className={`section breakable ${moduleStyles.section} ${moduleStyles.breakable}`}>
-    <h2>{cvData.workExperienceTitle || 'Work Experience'}</h2>
+    <h2>{cvData.sectionTitles['workExperience'] || 'Work Experience'}</h2>
     {cvData.work_experience.map(job => (
       <div className={`work-experience ${moduleStyles['work-experience']}`} key={job.id}>
         <h3 className={`we-jobtitle ${moduleStyles['we-jobtitle']}`}>{job.position}</h3>
@@ -292,9 +286,9 @@ const renderWorkExperienceSection = (cvData: CVDataWithTitle, moduleStyles: any)
     ))}
   </div>;
 };
-const renderSkillsSection = (cvData: CVDataWithTitle, moduleStyles: any) => {
+const renderSkillsSection = (cvData: CV, moduleStyles: any) => {
   return <div className={`section ${moduleStyles.section}`}>
-    <h2>{cvData.skillsTitle || 'Skills'}</h2>
+    <h2>{cvData.sectionTitles['skills'] || 'Skills'}</h2>
     <ul className={`${moduleStyles['skills-list']} skills-list`}>
       {cvData.skills.map(skill => (
         <li key={skill.id}>{skill.name}</li>
@@ -302,15 +296,15 @@ const renderSkillsSection = (cvData: CVDataWithTitle, moduleStyles: any) => {
     </ul>
   </div>;
 };
-const renderSummarySection = (cvData: CVDataWithTitle, moduleStyles: any) => {
+const renderSummarySection = (cvData: CV, moduleStyles: any) => {
   return <div className={`section ${moduleStyles.section}`}>
-    <h2>{cvData.summaryTitle || 'Summary'}</h2>
+    <h2>{cvData.sectionTitles['summary'] || 'Summary'}</h2>
     <p>{cvData.personal_info.summary}</p>
   </div>;
 };
-const renderPersonalInfo = (cvData: CVDataWithTitle, moduleStyles: any) => {
+const renderPersonalInfo = (cvData: CV, moduleStyles: any) => {
   return <div className={`section ${moduleStyles.section}`}>
-    <h2>Personal Information</h2>
+    <h2>{cvData.sectionTitles['personalInfo'] || 'Personal Information'}</h2>
     <p><strong>Full Name:</strong> {cvData.personal_info.fullName}</p>
     <p><strong>Title:</strong> {cvData.personal_info.title}</p>
     {cvData.personal_info.email && <p><strong>Email:</strong> {cvData.personal_info.email}</p>}

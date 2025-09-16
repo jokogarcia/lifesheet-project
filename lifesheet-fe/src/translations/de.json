@@ -207,5 +207,10 @@
     "exportPdf.jobDescription": "Stellenbeschreibung:",
     "plans.currentSubscription": "Ihr aktuelles Abonnement",
     "plans.currentSubscriptionSince": "Seit {startDate}. Läuft ab am {endDate}.",
-    "plans.currentSubscriptionUsage": "Sie haben heute {todaysConsumptions} KI-Operationen und diese Woche {thisWeeksConsumptions} verwendet."
+    "plans.currentSubscriptionUsage": "Sie haben heute {todaysConsumptions} KI-Operationen und diese Woche {thisWeeksConsumptions} verwendet.",
+    "tailorCV.translateTo": "Übersetzung",
+    "tailorCV.noTranslation": "Keine Übersetzung",
+    "tailorCV.english": "Übersetzen ins Englische",
+    "tailorCV.spanish": "Übersetzen ins Spanische",
+    "tailorCV.german": "Übersetzen ins Deutsche"
 }

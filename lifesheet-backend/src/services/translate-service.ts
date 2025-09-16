@@ -52,3 +52,6 @@ async function translateWithApi(
 
   return result;
 }
+export function isValidSupportedLanguage(lang: string): boolean {
+  return ['en', 'es', 'de'].includes(lang.toLowerCase());
+}

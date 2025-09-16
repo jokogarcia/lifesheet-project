@@ -7,6 +7,7 @@ import tailorWorkExperienceQueue from './q/tailor-work-experience';
 import createJobSummaryQueue from './q/create-job-summary';
 import tailorSkillsQueue from './q/tailor-skills';
 import createCoverLetterQueue from './q/create-cover-letter';
+import translateCVQueue from './q/translate-cv';
 
 export function setupBullBoard(app: Express, route = '/bull') {
   const serverAdapter = new ExpressAdapter();
@@ -18,6 +19,7 @@ export function setupBullBoard(app: Express, route = '/bull') {
       new BullMQAdapter(createJobSummaryQueue),
       new BullMQAdapter(tailorSkillsQueue),
       new BullMQAdapter(createCoverLetterQueue),
+      new BullMQAdapter(translateCVQueue),
     ],
     serverAdapter,
   });
