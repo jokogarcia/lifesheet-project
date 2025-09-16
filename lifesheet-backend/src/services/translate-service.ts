@@ -6,6 +6,12 @@ const cache: { [key: string]: { text: string; timestamp: number } } = {};
 
 // Simple in-memory cache with 24-hour expiration
 const CACHE_EXPIRATION_MS = 24 * 60 * 60 * 1000;
+
+function clearTranslationCache(): void {
+  Object.keys(cache).forEach(key => delete cache[key]);
+  console.log('In-memory translation cache cleared');
+}
+
 export async function translate(text: string, targetLanguage: string): Promise<string> {
   const hash = crypto.createHash('sha256').update(text).digest('hex');
   // Check cache first
@@ -35,7 +41,7 @@ async function translateWithApi(
   const aiClient = new GoogleGenerativeAI(constants.GEMINI_API_KEY);
   const model = aiClient.getGenerativeModel({ model: constants.MODEL_NAME });
 
-  const prompt = `Translate the following text from ${sourceLanguage} to ${targetLanguage}:\n\n${text}\n\nTranslated text:`;
+  const prompt = `Translate the following text from ${sourceLanguage} to ${targetLanguage}:\n\n${text}\n\nOutput only the translated text and only one translation.`;
   let result: string;
   try {
     const r = await model.generateContent(prompt);
