@@ -204,5 +204,8 @@
     "exportPdf.errorGeneratingPdf": "Error al generar PDF:",
     "exportPdf.tailoredFor": "Personalizado para {company}",
     "exportPdf.tailoredOn": "El {date}",
-    "exportPdf.jobDescription": "Descripción del puesto:"
+    "exportPdf.jobDescription": "Descripción del puesto:",
+    "plans.currentSubscription": "Tu Suscripción Actual",
+    "plans.currentSubscriptionSince": "Desde {startDate}. Expira el {endDate}.",
+    "plans.currentSubscriptionUsage": "Usaste {todaysConsumptions} Operaciones de IA hoy y {thisWeeksConsumptions} esta semana."
 }
