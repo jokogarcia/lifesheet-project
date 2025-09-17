@@ -1,5 +1,6 @@
 import axios, { Axios } from 'axios';
 import { constants } from '../constants';
+import { setupApiErrorInterceptor } from './api-error-interceptor';
 // User profile interface
 export interface UserProfile {
   _id: string;
@@ -23,16 +24,7 @@ class UserService {
         'Content-Type': 'application/json',
       },
     });
-    this.client.interceptors.response.use(
-      response => response,
-      error => {
-        if (error.response?.status === 401) {
-          // Could emit an event that components can listen to
-          console.error('Authentication token expired or invalid');
-        }
-        return Promise.reject(error);
-      }
-    );
+    setupApiErrorInterceptor(this.client);
   }
   setAuthToken(token: string) {
     this.client.defaults.headers.common['Authorization'] = `Bearer ${token}`;

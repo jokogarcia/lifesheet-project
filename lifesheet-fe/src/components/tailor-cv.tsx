@@ -10,6 +10,7 @@ import { useSaaSActiveSubscription } from '@/hooks/use-saas';
 import RichTextEditor from './ui/editor';
 import { LoadingIndicator } from './ui/loading-indicator';
 import { FormattedMessage, useIntl } from 'react-intl';
+import posthog from 'posthog-js';
 
 
 export function TailorCV() {
@@ -23,6 +24,7 @@ export function TailorCV() {
   const { canUseAI, isLoading: isLoadingSubscription } = useSaaSActiveSubscription();
   const [translateTo, setTranslateTo] = useState('none');
   const handleTailorCV = async () => {
+    posthog.capture('tailor_cv_ai', { includeCoverLetter, translateTo });
     if (!canUseAI) {
       alert(intl.formatMessage({
         id: 'tailorCV.error.usageLimits',
@@ -61,6 +63,7 @@ export function TailorCV() {
   };
   const handleManualTailoring = async () => {
     setIsTailoring(true);
+    posthog.capture('tailor_cv_manual', { includeCoverLetter, translateTo });
 
     try {
       // Call the real API endpoint to tailor the CV

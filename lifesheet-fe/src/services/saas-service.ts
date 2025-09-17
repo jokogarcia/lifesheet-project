@@ -1,6 +1,7 @@
 import type { Axios } from 'axios';
 import { constants } from '../constants';
 import axios from 'axios';
+import { setupApiErrorInterceptor } from './api-error-interceptor';
 
 export interface SaaSSubscription {
     _id: string;
@@ -39,6 +40,7 @@ class SaaSService {
                 'Content-Type': 'application/json',
             },
         });
+        setupApiErrorInterceptor(this.client);
     }
     public setAuthToken(token: string) {
         this.client.defaults.headers.common['Authorization'] = `Bearer ${token}`;

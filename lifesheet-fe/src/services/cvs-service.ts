@@ -1,5 +1,6 @@
 import axios, { Axios } from 'axios';
 import { constants } from '../constants';
+import { setupApiErrorInterceptor } from './api-error-interceptor';
 
 // Types for our CV data
 export interface PersonalInfo {
@@ -117,17 +118,7 @@ class CVsService {
       },
     });
 
-    // Add response interceptor to handle 401 errors
-    this.client.interceptors.response.use(
-      response => response,
-      error => {
-        if (error.response?.status === 401) {
-          // Could emit an event that components can listen to
-          console.error('Authentication token expired or invalid');
-        }
-        return Promise.reject(error);
-      }
-    );
+    setupApiErrorInterceptor(this.client);
   }
 
   // Get user's CV (single CV per user)
