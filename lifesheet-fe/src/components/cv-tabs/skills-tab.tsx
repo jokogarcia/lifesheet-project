@@ -86,16 +86,16 @@ export function SkillsTab({
                   className="px-3 py-2 border rounded-md"
                 >
                   <option value="Beginner">
-                    <FormattedMessage id="dashboard.skillLevel.beginner" defaultMessage="Beginner" />
+                    {intl.formatMessage({ id: "dashboard.skillLevel.beginner", defaultMessage: "Beginner" })}
                   </option>
                   <option value="Intermediate">
-                    <FormattedMessage id="dashboard.skillLevel.intermediate" defaultMessage="Intermediate" />
+                    {intl.formatMessage({ id: "dashboard.skillLevel.intermediate", defaultMessage: "Intermediate" })}
                   </option>
                   <option value="Advanced">
-                    <FormattedMessage id="dashboard.skillLevel.advanced" defaultMessage="Advanced" />
+                    {intl.formatMessage({ id: "dashboard.skillLevel.advanced", defaultMessage: "Advanced" })}
                   </option>
                   <option value="Expert">
-                    <FormattedMessage id="dashboard.skillLevel.expert" defaultMessage="Expert" />
+                    {intl.formatMessage({ id: "dashboard.skillLevel.expert", defaultMessage: "Expert" })}
                   </option>
                 </select>
                 <button
