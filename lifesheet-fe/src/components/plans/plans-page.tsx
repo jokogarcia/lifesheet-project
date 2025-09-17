@@ -3,6 +3,7 @@ import { PlanCard } from '@/components/plans/plan-card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { FormattedMessage } from 'react-intl';
 
 export function PlansPage() {
   const navigate = useNavigate();
@@ -53,9 +54,15 @@ export function PlansPage() {
         ))}
       </div>
       <div className="border rounded-lg p-6 mt-6">
-        <p><b>Your Current Subscription</b></p>
-        <p className="text-xs">Since {new Date(activeSubscription?.startDate || '').toLocaleDateString()}. Expires on {new Date(activeSubscription?.endDate || '').toLocaleDateString()}.</p>
-        <p className="text-xs">You used {todaysConsumptions} AI Operations today and {thisWeeksConsumptions} this week.</p>
+        <p><b><FormattedMessage id="plans.currentSubscription" defaultMessage="Your Current Subscription" /></b></p>
+        <p className="text-xs"><FormattedMessage id="plans.currentSubscriptionSince" defaultMessage={`Since {startDate}. Expires on {endDate}.`} values={{
+          startDate: new Date(activeSubscription?.startDate || '').toLocaleDateString(),
+          endDate: new Date(activeSubscription?.endDate || '').toLocaleDateString()
+        }} /></p>
+        <p className="text-xs"><FormattedMessage id="plans.currentSubscriptionUsage" defaultMessage={`You used {todaysConsumptions} AI Operations today and {thisWeeksConsumptions} this week.`} values={{
+          todaysConsumptions,
+          thisWeeksConsumptions
+        }} /></p>
       </div>
 
     </div>

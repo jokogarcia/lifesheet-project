@@ -14,7 +14,9 @@ import {
 import { CVPreviewer } from '@/cv-printer/cv-previewer';
 import ReactMarkdown from 'react-markdown';
 import { EditableCV } from './ui/editable-cv';
+import { FormattedMessage, useIntl } from 'react-intl';
 export function ExportPdf() {
+  const intl = useIntl();
   const queryParams = new URLSearchParams(useLocation().search);
   const {
     cv: originalCV,
@@ -70,10 +72,10 @@ export function ExportPdf() {
     if (!cv) return;
     await saveCV(cv._id, cv);
     try {
-      console.log('Generating PDF...');
+      console.log(intl.formatMessage({ id: 'exportPdf.generatingPdf', defaultMessage: 'Generating PDF...' }));
       const html = document.getElementById('rendered-cv-container')?.outerHTML;
 
-      if (!html) throw new Error('Error getting raw HTML');
+      if (!html) throw new Error(intl.formatMessage({ id: 'exportPdf.errorGettingHtml', defaultMessage: 'Error getting raw HTML' }));
       const pdfBlob = await cvsService.getPDFv2(
         html,
         pdfOptions.pictureId,
@@ -89,7 +91,7 @@ export function ExportPdf() {
       a.click();
       document.body.removeChild(a);
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      console.error(intl.formatMessage({ id: 'exportPdf.errorGeneratingPdf', defaultMessage: 'Error generating PDF:' }), error);
     } finally {
       setPrintMode(false);
     }
@@ -99,9 +101,11 @@ export function ExportPdf() {
   if (cvError) {
     return (
       <div>
-        <div className="text-sm text-red-500">Unable to load this CV</div>
+        <div className="text-sm text-red-500">
+          <FormattedMessage id="exportPdf.unableToLoad" defaultMessage="Unable to load this CV" />
+        </div>
         <Button onClick={() => navigate('/')} variant="outline" className="btn-custom">
-          Go back
+          <FormattedMessage id="exportPdf.goBack" defaultMessage="Go back" />
         </Button>
       </div>
     );
@@ -111,7 +115,9 @@ export function ExportPdf() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-2">Loading your CV data...</p>
+          <p className="mt-2">
+            <FormattedMessage id="exportPdf.loadingCV" defaultMessage="Loading your CV data..." />
+          </p>
         </div>
       </div>
     );
@@ -121,12 +127,14 @@ export function ExportPdf() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl text-gradient">Export your CV as PDF</h1>
+          <h1 className="text-3xl text-gradient">
+            <FormattedMessage id="exportPdf.title" defaultMessage="Export your CV as PDF" />
+          </h1>
         </div>
         <div className="flex gap-2">
           <Button onClick={() => navigate('/')} variant="outline" className="btn-custom">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
+            <FormattedMessage id="exportPdf.backToDashboard" defaultMessage="Back to Dashboard" />
           </Button>
         </div>
       </div>
@@ -139,10 +147,12 @@ export function ExportPdf() {
         {/* Preview */}
         <div className="border rounded-lg p-6 space-y-4 card-hover bg-gradient-subtle">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium">Preview</h3>{' '}
+            <h3 className="text-lg font-medium">
+              <FormattedMessage id="exportPdf.preview" defaultMessage="Preview" />
+            </h3>{' '}
             <Button onClick={handleSave} variant="default" className="btn-custom h-8">
               <ArrowDown className="h-4 w-4 mr-2" />
-              Download
+              <FormattedMessage id="exportPdf.download" defaultMessage="Download" />
             </Button>
           </div>
           <div
@@ -169,7 +179,9 @@ export function ExportPdf() {
               {isLoading ? (
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-                  <p className="mt-2">Loading preview...</p>
+                  <p className="mt-2">
+                    <FormattedMessage id="exportPdf.loadingPreview" defaultMessage="Loading preview..." />
+                  </p>
                 </div>
               ) : (
                 <CVPreviewer cvData={cv!} printMode={printMode} />
@@ -187,11 +199,23 @@ function TailoredForSection({ data }: { data: TailoredData }) {
   if (!data || !data.jobDescription_id || typeof data.jobDescription_id === 'string') return null;
   return (
     <div className="border-t border-gray-200 pt-4 text-left">
-      <h3 className="text-lg font-medium">Tailored For {data.jobDescription_id.companyName}</h3>
+      <h3 className="text-lg font-medium">
+        <FormattedMessage
+          id="exportPdf.tailoredFor"
+          defaultMessage="Tailored For {company}"
+          values={{ company: data.jobDescription_id.companyName }}
+        />
+      </h3>
       <p className="text-sm text-muted-foreground">
-        On {new Date(data.tailoredDate).toLocaleDateString()}
+        <FormattedMessage
+          id="exportPdf.tailoredOn"
+          defaultMessage="On {date}"
+          values={{ date: new Date(data.tailoredDate).toLocaleDateString() }}
+        />
       </p>
-      <p className="text-sm text-muted-foreground">Job Description:</p>
+      <p className="text-sm text-muted-foreground">
+        <FormattedMessage id="exportPdf.jobDescription" defaultMessage="Job Description:" />
+      </p>
       <div className="border-l-2 border-gray-200 pl-4">
         <ReactMarkdown>{data.jobDescription_id.content}</ReactMarkdown>
       </div>

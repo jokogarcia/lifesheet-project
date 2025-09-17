@@ -16,6 +16,7 @@ interface TailorCVJobData {
   includeCoverLetter: boolean;
   useAiTailoring: boolean;
   pictureId?: string;
+  translateTo: string;
 }
 
 const tailorCVQueue = new Queue<TailorCVJobData>('tailorCV', { connection: redisConfig });
@@ -23,7 +24,14 @@ const tailorCVQueue = new Queue<TailorCVJobData>('tailorCV', { connection: redis
 const worker = new Worker(
   'tailorCV',
   async job => {
-    const { userId, jobDescriptionId, companyName, includeCoverLetter, useAiTailoring } = job.data;
+    const {
+      userId,
+      jobDescriptionId,
+      companyName,
+      includeCoverLetter,
+      useAiTailoring,
+      translateTo,
+    } = job.data;
     const canDo = await checkUserCanDoOperation(userId);
     if (!canDo.canOperate) {
       const retryAfter =
@@ -102,7 +110,7 @@ const worker = new Worker(
       cl_tokens = cl_result.tokensUsed;
     }
     job.updateProgress(90);
-    const totalTokens = we_tokens.tokensUsed + skillsResult.tokensUsed + cl_tokens;
+    let totalTokens = we_tokens.tokensUsed + skillsResult.tokensUsed + cl_tokens;
     job.log(
       `Total tokens used: ${totalTokens} (Work Experience: ${we_tokens.tokensUsed}, Skills: ${skillsResult.tokensUsed}, Cover Letter: ${cl_tokens})`
     );
@@ -110,6 +118,11 @@ const worker = new Worker(
     job.log(
       `Tailored CV has ${tailoredCV.skills.length} skills and ${tailoredCV.work_experience.length} work experience entries`
     );
+    if (translateTo && translateTo !== 'none') {
+      job.log(`Translating CV to ${translateTo}`);
+      const translateResult = await translateCVWithRetry(newCvId, translateTo);
+      totalTokens += translateResult?.tokensUsed;
+    }
     const { _id: consumptionId } = await Consumption.create({
       userId,
       jobDescriptionId,
@@ -275,4 +288,29 @@ async function TailorWorkExperienceWithRetry(
     };
   }
   throw new Error('Failed to tailor work experience after multiple attempts');
+}
+import translateCVQueue from './translate-cv';
+async function translateCVWithRetry(cvId: string, translateTo: string, maxRetries = 5) {
+  let retryBackoff = 1000;
+  let attempt = 0;
+  const queryEvents = new QueueEvents('translate-cv', { connection: redisConfig });
+  while (attempt < maxRetries) {
+    const r = await translateCVQueue.add('translate' + cvId, { cvId, translateTo });
+    const result = await r.waitUntilFinished(queryEvents);
+    if (!result.success && result.isRetryable) {
+      console.log(
+        `Translate CV job failed: ${result.message}. Retrying in ${retryBackoff / 1000} seconds`
+      );
+      await new Promise(r => setTimeout(r, retryBackoff));
+      retryBackoff *= 2;
+      attempt++;
+      continue;
+    }
+    if (!result.success) {
+      throw new Error('Translate CV failed: ' + result.message);
+    }
+    return {
+      tokensUsed: result.tokensUsed,
+    };
+  }
 }

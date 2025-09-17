@@ -19,11 +19,19 @@ import type {
 } from '@/services/cvs-service';
 import userService from '@/services/user-service';
 import { LoadingIndicator } from './ui/loading-indicator';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 export const Onboarding = () => {
+  const intl = useIntl();
   const navigate = useNavigate();
   const { cv, isLoading: isLoadingCV, saveCV } = useUserCV();
-  const steps = ['Personal Information', 'Work Experience', 'Education', 'Skills', 'Profile Photo'];
+  const steps = [
+    intl.formatMessage({ id: 'onboarding.step.personalInfo', defaultMessage: 'Personal Information' }),
+    intl.formatMessage({ id: 'onboarding.step.workExperience', defaultMessage: 'Work Experience' }),
+    intl.formatMessage({ id: 'onboarding.step.education', defaultMessage: 'Education' }),
+    intl.formatMessage({ id: 'onboarding.step.skills', defaultMessage: 'Skills' }),
+    intl.formatMessage({ id: 'onboarding.step.profilePhoto', defaultMessage: 'Profile Photo' })
+  ];
   const [currentStep, setCurrentStep] = useState(0);
 
   const handleBack = () => {
@@ -73,11 +81,14 @@ export const Onboarding = () => {
         const userPictures = await userService.getUserPictures();
         setPictures(userPictures);
       } catch (error) {
-        console.error('Error loading pictures:', error);
+        console.error(intl.formatMessage({
+          id: 'onboarding.error.loadingPictures',
+          defaultMessage: 'Error loading pictures:'
+        }), error);
       }
     };
     loadPictures();
-  }, []);
+  }, [intl]);
   useEffect(() => {
     if (cv) {
       setPersonalInfo(cv.personal_info);
@@ -88,49 +99,52 @@ export const Onboarding = () => {
     }
   }, [cv]);
   useEffect(() => {
-    console.log('Can click next:', canClickNext);
+
   }, [canClickNext]);
   useEffect(() => {
     let valid = false;
     switch (currentStep) {
       case 0:
         valid = !!personalInfo.fullName && !!personalInfo.email;
-        console.log('Step 0 valid:', valid);
         break;
       case 1:
         valid = workExperience.every(exp => !!exp.company && !!exp.position && !!exp.startDate);
-        console.log('Step 1 valid:', valid);
+
         break;
       case 2:
         valid = education.every(edu => !!edu.institution && !!edu.degree && !!edu.startDate);
-        console.log('Step 2 valid:', valid);
+
         break;
       case 3:
         valid = skills.every(skill => !!skill.name);
-        console.log('Step 3 valid:', valid);
+
         break;
       case 4:
         valid = true;// picture is optional
-        console.log('Step 4 valid:', valid);
+
         break;
       default:
         valid = true;
     }
+
     setCanClickNext(valid);
-  }, [currentStep, personalInfo, workExperience, education, skills, pictures]);
+  }, [currentStep, personalInfo, workExperience, education, skills, pictures, steps, intl]);
   // Picture management handlers
   const handlePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setIsUploadingPicture(true);
       try {
-        const pictureId = await userService.uploadPicture(file);
+
         // Reload pictures to get the updated list
         const updatedPictures = await userService.getUserPictures();
         setPictures(updatedPictures);
-        console.log('Picture uploaded successfully:', pictureId);
+
       } catch (error) {
-        console.error('Error uploading picture:', error);
+        console.error(intl.formatMessage({
+          id: 'onboarding.error.pictureUpload',
+          defaultMessage: 'Error uploading picture:'
+        }), error);
       } finally {
         setIsUploadingPicture(false);
       }
@@ -143,13 +157,19 @@ export const Onboarding = () => {
       // Remove the picture from state
       setPictures(pictures.filter(id => id !== pictureId));
     } catch (error) {
-      console.error('Error deleting picture:', error);
+      console.error(intl.formatMessage({
+        id: 'onboarding.error.pictureDelete',
+        defaultMessage: 'Error deleting picture:'
+      }), error);
     }
   };
   const handleSave = async () => {
     try {
       if (!cv) {
-        throw new Error('No CV to save');
+        throw new Error(intl.formatMessage({
+          id: 'cvData.noCvToSave',
+          defaultMessage: 'No CV to save'
+        }));
       }
       await saveCV(cv._id, {
         personal_info: personalInfo,
@@ -158,8 +178,12 @@ export const Onboarding = () => {
         skills: skills,
         language_skills: languageSkills,
       });
+
     } catch (error) {
-      console.error('Error saving CV:', error);
+      console.error(intl.formatMessage({
+        id: 'onboarding.error.savingCV',
+        defaultMessage: 'Error saving CV:'
+      }), error);
     }
   };
   if (isLoadingCV) {
@@ -167,7 +191,12 @@ export const Onboarding = () => {
   }
   return (
     <div>
-      <h1>Onboarding</h1>
+      <h1 className="text-3xl font-bold text-center my-6">
+        <FormattedMessage id="onboarding.title" defaultMessage="Set Up Your CV" />
+      </h1>
+      <p className="text-center text-gray-600 mb-8">
+        <FormattedMessage id="onboarding.subtitle" defaultMessage="Let's set up your CV step by step" />
+      </p>
       <StepProgressIndicator steps={steps} currentStep={currentStep} />
       <br></br>
       <div id="stepContainer" className="max-w-6xl mx-auto p-6 space-y-6">
@@ -234,10 +263,13 @@ export const Onboarding = () => {
         className="flex justify-between max-w-6xl mx-auto p-6 space-y-6 mb-10"
       >
         <Button variant="default" disabled={currentStep === 0} onClick={handleBack}>
-          Back
+          <FormattedMessage id="onboarding.button.back" defaultMessage="Back" />
         </Button>
         <Button variant="default" disabled={!canClickNext} onClick={handleNext}>
-          {currentStep === steps.length - 1 ? 'Finish' : 'Next'}
+          {currentStep === steps.length - 1 ?
+            <FormattedMessage id="onboarding.button.finish" defaultMessage="Finish" /> :
+            <FormattedMessage id="onboarding.button.next" defaultMessage="Next" />
+          }
         </Button>
       </div>
     </div>

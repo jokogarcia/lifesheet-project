@@ -1,6 +1,7 @@
 import { Briefcase, Plus } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import type { CV, WorkExperience } from '../../services/cvs-service';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 interface WorkExperienceTabProps {
   isEditing: boolean;
@@ -15,6 +16,7 @@ export function WorkExperienceTab({
   setWorkExperience,
   cv,
 }: WorkExperienceTabProps) {
+  const intl = useIntl();
   const addWorkExperience = () => {
     const newExp: WorkExperience = {
       id: Date.now().toString(),
@@ -84,7 +86,9 @@ export function WorkExperienceTab({
       <div className="border rounded-lg p-6 card-hover bg-gradient-subtle">
         <div className="flex items-center gap-2 mb-4">
           <Briefcase className="h-5 w-5" />
-          <h3 className="font-semibold text-lg">Work Experience</h3>
+          <h3 className="font-semibold text-lg">
+            <FormattedMessage id="dashboard.workExperience" defaultMessage="Work Experience" />
+          </h3>
         </div>
         <div className="space-y-6">
           {isEditing ? (
@@ -95,51 +99,65 @@ export function WorkExperienceTab({
                   className="space-y-4 p-4 border rounded-lg transition-all hover:shadow-md"
                 >
                   <div className="flex justify-between items-center">
-                    <h3 className="font-semibold">Experience {index + 1}</h3>
+                    <h3 className="font-semibold">
+                      <FormattedMessage
+                        id="dashboard.experience"
+                        defaultMessage="Experience {number}"
+                        values={{ number: index + 1 }}
+                      />
+                    </h3>
                     {workExperience.length > 1 && (
                       <button
                         onClick={() => removeWorkExperience(exp.id)}
                         className="bg-red-100 text-red-600 px-2 py-1 rounded"
                       >
-                        Remove
+                        <FormattedMessage id="dashboard.remove" defaultMessage="Remove" />
                       </button>
                     )}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label htmlFor={`company-${exp.id}`}>Company*</label>
+                      <label htmlFor={`company-${exp.id}`}>
+                        <FormattedMessage id="dashboard.company" defaultMessage="Company" />*
+                      </label>
                       <input
                         id={`company-${exp.id}`}
                         value={exp.company}
                         required
                         onChange={e => updateWorkExperience(exp.id, 'company', e.target.value)}
-                        placeholder="Company Name"
+                        placeholder={intl.formatMessage({ id: "dashboard.company.placeholder", defaultMessage: "Company Name" })}
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label htmlFor={`position-${exp.id}`}>Position*</label>
+                      <label htmlFor={`position-${exp.id}`}>
+                        <FormattedMessage id="dashboard.position" defaultMessage="Position" />*
+                      </label>
                       <input
                         id={`position-${exp.id}`}
                         value={exp.position}
                         required
                         onChange={e => updateWorkExperience(exp.id, 'position', e.target.value)}
-                        placeholder="Job Title"
+                        placeholder={intl.formatMessage({ id: "dashboard.position.placeholder", defaultMessage: "Job Title" })}
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label htmlFor={`location-${exp.id}`}>Location</label>
+                      <label htmlFor={`location-${exp.id}`}>
+                        <FormattedMessage id="dashboard.location" defaultMessage="Location" />
+                      </label>
                       <input
                         id={`location-${exp.id}`}
                         value={exp.location || ''}
                         onChange={e => updateWorkExperience(exp.id, 'location', e.target.value)}
-                        placeholder="City, State/Country"
+                        placeholder={intl.formatMessage({ id: "dashboard.location.placeholder.work", defaultMessage: "City, State/Country" })}
                         className="border rounded-lg p-2 placeholder-gray-500"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label htmlFor={`startDate-${exp.id}`}>Start Date*</label>
+                      <label htmlFor={`startDate-${exp.id}`}>
+                        <FormattedMessage id="dashboard.startDate" defaultMessage="Start Date" />*
+                      </label>
                       <input
                         id={`startDate-${exp.id}`}
                         required
@@ -150,7 +168,9 @@ export function WorkExperienceTab({
                       />
                     </div>
                     <div className="space-y-2">
-                      <label htmlFor={`endDate-${exp.id}`}>End Date</label>
+                      <label htmlFor={`endDate-${exp.id}`}>
+                        <FormattedMessage id="dashboard.endDate" defaultMessage="End Date" />
+                      </label>
                       <input
                         id={`endDate-${exp.id}`}
                         type="date"
@@ -168,28 +188,34 @@ export function WorkExperienceTab({
                       checked={exp.current}
                       onChange={e => updateWorkExperience(exp.id, 'current', e.target.checked)}
                     />
-                    <label htmlFor={`current-${exp.id}`}>Currently working here</label>
+                    <label htmlFor={`current-${exp.id}`}>
+                      <FormattedMessage id="dashboard.currentlyWorking" defaultMessage="Currently working here" />
+                    </label>
                   </div>
                   <div className="space-y-2">
-                    <label htmlFor={`description-${exp.id}`}>Job Description</label>
+                    <label htmlFor={`description-${exp.id}`}>
+                      <FormattedMessage id="dashboard.jobDescription" defaultMessage="Job Description" />
+                    </label>
                     <textarea
                       id={`description-${exp.id}`}
                       value={exp.description}
                       onChange={e => updateWorkExperience(exp.id, 'description', e.target.value)}
-                      placeholder="Describe your responsibilities and achievements..."
+                      placeholder={intl.formatMessage({ id: "dashboard.jobDescription.placeholder", defaultMessage: "Describe your responsibilities and achievements..." })}
                       rows={3}
                       className="block w-full border rounded-lg p-2 h-48 placeholder-gray-500"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label>Key Achievements</label>
+                    <label>
+                      <FormattedMessage id="dashboard.keyAchievements" defaultMessage="Key Achievements" />
+                    </label>
                     <div className="space-y-2">
                       {(exp.achievements || []).map((achievement, achIndex) => (
                         <div key={achIndex} className="flex gap-2">
                           <input
                             value={achievement}
                             onChange={e => updateAchievement(exp.id, achIndex, e.target.value)}
-                            placeholder="Describe a key achievement..."
+                            placeholder={intl.formatMessage({ id: "dashboard.achievement.placeholder", defaultMessage: "Describe a key achievement..." })}
                             className="flex-1 border rounded-lg p-2 placeholder-gray-500"
                           />
                           <button
@@ -204,7 +230,7 @@ export function WorkExperienceTab({
                         onClick={() => addAchievement(exp.id)}
                         className="bg-blue-100 text-blue-600 px-3 py-2 rounded text-sm"
                       >
-                        + Add Achievement
+                        <FormattedMessage id="dashboard.addAchievement" defaultMessage="+ Add Achievement" />
                       </button>
                     </div>
                   </div>
@@ -215,14 +241,14 @@ export function WorkExperienceTab({
                 className="bg-green-100 text-green-600 px-4 py-2 rounded btn-custom"
               >
                 <Plus className="h-4 w-4 mr-2 inline-block" />
-                Add Work Experience
+                <FormattedMessage id="dashboard.addWorkExperience" defaultMessage="Add Work Experience" />
               </button>
             </>
           ) : (
             <div className="space-y-4">
               {cv?.work_experience.length === 0 ? (
                 <p className="text-muted-foreground text-center py-8">
-                  No work experience added yet
+                  <FormattedMessage id="dashboard.noWorkExperience" defaultMessage="No work experience added yet" />
                 </p>
               ) : (
                 cv?.work_experience.map((exp: WorkExperience) => (
@@ -236,7 +262,8 @@ export function WorkExperienceTab({
                         )}
                       </div>
                       <div className="bg-gray-100 px-2 py-1 rounded">
-                        {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
+                        {exp.startDate} - {exp.current ?
+                          <FormattedMessage id="dashboard.present" defaultMessage="Present" /> : exp.endDate}
                       </div>
                     </div>
                     <div className="text-sm mt-2 text-left">
@@ -244,7 +271,9 @@ export function WorkExperienceTab({
                     </div>
                     {exp.achievements && exp.achievements.length > 0 && (
                       <div className="mt-3">
-                        <h4 className="font-medium text-sm mb-2">Key Achievements:</h4>
+                        <h4 className="font-medium text-sm mb-2">
+                          <FormattedMessage id="dashboard.keyAchievements" defaultMessage="Key Achievements" />:
+                        </h4>
                         <ul className="list-disc list-inside space-y-1">
                           {exp.achievements.map((achievement, achIndex) => (
                             <li key={achIndex} className="text-sm text-muted-foreground">
