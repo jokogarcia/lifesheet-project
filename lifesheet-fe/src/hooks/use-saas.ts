@@ -17,7 +17,7 @@ export function useSaasPlans() {
     const plans = await SaasService.getSaaSPlans(currentLanguage);
     setSaasPlans(plans);
     setIsLoading(false);
-  }, [auth]);
+  }, [auth, currentLanguage]);
 
   useEffect(() => {
     fetchSaaSPlans();
