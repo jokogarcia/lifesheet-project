@@ -1,6 +1,6 @@
 import axios, { Axios } from 'axios';
 import { constants } from '../constants';
-import posthog from 'posthog-js';
+import { setupApiErrorInterceptor } from './api-error-interceptor';
 // User profile interface
 export interface UserProfile {
   _id: string;
@@ -24,13 +24,7 @@ class UserService {
         'Content-Type': 'application/json',
       },
     });
-    this.client.interceptors.response.use(
-      response => response,
-      error => {
-        posthog.capture('api_error', { endpoint: error.config?.url, status: error.response?.status, message: error.message });
-        return Promise.reject(error);
-      }
-    );
+    setupApiErrorInterceptor(this.client);
   }
   setAuthToken(token: string) {
     this.client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
