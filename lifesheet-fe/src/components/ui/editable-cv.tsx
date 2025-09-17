@@ -5,7 +5,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { CardContent, CardHeader, Card } from './card';
 import { Button } from "./button";
 import { ArrowDown, ArrowDownToLine, ArrowUp, ArrowUpToLine, ChevronDown, Pencil } from "lucide-react";
-import PictureSelector from "../export/picture-selector";
+import PictureSelector from "./picture-selector";
 import userService from "@/services/user-service";
 import { useNavigate } from "react-router-dom";
 
