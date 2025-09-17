@@ -186,11 +186,16 @@ export function TailorCV() {
                   <label className="ml-4" htmlFor='translateTo'>
                     <FormattedMessage id="tailorCV.translateTo" defaultMessage="Use Translation" />
                   </label>
-                  <select id='translateTo' className="ml-2 border rounded-lg p-1" onChange={e => setTranslateTo(e.target.value)}>
-                    <option value="none" selected={translateTo === 'none'}>{intl.formatMessage({ id: 'tailorCV.noTranslation', defaultMessage: 'No Translation' })}</option>
-                    <option value="es" selected={translateTo === 'es'}>{intl.formatMessage({ id: 'tailorCV.spanish', defaultMessage: 'Translate to Spanish' })}</option>
-                    <option value="en" selected={translateTo === 'en'}>{intl.formatMessage({ id: 'tailorCV.english', defaultMessage: 'Translate to English' })}</option>
-                    <option value="de" selected={translateTo === 'de'}>{intl.formatMessage({ id: 'tailorCV.german', defaultMessage: 'Translate to German' })}</option>
+                  <select
+                    id='translateTo'
+                    className="ml-2 border rounded-lg p-1"
+                    onChange={e => setTranslateTo(e.target.value)}
+                    value={translateTo}
+                  >
+                    <option value="none">{intl.formatMessage({ id: 'tailorCV.noTranslation', defaultMessage: 'No Translation' })}</option>
+                    <option value="es">{intl.formatMessage({ id: 'tailorCV.spanish', defaultMessage: 'Translate to Spanish' })}</option>
+                    <option value="en">{intl.formatMessage({ id: 'tailorCV.english', defaultMessage: 'Translate to English' })}</option>
+                    <option value="de">{intl.formatMessage({ id: 'tailorCV.german', defaultMessage: 'Translate to German' })}</option>
                   </select>
                 </div>
 
