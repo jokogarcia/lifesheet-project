@@ -25,7 +25,7 @@ const worker = new Worker<TranslateCVJobData>(
     if (!isValidSupportedLanguage(translateTo)) {
       return {
         success: false,
-        message: 'unsuported language',
+        message: 'unsupported language',
         isRetryable: false,
       };
     }
