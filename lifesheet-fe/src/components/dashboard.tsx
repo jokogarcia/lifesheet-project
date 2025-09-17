@@ -6,7 +6,7 @@ import { isCVOnboarded } from '@/services/cvs-service';
 import { Card } from '@radix-ui/themes';
 import { CardContent, CardFooter, CardHeader } from './ui/card';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { LanguageSelector } from './language-selector';
+import { LanguageSelector } from './ui/language-selector';
 import React from 'react';
 
 export function Dashboard() {

@@ -1,6 +1,6 @@
 import { useUserCV } from '@/hooks/use-cv';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 import { ArrowDown, ArrowLeft } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -13,7 +13,7 @@ import {
 } from '@/services/cvs-service';
 import { CVPreviewer } from '@/cv-printer/cv-previewer';
 import ReactMarkdown from 'react-markdown';
-import { EditableCV } from './ui/editable-cv';
+import { EditableCV } from '../ui/editable-cv';
 import { FormattedMessage, useIntl } from 'react-intl';
 import posthog from 'posthog-js';
 export function ExportPdf() {

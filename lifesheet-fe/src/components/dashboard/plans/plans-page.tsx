@@ -1,5 +1,5 @@
 import { useSaaSActiveSubscription, useSaasPlans } from '@/hooks/use-saas';
-import { PlanCard } from '@/components/plans/plan-card';
+import { PlanCard } from '@/components/dashboard/plans/plan-card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';

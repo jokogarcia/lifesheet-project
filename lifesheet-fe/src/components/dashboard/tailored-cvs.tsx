@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useUsersTailoredCVs } from '@/hooks/use-users-tailored-cvs';
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 import { ArrowLeft, Plus } from 'lucide-react';
 
 export default function TailoredCVs() {
