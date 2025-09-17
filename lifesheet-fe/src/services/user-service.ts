@@ -1,5 +1,6 @@
 import axios, { Axios } from 'axios';
 import { constants } from '../constants';
+import posthog from 'posthog-js';
 // User profile interface
 export interface UserProfile {
   _id: string;
@@ -26,10 +27,7 @@ class UserService {
     this.client.interceptors.response.use(
       response => response,
       error => {
-        if (error.response?.status === 401) {
-          // Could emit an event that components can listen to
-          console.error('Authentication token expired or invalid');
-        }
+        posthog.capture('api_error', { endpoint: error.config?.url, status: error.response?.status, message: error.message });
         return Promise.reject(error);
       }
     );

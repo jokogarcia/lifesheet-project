@@ -212,5 +212,6 @@
     "tailorCV.noTranslation": "No translation",
     "tailorCV.english": "Translate to English",
     "tailorCV.spanish": "Translate to Spanish",
-    "tailorCV.german": "Translate to German"
+    "tailorCV.german": "Translate to German",
+    "error.generic": "Something went wrong. Please try again later."
 }

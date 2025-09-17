@@ -212,5 +212,6 @@
     "tailorCV.noTranslation": "Keine Übersetzung",
     "tailorCV.english": "Übersetzen ins Englische",
     "tailorCV.spanish": "Übersetzen ins Spanische",
-    "tailorCV.german": "Übersetzen ins Deutsche"
+    "tailorCV.german": "Übersetzen ins Deutsche",
+    "error.generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut."
 }

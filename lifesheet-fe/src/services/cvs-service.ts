@@ -1,5 +1,6 @@
 import axios, { Axios } from 'axios';
 import { constants } from '../constants';
+import posthog from 'posthog-js';
 
 // Types for our CV data
 export interface PersonalInfo {
@@ -125,6 +126,7 @@ class CVsService {
           // Could emit an event that components can listen to
           console.error('Authentication token expired or invalid');
         }
+        posthog.capture('api_error', { endpoint: error.config?.url, status: error.response?.status, message: error.message });
         return Promise.reject(error);
       }
     );

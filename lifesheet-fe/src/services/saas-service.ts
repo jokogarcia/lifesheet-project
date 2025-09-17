@@ -1,6 +1,7 @@
 import type { Axios } from 'axios';
 import { constants } from '../constants';
 import axios from 'axios';
+import posthog from 'posthog-js';
 
 export interface SaaSSubscription {
     _id: string;
@@ -39,6 +40,13 @@ class SaaSService {
                 'Content-Type': 'application/json',
             },
         });
+        this.client.interceptors.response.use(
+            response => response,
+            error => {
+                posthog.capture('api_error', { endpoint: error.config?.url, status: error.response?.status, message: error.message });
+                return Promise.reject(error);
+            }
+        );
     }
     public setAuthToken(token: string) {
         this.client.defaults.headers.common['Authorization'] = `Bearer ${token}`;

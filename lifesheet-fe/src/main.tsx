@@ -9,7 +9,14 @@ import '@stripe/stripe-js';
 import userService from './services/user-service.ts';
 import cvsService from './services/cvs-service.ts';
 import saasService from './services/saas-service.ts';
-
+import { PostHogErrorBoundary, PostHogProvider } from "posthog-js/react";
+import type { ConfigDefaults } from 'posthog-js';
+import { constants } from './constants';
+import { ErrorPage } from './components/ui/error-page.tsx';
+const posthogOptions = {
+  api_host: constants.PUBLIC_POSTHOG_HOST,
+  defaults: "2025-05-24" as unknown as ConfigDefaults,
+}
 createRoot(document.getElementById('root')!).render(
   <ReactKeycloakProvider
     authClient={keycloak}
@@ -27,9 +34,16 @@ createRoot(document.getElementById('root')!).render(
       }
     }}>
     <StrictMode>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <PostHogProvider apiKey={constants.PUBLIC_POSTHOG_KEY} options={posthogOptions}>
+        <PostHogErrorBoundary
+          fallback={<ErrorPage />} // (Optional) Add a fallback component that's shown when an error happens.
+        >
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </PostHogErrorBoundary>
+      </PostHogProvider>
     </StrictMode>
   </ReactKeycloakProvider>
 );
+

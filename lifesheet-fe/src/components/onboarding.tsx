@@ -20,6 +20,7 @@ import type {
 import userService from '@/services/user-service';
 import { LoadingIndicator } from './ui/loading-indicator';
 import { FormattedMessage, useIntl } from 'react-intl';
+import posthog from 'posthog-js';
 
 export const Onboarding = () => {
   const intl = useIntl();
@@ -44,6 +45,7 @@ export const Onboarding = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
+      posthog.capture('onboarding_completed', { step: currentStep });
       await handleSave();
       await navigate('/plans');
     }
@@ -101,6 +103,9 @@ export const Onboarding = () => {
   useEffect(() => {
 
   }, [canClickNext]);
+  useEffect(() => {
+    posthog.capture('onboarding_started');
+  }, []);
   useEffect(() => {
     let valid = false;
     switch (currentStep) {

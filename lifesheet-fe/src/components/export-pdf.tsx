@@ -15,6 +15,7 @@ import { CVPreviewer } from '@/cv-printer/cv-previewer';
 import ReactMarkdown from 'react-markdown';
 import { EditableCV } from './ui/editable-cv';
 import { FormattedMessage, useIntl } from 'react-intl';
+import posthog from 'posthog-js';
 export function ExportPdf() {
   const intl = useIntl();
   const queryParams = new URLSearchParams(useLocation().search);
@@ -90,6 +91,7 @@ export function ExportPdf() {
 
       a.click();
       document.body.removeChild(a);
+      posthog.capture('cv_pdf_exported');
     } catch (error) {
       console.error(intl.formatMessage({ id: 'exportPdf.errorGeneratingPdf', defaultMessage: 'Error generating PDF:' }), error);
     } finally {
