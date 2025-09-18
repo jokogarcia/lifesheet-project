@@ -22,8 +22,8 @@ async function getServiceAccountToken() {
     const url = `https://${constants.AUTH_DOMAIN}/realms/${constants.AUTH_REALM}/protocol/openid-connect/token`;
     const formData = new URLSearchParams({
       grant_type: 'client_credentials',
-      client_id: 'api-user-management',
-      client_secret: '36LQfDZuPYzcQ0J93pbDgBRUPhjfX6xS',
+      client_id: constants.AUTH_API_CLIENT_ID,
+      client_secret: constants.AUTH_API_CLIENT_SECRET,
     });
 
     const response = await fetch(url, {
