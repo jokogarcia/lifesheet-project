@@ -610,10 +610,7 @@ export const resetUsersAccount = async (req: Request, res: Response, next: NextF
     next(err);
   }
 };
-import jwt from 'jsonwebtoken';
 export const deleteUsersAccount = async (req: Request, res: Response, next: NextFunction) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  const decoded = jwt.decode(token!);
   const userId = resolveUserId(req);
   if (!req.user || req.user.id !== userId) throw new ApiError(403, 'Forbidden');
   try {
