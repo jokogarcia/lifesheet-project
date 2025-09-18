@@ -628,10 +628,10 @@ async function resetAccount(userId: string) {
   const promises = [];
   //Delete USer's CVs
   //We do Hard delete for GDPR compliance
-  promises.push(CV.deleteMany({ user_id: userId }, { deletedAt: new Date() }));
+  promises.push(CV.deleteMany({ user_id: userId }));
 
   //Delete Job Descriptions
-  promises.push(JobDescription.deleteMany({ userId }, { deletedAt: new Date() }));
+  promises.push(JobDescription.deleteMany({ userId }));
   //Delete Pictures files
   const pictures = await Picture.find({ user_id: userId });
   pictures.forEach(picture => {
