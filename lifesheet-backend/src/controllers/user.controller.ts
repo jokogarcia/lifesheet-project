@@ -31,6 +31,7 @@ import TailorCVQueue from '../q/tailorcv';
 import { JobState } from 'bullmq';
 import stripe from 'stripe';
 import { isValidSupportedLanguage } from '../services/translate-service';
+import { deleteUserFromAuth } from '../services/auth';
 
 // Helper to resolve 'me' to the authenticated user's id
 function resolveUserId(req: Request): string {
@@ -67,19 +68,6 @@ export const updateUserProfile = async (req: Request, res: Response, next: NextF
     }).select('-sub -__v');
     if (!user) throw new ApiError(404, 'User not found');
     res.json(user);
-  } catch (err) {
-    next(err);
-  }
-};
-
-// DELETE /users/:id - Mark user as deleted (not allowed for 'me')
-export const deleteUserProfile = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const userId = req.params.id;
-    if (userId === 'me') throw new ApiError(400, "Cannot delete 'me'. Use explicit id.");
-    const user = await User.findByIdAndUpdate(userId, { deletedAt: new Date() }, { new: true });
-    if (!user) throw new ApiError(404, 'User not found');
-    res.json({ message: 'User marked as deleted' });
   } catch (err) {
     next(err);
   }
@@ -612,9 +600,83 @@ export const initiatePlanPurchase = async (req: Request, res: Response, next: Ne
     next(err);
   }
 };
+export const resetUsersAccount = async (req: Request, res: Response, next: NextFunction) => {
+  const userId = resolveUserId(req);
+  if (!req.user || req.user.id !== userId) throw new ApiError(403, 'Forbidden');
+  try {
+    await resetAccount(userId);
+    res.status(200).json({ message: 'Account reset successfully' });
+  } catch (err) {
+    next(err);
+  }
+};
+export const deleteUsersAccount = async (req: Request, res: Response, next: NextFunction) => {
+  const userId = resolveUserId(req);
+  if (!req.user || req.user.id !== userId) throw new ApiError(403, 'Forbidden');
+  try {
+    await deleteAccount(userId);
+    res.status(200).json({ message: 'Account deleted successfully' });
+  } catch (err) {
+    next(err);
+  }
+};
+async function resetAccount(userId: string) {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(404, 'User Not Found');
+  }
+  const promises = [];
+  //Delete USer's CVs
+  //We do Hard delete for GDPR compliance
+  promises.push(CV.deleteMany({ user_id: userId }));
 
-// CV.deleteMany({}).then(() => {
-//     console.log("All CVs deleted");
-// }).catch(err => {
-//     console.error("Error deleting CVs:", err);
-// });
+  //Delete Job Descriptions
+  promises.push(JobDescription.deleteMany({ userId }));
+  //Delete Pictures files
+  const pictures = await Picture.find({ user_id: userId });
+  pictures.forEach(picture => {
+    promises.push(
+      fs.promises.unlink(picture.filepath).catch(err => {
+        //log but ignore file not found errors
+        console.error('Error deleting picture file:', err);
+      })
+    );
+  });
+
+  //Delete Picture records
+  promises.push(Picture.deleteMany({ user_id: userId }));
+  //Delete Picture Shares
+  promises.push(PictureShare.deleteMany({ userId }));
+  //Note: we do not delete Consumptions, SaaSSubscriptions or the User record itself
+
+  await Promise.all(promises);
+}
+async function deleteAccount(userId: string) {
+  const user = await User.findById(userId).select('+sub');
+  if (!user) {
+    throw new ApiError(404, 'User Not Found');
+  }
+  const sub = user.sub;
+  if (!sub) {
+    throw new ApiError(400, 'Cannot delete account for non-authenticated user');
+  }
+  //Delete from Auth Provider
+  try {
+    await deleteUserFromAuth(sub);
+  } catch (err) {
+    console.error('Error deleting user from auth provider:', err);
+    throw new ApiError(500, 'Failed to delete user from auth provider');
+  }
+  const promises = [];
+  promises.push(resetAccount(userId));
+  //Mark user as deleted and anonymize email
+  promises.push(
+    User.findByIdAndUpdate(userId, { deletedAt: new Date(), email: `_deleted_@${userId}.com` })
+  );
+  //We keep SaaSSubscriptions and Consumptions for record-keeping, they are not personally identifiable
+  promises.push(
+    SaaSSubscription.updateMany({ userId, status: { $ne: 'cancelled' } }, { status: 'cancelled' })
+  );
+
+  await Promise.all(promises);
+}

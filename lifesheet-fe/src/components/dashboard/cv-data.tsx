@@ -13,25 +13,25 @@ import {
   ImageIcon,
   User,
 } from 'lucide-react';
-import { useUserCV } from '../hooks/use-cv';
+import { useUserCV } from '../../hooks/use-cv';
 import type {
   PersonalInfo,
   WorkExperience,
   Education,
   Skill,
   LanguageSkill,
-} from '../services/cvs-service';
+} from '../../services/cvs-service';
 import { useAuth } from '@/hooks/auth-hook';
 import { useLocation, useNavigate } from 'react-router-dom';
-import userService from '../services/user-service';
+import userService from '../../services/user-service';
 import {
   PersonalInfoTab,
   WorkExperienceTab,
   EducationTab,
   SkillsTab,
   PicturesTab,
-} from './cv-tabs';
-import { CoverLetterTab } from './cv-tabs/cover-letter-tab';
+} from '../cv-tabs';
+import { CoverLetterTab } from '../cv-tabs/cover-letter-tab';
 import { FormattedMessage, useIntl } from 'react-intl';
 
 export function CVData() {

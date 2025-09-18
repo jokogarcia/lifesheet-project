@@ -4,21 +4,22 @@ import { IntlProvider, FormattedMessage } from 'react-intl';
 import { useEffect, useState } from 'react';
 
 import './App.css';
-import { CVData } from './components/cv-data';
+import { CVData } from './components/dashboard/cv-data';
 import { Welcome } from './components/welcome';
 import cvsService from './services/cvs-service';
 import userService from './services/user-service';
-import { TailorCV } from './components/tailor-cv';
-import { PlansPage } from './components/plans/plans-page';
-import { CheckoutPage } from './components/plans/checkout-page';
-import { CheckoutSuccessPage } from './components/plans/checkout-success';
-import { CheckoutCancelPage } from './components/plans/checkout-cancel';
-import { ExportPdf } from './components/export-pdf';
-import TailoredCVs from './components/tailored-cvs';
+import { TailorCV } from './components/dashboard/tailor-cv';
+import { PlansPage } from './components/dashboard/plans/plans-page';
+import { CheckoutPage } from './components/dashboard/plans/checkout-page';
+import { CheckoutSuccessPage } from './components/dashboard/plans/checkout-success';
+import { CheckoutCancelPage } from './components/dashboard/plans/checkout-cancel';
+import { ExportPdf } from './components/dashboard/export-pdf';
+import TailoredCVs from './components/dashboard/tailored-cvs';
 import { Onboarding } from './components/onboarding';
 import { Dashboard } from './components/dashboard';
 import { LoadingIndicator } from './components/ui/loading-indicator';
 import { LanguageProvider, useLanguage } from './contexts/language-context';
+import { MyAccount } from './components/dashboard/my-account';
 
 function App() {
   const { keycloak, initialized } = useKeycloak();
@@ -132,6 +133,7 @@ function AppWithLanguage({ initialized, keycloak, hasToken }: {
         <Route path="/tailored-cvs" element={<TailoredCVs />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/logout" element={<Logout />} />
+        <Route path="/my-account" element={<MyAccount />} />
       </Routes>
     </IntlProvider>
   );

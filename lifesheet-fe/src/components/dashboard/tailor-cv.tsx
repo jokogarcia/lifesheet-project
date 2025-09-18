@@ -7,8 +7,8 @@ import { useUserCV } from '@/hooks/use-cv';
 import { useNavigate } from 'react-router-dom';
 import cvsService from '@/services/cvs-service';
 import { useSaaSActiveSubscription } from '@/hooks/use-saas';
-import RichTextEditor from './ui/editor';
-import { LoadingIndicator } from './ui/loading-indicator';
+import RichTextEditor from '../ui/editor';
+import { LoadingIndicator } from '../ui/loading-indicator';
 import { FormattedMessage, useIntl } from 'react-intl';
 import posthog from 'posthog-js';
 

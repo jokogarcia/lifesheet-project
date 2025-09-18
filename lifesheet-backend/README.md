@@ -31,17 +31,20 @@ The backend API service for the Lifesheet CV management application.
 #### Local Development
 
 1. Clone the repository:
+
    ```sh
    git clone https://github.com/yourusername/lifesheet-backend.git
    cd lifesheet-backend
    ```
 
 2. Install dependencies:
+
    ```sh
    npm install
    ```
 
 3. Create a `.env` file in the root directory with the following variables:
+
    ```
    PORT=3001
    MONGODB_URI=mongodb://localhost:27017/lifesheet
@@ -58,6 +61,7 @@ The backend API service for the Lifesheet CV management application.
 #### Docker Deployment
 
 1. Build and start the containers:
+
    ```sh
    docker-compose up -d
    ```
@@ -99,6 +103,21 @@ npm run seed:delete
 
 Detailed API documentation is available at `/api-docs` when running the server.
 
-## License
+## Auth configuration
 
-This project is licensed under the MIT License.
+The application is built with Keycloak as the authentication provider. You need to set up a Keycloak server and create a realm, and two clients: one for the webapp and another for the backend API.
+Then, configure the appropriate environment variables in your `.env` file (see `.env.example` for reference).
+
+Client settings:
+
+- Webapp client:
+  - Access Type: public
+  - Standard Flow Enabled: ON (all other options OFF)
+  - Setup URLs as appropriate (Valid Redirect URIs, Web Origins, etc.)
+- Api client:
+  - Client Authentication: ON
+  - Authentication Flow: Standard Flow, Direct Access Grants, Service Account Roles
+- Credentials:
+  - Client Authenticator: Client ID and Secret
+- Service Account Roles:
+  - realm-management: view-users, manage-users

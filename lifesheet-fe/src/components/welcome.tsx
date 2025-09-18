@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/auth-hook';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { LanguageSelector } from './language-selector';
+import { LanguageSelector } from './ui/language-selector';
 export function Welcome() {
   const { loginWithRedirect } = useAuth();
   const intl = useIntl();

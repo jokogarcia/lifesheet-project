@@ -93,6 +93,14 @@ class UserService {
     );
     return response.data.shareLink;
   }
+  async deleteUserAccount(): Promise<void> {
+    console.log('🔄 UserService: Deleting user account...');
+    await this.client.delete('/user/me');
+  }
+  async resetUserAccount(): Promise<void> {
+    console.log('🔄 UserService: Resetting user account...');
+    await this.client.post('/user/me/reset');
+  }
 }
 
 // Export a singleton instance
