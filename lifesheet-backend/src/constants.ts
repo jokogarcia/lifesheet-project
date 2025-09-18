@@ -3,6 +3,7 @@ export const constants = {
   MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/myapp',
   AUTH_DOMAIN: process.env.AUTH_DOMAIN || 'throw',
   AUTH_AUDIENCE: process.env.AUTH_AUDIENCE || 'throw',
+  AUTH_REALM: process.env.AUTH_REALM || 'lifesheet',
   API_URL: process.env.API_URL || 'http://localhost:3000',
   PRIVATE_API_URL: process.env.PRIVATE_API_URL || 'http://localhost:3000',
   NODE_ENV: process.env.NODE_ENV || 'development',

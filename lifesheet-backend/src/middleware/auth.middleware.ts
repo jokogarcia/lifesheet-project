@@ -9,7 +9,7 @@ import { constants } from '../constants';
 // Initialize Auth middleware
 export const jwtCheck = auth({
   audience: constants.AUTH_AUDIENCE,
-  issuerBaseURL: `https://${constants.AUTH_DOMAIN}/`,
+  issuerBaseURL: `https://${constants.AUTH_DOMAIN}/realms/${constants.AUTH_REALM}/`,
   tokenSigningAlg: 'RS256',
 });
 declare global {

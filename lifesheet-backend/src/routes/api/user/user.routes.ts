@@ -7,7 +7,6 @@ import { jwtCheck, extractUserFromToken } from '../../../middleware/auth.middlew
 import {
   getUserProfile,
   updateUserProfile,
-  deleteUserProfile,
   getUserCV,
   upsertUserTailoredCV,
   deleteUserCV,
@@ -26,12 +25,13 @@ import {
   getUserPictureShareLink,
   getUsersTailoredCvs,
   checkTailoringStatus,
+  resetUsersAccount,
+  deleteUsersAccount,
 } from '../../../controllers/user.controller';
 const router = express.Router();
 router.use([jwtCheck, extractUserFromToken]);
 router.get('/:id/', getUserProfile);
 router.put('/:id/', updateUserProfile);
-router.delete('/:id', deleteUserProfile);
 router.get('/:id/cv', getUserCV);
 router.get('/:id/cv/tailored-list', getUsersTailoredCvs);
 router.put('/:id/cv/:cvId', updateUsersCV);
@@ -54,5 +54,7 @@ router.get('/:id/saas/subscriptions/active', getUsersActiveSubscription);
 router.post('/:id/saas/subscriptions', initiatePlanPurchase);
 
 router.get('/:id/saas/subscriptions/:subscriptionId/status', getUsersSubscriptionStatus);
+router.post('/:id/reset', resetUsersAccount);
+router.delete('/:id', deleteUsersAccount);
 
 export default router;
