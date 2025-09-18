@@ -4,6 +4,8 @@ export const constants = {
   AUTH_DOMAIN: process.env.AUTH_DOMAIN || 'throw',
   AUTH_AUDIENCE: process.env.AUTH_AUDIENCE || 'throw',
   AUTH_REALM: process.env.AUTH_REALM || 'lifesheet',
+  AUTH_API_CLIENT_ID: process.env.AUTH_API_CLIENT_ID || 'throw',
+  AUTH_API_CLIENT_SECRET: process.env.AUTH_API_CLIENT_SECRET || 'throw',
   API_URL: process.env.API_URL || 'http://localhost:3000',
   PRIVATE_API_URL: process.env.PRIVATE_API_URL || 'http://localhost:3000',
   NODE_ENV: process.env.NODE_ENV || 'development',
