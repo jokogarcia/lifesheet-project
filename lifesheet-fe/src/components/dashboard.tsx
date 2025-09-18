@@ -77,10 +77,10 @@ export function Dashboard() {
           onClick={() => navigate('/plans')}
         />
         <DashboardCard
-          title={<FormattedMessage id="dashboard.signOut" defaultMessage="Sign out" />}
-          img='logout.png'
-          bottomText={<FormattedMessage id="dashboard.signOut.description" defaultMessage="Sign out of your account." />}
-          onClick={() => logout()}
+          title={<FormattedMessage id="dashboard.myAccount" defaultMessage="My Account" />}
+          img='my-account.png'
+          bottomText={<FormattedMessage id="dashboard.myAccount.description" defaultMessage="Manage your account, password, log-out or delete your account." />}
+          onClick={() => navigate('/my-account')}
         />
       </div>
 

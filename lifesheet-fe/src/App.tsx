@@ -19,6 +19,7 @@ import { Onboarding } from './components/onboarding';
 import { Dashboard } from './components/dashboard';
 import { LoadingIndicator } from './components/ui/loading-indicator';
 import { LanguageProvider, useLanguage } from './contexts/language-context';
+import { MyAccount } from './components/dashboard/my-account';
 
 function App() {
   const { keycloak, initialized } = useKeycloak();
@@ -132,6 +133,7 @@ function AppWithLanguage({ initialized, keycloak, hasToken }: {
         <Route path="/tailored-cvs" element={<TailoredCVs />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/logout" element={<Logout />} />
+        <Route path="/my-account" element={<MyAccount />} />
       </Routes>
     </IntlProvider>
   );
