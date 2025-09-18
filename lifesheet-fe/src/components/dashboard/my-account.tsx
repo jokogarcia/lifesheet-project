@@ -11,15 +11,17 @@ import { constants } from '@/constants';
 export function MyAccount() {
     const intl = useIntl();
     const navigate = useNavigate();
-    const { logout } = useAuth();
+    const { logout: _logout } = useAuth();
     const { cv, isLoading } = useUserCV();
     const [isDeleting, setIsDeleting] = useState(false);
     const [isDeletingLoading, setIsDeletingLoading] = useState(false);
     const [isReseting, setIsReseting] = useState(false);
     const [isResetingLoading, setIsResetingLoading] = useState(false);
 
-    const handleLogout = () => {
-        logout();
+    const logout = () => {
+        _logout({
+            redirectUri: window.location.origin
+        });
     };
 
     const handleChangePassword = () => {
@@ -168,7 +170,7 @@ export function MyAccount() {
                                 <FormattedMessage id="myAccount.changePassword" defaultMessage="Change Password" />
                             </Button>
 
-                            <Button onClick={handleLogout} variant="secondary">
+                            <Button onClick={logout} variant="secondary">
                                 <FormattedMessage id="myAccount.logout" defaultMessage="Logout" />
                             </Button>
                         </div>
