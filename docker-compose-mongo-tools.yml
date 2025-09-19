@@ -8,11 +8,11 @@ services:
       context: .
       dockerfile: mongo-tools.Dockerfile
     networks:
-      - lifesheet-network
+      - lifesheet-project_lifesheet-network
     volumes:
       - ./mongo-exchange:/exchange
     # Use this to connect: docker compose -f docker-compose-mongo-tools.yml exec mongo-tools mongosh mongodb://mongo:27017/lifesheet
 
 networks:
-  lifesheet-network:
+  lifesheet-project_lifesheet-network:
     external: true
