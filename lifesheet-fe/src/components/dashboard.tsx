@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/auth-hook';
 import { useUserCV } from '@/hooks/use-cv';
 import { LoadingIndicator } from './ui/loading-indicator';
 import { isCVOnboarded } from '@/services/cvs-service';
@@ -12,7 +11,6 @@ import React from 'react';
 export function Dashboard() {
   const intl = useIntl();
   const navigate = useNavigate();
-  const { logout } = useAuth();
   const { cv, isLoading } = useUserCV();
   if (isLoading) {
     return <LoadingIndicator />;
