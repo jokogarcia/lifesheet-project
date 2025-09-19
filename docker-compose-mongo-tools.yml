@@ -1,6 +1,7 @@
 # Docker Compose file for MongoDB CLI tools
 # Run with: docker compose -f docker-compose-mongo-tools.yml up -d
 # Connect with: docker compose -f docker-compose-mongo-tools.yml exec mongo-tools mongosh mongodb://mongo:27017/lifesheet
+# Connect directly from host: mongosh mongodb://localhost:27017/lifesheet
 
 services:
   mongo-tools:
@@ -12,6 +13,16 @@ services:
     volumes:
       - ./mongo-exchange:/exchange
     # Use this to connect: docker compose -f docker-compose-mongo-tools.yml exec mongo-tools mongosh mongodb://mongo:27017/lifesheet
+  
+  # Port forwarding service to access MongoDB from host
+  mongo-port-forward:
+    image: alpine/socat
+    command: tcp-listen:27017,fork,reuseaddr tcp-connect:mongo:27017
+    ports:
+      - "27017:27017"
+    networks:
+      - lifesheet-project_lifesheet-network
+    # This service will forward your local port 27017 to the mongo container's 27017 port
 
 networks:
   lifesheet-project_lifesheet-network:
