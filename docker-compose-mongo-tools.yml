@@ -1,0 +1,18 @@
+# Docker Compose file for MongoDB CLI tools
+# Run with: docker compose -f docker-compose-mongo-tools.yml up -d
+# Connect with: docker compose -f docker-compose-mongo-tools.yml exec mongo-tools mongosh mongodb://mongo:27017/lifesheet
+
+services:
+  mongo-tools:
+    build:
+      context: .
+      dockerfile: mongo-tools.Dockerfile
+    networks:
+      - lifesheet-network
+    volumes:
+      - ./mongo-exchange:/exchange
+    # Use this to connect: docker compose -f docker-compose-mongo-tools.yml exec mongo-tools mongosh mongodb://mongo:27017/lifesheet
+
+networks:
+  lifesheet-network:
+    external: true

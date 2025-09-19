@@ -1,2 +1,4 @@
 .env
 uploads/
+mongo-exchange/*
+!mongo-exchange/placeholder
