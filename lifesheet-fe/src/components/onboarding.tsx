@@ -136,11 +136,13 @@ export const Onboarding = () => {
   }, [currentStep, personalInfo, workExperience, education, skills, pictures, steps, intl]);
   // Picture management handlers
   const handlePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+
     const file = event.target.files?.[0];
     if (file) {
       setIsUploadingPicture(true);
       try {
-
+        const pictureId = await userService.uploadPicture(file);
+        console.log('Uploaded picture ID:', pictureId);
         // Reload pictures to get the updated list
         const updatedPictures = await userService.getUserPictures();
         setPictures(updatedPictures);
