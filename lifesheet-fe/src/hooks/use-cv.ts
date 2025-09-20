@@ -12,9 +12,9 @@ export function useUserCV(cvId?: string) {
   const fetchCV = useCallback(async () => {
     try {
       setIsLoading(true);
-      setError(null);
       const fetchedCV = await cvsService.getUserCV(cvId);
       setCV(fetchedCV);
+      setError(null); // Explicitly clear error on success
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch CV';
       setError(errorMessage);
@@ -27,9 +27,9 @@ export function useUserCV(cvId?: string) {
   const saveCV = async (cvId: string, cvData: CreateOrUpdateCVRequest): Promise<CV> => {
     try {
       setIsSaving(true);
-      setError(null);
       const savedCV = await cvsService.createOrUpdateCV(cvId, cvData);
       setCV(savedCV);
+      setError(null); // Explicitly clear error on success
       return savedCV;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to save CV';
@@ -42,9 +42,9 @@ export function useUserCV(cvId?: string) {
 
   const deleteCV = async (): Promise<void> => {
     try {
-      setError(null);
       await cvsService.deleteCV();
       setCV(null);
+      setError(null); // Explicitly clear error on success
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete CV';
       setError(errorMessage);
