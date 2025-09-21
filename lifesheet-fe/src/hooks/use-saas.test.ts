@@ -1,17 +1,20 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useSaasPlans, useSaaSActiveSubscription } from './use-saas';
-import SaasService, { type SaaSPlan, type SaaSSubscription } from '@/services/saas-service';
+import { type SaaSPlan, type SaaSSubscription } from '@/services/saas-service';
+import * as SaasService from '@/services/saas-service';
+import { useAuth } from './auth-hook';
 
-// Mock the SaaS service
+// Mock the SaaS service functions
 vi.mock('@/services/saas-service', () => ({
-    default: {
-        getSaaSPlans: vi.fn(),
-        getActiveSubscription: vi.fn(),
-    },
+    getSaaSPlans: vi.fn(),
+    getActiveSubscription: vi.fn(),
 }));
 
-// Auth hook is no longer used in these hooks
+// Mock the auth hook
+vi.mock('./auth-hook', () => ({
+    useAuth: vi.fn(),
+}));
 
 // Mock the language context
 const mockLanguageContext = {
@@ -55,8 +58,19 @@ describe('useSaasPlans', () => {
         },
     ];
 
+    const mockUseAuth = vi.mocked(useAuth);
+
     beforeEach(() => {
         vi.clearAllMocks();
+
+        // Mock the auth hook to return a mock token getter
+        mockUseAuth.mockReturnValue({
+            isAuthenticated: true,
+            user: {},
+            loginWithRedirect: vi.fn(),
+            logout: vi.fn(),
+            getAccessTokenSilently: vi.fn().mockResolvedValue('mock-token-123'),
+        });
     });
 
     afterEach(() => {
@@ -78,7 +92,7 @@ describe('useSaasPlans', () => {
 
         expect(result.current.saasPlans).toEqual(mockPlans);
         expect(result.current.error).toBeNull();
-        expect(SaasService.getSaaSPlans).toHaveBeenCalledWith('en');
+        expect(SaasService.getSaaSPlans).toHaveBeenCalledWith('en', 'mock-token-123');
     });
 
     it('should handle API errors gracefully', async () => {
@@ -96,7 +110,7 @@ describe('useSaasPlans', () => {
 
         expect(result.current.saasPlans).toEqual([]);
         expect(result.current.error).toBe('API Error');
-        expect(SaasService.getSaaSPlans).toHaveBeenCalledWith('en');
+        expect(SaasService.getSaaSPlans).toHaveBeenCalledWith('en', 'mock-token-123');
     });
 
     it('should refetch plans when language changes', async () => {
@@ -115,7 +129,7 @@ describe('useSaasPlans', () => {
         rerender();
 
         await waitFor(() => {
-            expect(SaasService.getSaaSPlans).toHaveBeenCalledWith('de');
+            expect(SaasService.getSaaSPlans).toHaveBeenCalledWith('de', 'mock-token-123');
         });
 
         expect(SaasService.getSaaSPlans).toHaveBeenCalledTimes(2);
@@ -194,8 +208,19 @@ describe('useSaaSActiveSubscription', () => {
         weeklyRateLimit: 50,
     };
 
+    const mockUseAuth = vi.mocked(useAuth);
+
     beforeEach(() => {
         vi.clearAllMocks();
+
+        // Mock the auth hook to return a mock token getter
+        mockUseAuth.mockReturnValue({
+            isAuthenticated: true,
+            user: {},
+            loginWithRedirect: vi.fn(),
+            logout: vi.fn(),
+            getAccessTokenSilently: vi.fn().mockResolvedValue('mock-token-123'),
+        });
     });
 
     afterEach(() => {
@@ -223,6 +248,7 @@ describe('useSaaSActiveSubscription', () => {
         expect(result.current.thisWeeksConsumptions).toBe(20);
         expect(result.current.canUseAI).toBe(true); // 5 < 10 and 20 < 50
         expect(result.current.error).toBeNull();
+        expect(SaasService.getActiveSubscription).toHaveBeenCalledWith('mock-token-123');
     });
 
     it('should calculate canUseAI correctly when within limits', async () => {

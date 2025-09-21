@@ -3,19 +3,20 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Loader2 } from 'lucide-react';
-import saasService from '@/services/saas-service';
-
+import * as saasService from '@/services/saas-service';
+import { useAuth } from '@/hooks/auth-hook';
 export function CheckoutSuccessPage() {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const subscriptionId = searchParams.get('subscription_id');
     const [isVerifying, setIsVerifying] = useState(true);
     const [verificationError, setVerificationError] = useState('');
-
+    const { getAccessTokenSilently } = useAuth();
     useEffect(() => {
         async function verifyPayment() {
             try {
-                const status = await saasService.getSubscriptionStatus(subscriptionId!);
+                const token = await getAccessTokenSilently();
+                const status = await saasService.getSubscriptionStatus(subscriptionId!, token);
                 if (status === 'active') {
                     setVerificationError('');
                     setIsVerifying(false);

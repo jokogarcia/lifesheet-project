@@ -1,21 +1,30 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import SaasService, { type SaaSSubscription, type SaaSPlan } from '@/services/saas-service';
+import { type SaaSSubscription, type SaaSPlan } from '@/services/saas-service';
+import * as SaasService from '@/services/saas-service';
 import { useLanguage } from '@/contexts/language-context';
+import { useAuth } from './auth-hook';
 
 export function useSaasPlans() {
   const [saasPlans, setSaasPlans] = useState<SaaSPlan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { currentLanguage } = useLanguage();
-
+  const { getAccessTokenSilently } = useAuth();
 
   const fetchSaaSPlans = useCallback(async () => {
     setIsLoading(true);
+    //token is optional here:
+    let token: string | undefined;
+    try {
+      token = await getAccessTokenSilently();
+    } catch (err) {
+      //do nothing
+    }
     try {
       setError(null);
-      const plans = await SaasService.getSaaSPlans(currentLanguage);
+      const plans = await SaasService.getSaaSPlans(currentLanguage, token);
       setSaasPlans(plans);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch SaaS plans';
@@ -24,7 +33,7 @@ export function useSaasPlans() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentLanguage]);
+  }, [currentLanguage, getAccessTokenSilently]);
 
   useEffect(() => {
     fetchSaaSPlans();
@@ -32,6 +41,7 @@ export function useSaasPlans() {
 
   return { saasPlans, isLoading, error };
 }
+
 export function useSaaSActiveSubscription() {
   const [activeSubscription, setActiveSubscription] = useState<SaaSSubscription | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,18 +49,20 @@ export function useSaaSActiveSubscription() {
   const [todaysConsumptions, setTodaysConsumptions] = useState(0);
   const [thisWeeksConsumptions, setThisWeeksConsumptions] = useState(0);
   const [canUseAI, setCanUseAI] = useState(false);
+  const { getAccessTokenSilently } = useAuth();
 
   const fetchActiveSubscription = useCallback(async () => {
     setIsLoading(true);
     try {
       setError(null);
+      const token = await getAccessTokenSilently();
       const {
         activeSubscription,
         todaysConsumptions,
         thisWeeksConsumptions,
         dailyRateLimit,
         weeklyRateLimit,
-      } = await SaasService.getActiveSubscription();
+      } = await SaasService.getActiveSubscription(token);
       setActiveSubscription(activeSubscription);
       setTodaysConsumptions(todaysConsumptions);
       setThisWeeksConsumptions(thisWeeksConsumptions);
@@ -64,7 +76,7 @@ export function useSaaSActiveSubscription() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [getAccessTokenSilently]);
 
   useEffect(() => {
     fetchActiveSubscription();

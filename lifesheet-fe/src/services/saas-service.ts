@@ -31,76 +31,79 @@ interface ActiveSubscriptionResponse {
     dailyRateLimit: number;
     weeklyRateLimit: number;
 }
-class SaaSService {
-    private client: Axios;
-    constructor(baseUrl: string = constants.API_URL) {
-        this.client = axios.create({
-            baseURL: baseUrl,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        setupApiErrorInterceptor(this.client);
+function getClient(token?: string): Axios {
+    const client = axios.create({
+        baseURL: constants.API_URL,
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    if (token) {
+        client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     }
-    public setAuthToken(token: string) {
-        this.client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    }
-
-    public async getActiveSubscription(): Promise<ActiveSubscriptionResponse> {
-        const response = await this.client.get<ActiveSubscriptionResponse>(
-            `/user/me/saas/subscriptions/active`
-        );
-        return response.data;
-    }
-    public async getSaaSPlans(language: string): Promise<SaaSPlan[]> {
-        //no auth needed. just add token if provided
-
-        const response = await this.client.get<SaaSPlan[]>('/saas/plans', {
-            params: {
-                language
-            }
-        });
-        return response.data;
-    }
-    public async getStripePK(): Promise<string> {
-        const response = await this.client.get<{ pk: string }>('/saas/stripepk');
-        return response.data.pk;
-    }
-
-    public async initiatePurchase(planId: string, provider: string) {
-        const response = await this.client.post<{ message: string; subscriptionId: string }>(
-            'user/me/saas/subscriptions',
-            {
-                planId,
-                provider,
-            }
-        );
-        return response.data;
-    }
-    public async getSubscriptionStatus(subscriptionId: string) {
-        const response = await this.client.get<{ status: string }>(
-            `user/me/saas/subscriptions/${subscriptionId}/status`
-        );
-        return response.data.status;
-    }
-
-    public async createStripeCheckoutSession(
-        planId: string,
-        successUrl: string,
-        cancelUrl: string
-    ) {
-        const response = await this.client.post<{ sessionId: string; subscriptionId: string }>(
-            '/user/me/saas/subscriptions',
-            {
-                provider: 'stripe',
-                planId,
-                successUrl,
-                cancelUrl,
-            }
-        );
-        return response.data;
-    }
+    setupApiErrorInterceptor(client);
+    return client;
 }
 
-export const saasService = new SaaSService();
-export default saasService;
+
+export async function getActiveSubscription(token?: string): Promise<ActiveSubscriptionResponse> {
+    const client = getClient(token);
+    const response = await client.get<ActiveSubscriptionResponse>(
+        `/user/me/saas/subscriptions/active`
+    );
+    return response.data;
+}
+export async function getSaaSPlans(language: string, token?: string): Promise<SaaSPlan[]> {
+    const client = getClient(token);
+    //no auth needed. just add token if provided
+
+    const response = await client.get<SaaSPlan[]>('/saas/plans', {
+        params: {
+            language
+        }
+    });
+    return response.data;
+}
+export async function getStripePK(token?: string): Promise<string> {
+    const client = getClient(token);
+    const response = await client.get<{ pk: string }>('/saas/stripepk');
+    return response.data.pk;
+}
+
+export async function initiatePurchase(planId: string, provider: string, token: string) {
+    const client = getClient(token);
+    const response = await client.post<{ message: string; subscriptionId: string }>(
+        'user/me/saas/subscriptions',
+        {
+            planId,
+            provider,
+        }
+    );
+    return response.data;
+}
+export async function getSubscriptionStatus(subscriptionId: string, token: string) {
+    const client = getClient(token);
+    const response = await client.get<{ status: string }>(
+        `user/me/saas/subscriptions/${subscriptionId}/status`
+    );
+    return response.data.status;
+}
+
+export async function createStripeCheckoutSession(
+    planId: string,
+    successUrl: string,
+    cancelUrl: string,
+    token: string
+) {
+    const client = getClient(token);
+    const response = await client.post<{ sessionId: string; subscriptionId: string }>(
+        '/user/me/saas/subscriptions',
+        {
+            provider: 'stripe',
+            planId,
+            successUrl,
+            cancelUrl,
+        }
+    );
+    return response.data;
+}

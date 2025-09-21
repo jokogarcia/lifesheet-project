@@ -7,7 +7,6 @@ import keycloak from './keycloak';
 import { BrowserRouter } from 'react-router-dom';
 import '@stripe/stripe-js';
 import userService from './services/user-service.ts';
-import saasService from './services/saas-service.ts';
 import { PostHogErrorBoundary, PostHogProvider } from "posthog-js/react";
 import type { ConfigDefaults } from 'posthog-js';
 import { constants } from './constants';
@@ -26,7 +25,6 @@ createRoot(document.getElementById('root')!).render(
         userService.setAuthToken(tokens.token);
         // Note: CVsService now uses function-based approach with authToken parameter
         // No need to set auth token globally anymore
-        saasService.setAuthToken(tokens.token);
         console.log("Token refreshed on ", new Date().toISOString());
       }
       else {
