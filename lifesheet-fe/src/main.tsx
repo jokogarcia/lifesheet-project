@@ -6,7 +6,6 @@ import { ReactKeycloakProvider } from '@react-keycloak/web';
 import keycloak from './keycloak';
 import { BrowserRouter } from 'react-router-dom';
 import '@stripe/stripe-js';
-import userService from './services/user-service.ts';
 import { PostHogErrorBoundary, PostHogProvider } from "posthog-js/react";
 import type { ConfigDefaults } from 'posthog-js';
 import { constants } from './constants';
@@ -22,7 +21,6 @@ createRoot(document.getElementById('root')!).render(
     authClient={keycloak}
     onTokens={(tokens) => {
       if (tokens.token) {
-        userService.setAuthToken(tokens.token);
         // Note: CVsService now uses function-based approach with authToken parameter
         // No need to set auth token globally anymore
         console.log("Token refreshed on ", new Date().toISOString());
