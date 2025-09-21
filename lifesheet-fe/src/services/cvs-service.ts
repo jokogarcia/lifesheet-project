@@ -107,201 +107,6 @@ export interface CVToPDFOptions {
   includeDateOfBirth?: boolean;
   includePhone?: boolean;
 }
-class CVsService {
-  private client: Axios;
-
-  constructor(baseUrl: string = constants.API_URL) {
-    this.client = axios.create({
-      baseURL: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    setupApiErrorInterceptor(this.client);
-  }
-
-  // Get user's CV (single CV per user)
-  async getUserCV(cvId?: string): Promise<CV | null> {
-    console.log('🔄 CVsService: Fetching user CV ', cvId || '');
-    const response = await this.client.get<CV>(`/user/me/cv${cvId ? `/${cvId}` : ''}`);
-    return response.data;
-  }
-
-  async getUsersTailoredCvs(): Promise<CVListItem[]> {
-    const response = await this.client.get<CVListItem[]>('/user/me/cv/tailored-list');
-    return response.data;
-  }
-  // Method to set the authentication token from your React component
-  setAuthToken(token: string) {
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  }
-
-  // Create or update user's CV
-  async createOrUpdateCV(cvId: string, cvData: CreateOrUpdateCVRequest): Promise<CV> {
-    const response = await this.client.put<CV>('/user/me/cv/' + cvId, cvData);
-    if (!response.data) {
-      throw new Error('Failed to create or update CV');
-    }
-    return response.data;
-  }
-
-
-  // Delete user's CV TODO: verify this is not missing an id
-  async deleteCV(): Promise<void> {
-    console.log('🔄 CVsService: Deleting user CV...');
-    await this.client.delete('/user/me/cv');
-  }
-
-  // Helper method to transform Sets to Arrays for JSON serialization
-  private static transformSetsToArrays(data: any): any {
-    console.log('Transforming data:');
-    if (data === null || data === undefined) {
-      return data;
-    }
-
-    if (data instanceof Set) {
-      return Array.from(data);
-    }
-
-    if (Array.isArray(data)) {
-      return data.map(item => this.transformSetsToArrays(item));
-    }
-
-    if (typeof data === 'object') {
-      const result: Record<string, any> = {};
-      for (const key in data) {
-        if (Object.prototype.hasOwnProperty.call(data, key)) {
-          result[key] = this.transformSetsToArrays(data[key]);
-        }
-      }
-      return result;
-    }
-
-    return data;
-  }
-
-  // Tailor CV to job description
-  async tailorCV(
-    jobDescription: string,
-    companyName: string,
-    includeCoverLetter: boolean,
-    useAiTailoring: boolean,
-    translateTo: string
-  ): Promise<{ cvId: string }> {
-    const { bullId } = await this.startTailoringOperation(
-      jobDescription,
-      companyName,
-      includeCoverLetter,
-      useAiTailoring,
-      translateTo
-    );
-    do {
-      await wait(1000);
-      const status = await this.checkTailoringStatus(bullId);
-      console.log('🔄 CVsService: Tailoring state:', status.state, status.progress);
-      if (status.state === 'completed' && status.result) {
-        return {
-          cvId: status.result.tailoredCVId,
-        };
-      }
-      if (status.state === 'failed') {
-        throw new Error('Failed to tailor CV');
-      }
-    } while (true);
-  }
-  private async startTailoringOperation(
-    jobDescription: string,
-    companyName: string,
-    includeCoverLetter: boolean,
-    useAiTailoring: boolean,
-    translateTo: string
-  ): Promise<{ bullId: string }> {
-    console.log('🔄 CVsService: Tailoring CV to job description...');
-    const response = await this.client.post<{ bullId: string }>('/user/me/cv/tailor', {
-      jobDescription,
-      companyName,
-      includeCoverLetter,
-      useAiTailoring,
-      translateTo
-    });
-    if (!response.data) {
-      throw new Error('Failed to tailor CV');
-    }
-    return response.data;
-  }
-  private async checkTailoringStatus(bullId: string): Promise<{
-    state: string;
-    progress: number;
-    result?: { tailoredCVId: string; consumptionId: string };
-  }> {
-    console.log('🔄 CVsService: Checking tailoring status...');
-    const response = await this.client.get<{
-      state: string;
-      progress: number;
-      result?: { tailoredCVId: string; consumptionId: string };
-    }>('/user/me/cv/tailor/progress/' + bullId);
-    if (!response.data) {
-      throw new Error('Failed to check tailoring status');
-    }
-    return response.data;
-  }
-
-  // Upload CV file
-  async uploadCVFile(file: File): Promise<{ fileUrl: string; fileName: string }> {
-    // TODO: Implement file upload functionality
-    console.log('File to upload:', file.name);
-    throw new Error('Method not implemented.');
-  }
-
-  // Get CV PDF
-  async getCVPDF(cvId: string, options?: CVToPDFOptions): Promise<Blob> {
-    const {
-      pictureId,
-      template,
-      primaryColorOverride,
-      secondaryColorOverride,
-      textColorOverride,
-      text2ColorOverride,
-      backgroundColorOverride,
-    } = options || {};
-
-    console.log('🔄 CVsService: Fetching CV PDF...');
-    const url = new URL(`/user/me/cv/${cvId}/pdf`);
-    if (pictureId) url.searchParams.append('pictureId', pictureId);
-    if (template) url.searchParams.append('template', template);
-    if (primaryColorOverride) url.searchParams.append('primaryColor', primaryColorOverride);
-    if (secondaryColorOverride) url.searchParams.append('secondaryColor', secondaryColorOverride);
-    if (textColorOverride) url.searchParams.append('textColor', textColorOverride);
-    if (text2ColorOverride) url.searchParams.append('text2Color', text2ColorOverride);
-    if (backgroundColorOverride)
-      url.searchParams.append('backgroundColor', backgroundColorOverride);
-
-    const response = await this.client.get(url.toString(), {
-      responseType: 'blob', // Important for binary data
-    });
-
-    if (!response.data) {
-      throw new Error('Failed to fetch CV PDF');
-    }
-    return response.data;
-  }
-  async getPDFv2(html: string, pictureId?: string, docTitle?: string) {
-    const response = await this.client.post(
-      '/utils/generate-pdf',
-      { html, pictureId, docTitle },
-      { responseType: 'blob' }
-    );
-    if (!response.data) {
-      throw new Error('Failed to generate PDF');
-    }
-    return response.data;
-  }
-}
-
-// Export a singleton instance
-export const cvsService = new CVsService();
-export default cvsService;
 
 export interface JobDescription {
   _id: string;
@@ -325,8 +130,243 @@ export interface TailoredData {
   coverLetterOnTop?: boolean;
   pdfOptions?: CVToPDFOptions;
 }
+
+// Helper function to create axios client
+function createAxiosClient(baseUrl: string = constants.API_URL): Axios {
+  const client = axios.create({
+    baseURL: baseUrl,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  setupApiErrorInterceptor(client);
+  return client;
+}
+
+// Helper function to set auth token on client
+function setAuthToken(client: Axios, token: string): void {
+  client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
+
+// Helper method to transform Sets to Arrays for JSON serialization
+function transformSetsToArrays(data: any): any {
+  console.log('Transforming data:');
+  if (data === null || data === undefined) {
+    return data;
+  }
+
+  if (data instanceof Set) {
+    return Array.from(data);
+  }
+
+  if (Array.isArray(data)) {
+    return data.map(item => transformSetsToArrays(item));
+  }
+
+  if (typeof data === 'object') {
+    const result: Record<string, any> = {};
+    for (const key in data) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
+        result[key] = transformSetsToArrays(data[key]);
+      }
+    }
+    return result;
+  }
+
+  return data;
+}
+
 async function wait(miliseconds: number) {
   return new Promise(resolve => setTimeout(resolve, miliseconds));
+}
+
+// Get user's CV (single CV per user)
+export async function getUserCV(authToken: string, cvId?: string, baseUrl?: string): Promise<CV | null> {
+  console.log('🔄 CVsService: Fetching user CV ', cvId || '');
+  const client = createAxiosClient(baseUrl);
+  setAuthToken(client, authToken);
+
+  const response = await client.get<CV>(`/user/me/cv${cvId ? `/${cvId}` : ''}`);
+  return response.data;
+}
+
+export async function getUsersTailoredCvs(authToken: string, baseUrl?: string): Promise<CVListItem[]> {
+  const client = createAxiosClient(baseUrl);
+  setAuthToken(client, authToken);
+
+  const response = await client.get<CVListItem[]>('/user/me/cv/tailored-list');
+  return response.data;
+}
+
+// Create or update user's CV
+export async function createOrUpdateCV(
+  authToken: string,
+  cvId: string,
+  cvData: CreateOrUpdateCVRequest,
+  baseUrl?: string
+): Promise<CV> {
+  const client = createAxiosClient(baseUrl);
+  setAuthToken(client, authToken);
+
+  const response = await client.put<CV>('/user/me/cv/' + cvId, cvData);
+  if (!response.data) {
+    throw new Error('Failed to create or update CV');
+  }
+  return response.data;
+}
+
+// Delete user's CV TODO: verify this is not missing an id
+export async function deleteCV(authToken: string, baseUrl?: string): Promise<void> {
+  console.log('🔄 CVsService: Deleting user CV...');
+  const client = createAxiosClient(baseUrl);
+  setAuthToken(client, authToken);
+
+  await client.delete('/user/me/cv');
+}
+
+// Tailor CV to job description
+export async function tailorCV(
+  authToken: string,
+  jobDescription: string,
+  companyName: string,
+  includeCoverLetter: boolean,
+  useAiTailoring: boolean,
+  translateTo: string,
+  baseUrl?: string
+): Promise<{ cvId: string }> {
+  const client = createAxiosClient(baseUrl);
+  setAuthToken(client, authToken);
+
+  const { bullId } = await startTailoringOperation(
+    client,
+    jobDescription,
+    companyName,
+    includeCoverLetter,
+    useAiTailoring,
+    translateTo
+  );
+  do {
+    await wait(1000);
+    const status = await checkTailoringStatus(client, bullId);
+    console.log('🔄 CVsService: Tailoring state:', status.state, status.progress);
+    if (status.state === 'completed' && status.result) {
+      return {
+        cvId: status.result.tailoredCVId,
+      };
+    }
+    if (status.state === 'failed') {
+      throw new Error('Failed to tailor CV');
+    }
+  } while (true);
+}
+
+async function startTailoringOperation(
+  client: Axios,
+  jobDescription: string,
+  companyName: string,
+  includeCoverLetter: boolean,
+  useAiTailoring: boolean,
+  translateTo: string
+): Promise<{ bullId: string }> {
+  console.log('🔄 CVsService: Tailoring CV to job description...');
+  const response = await client.post<{ bullId: string }>('/user/me/cv/tailor', {
+    jobDescription,
+    companyName,
+    includeCoverLetter,
+    useAiTailoring,
+    translateTo
+  });
+  if (!response.data) {
+    throw new Error('Failed to tailor CV');
+  }
+  return response.data;
+}
+
+async function checkTailoringStatus(client: Axios, bullId: string): Promise<{
+  state: string;
+  progress: number;
+  result?: { tailoredCVId: string; consumptionId: string };
+}> {
+  console.log('🔄 CVsService: Checking tailoring status...');
+  const response = await client.get<{
+    state: string;
+    progress: number;
+    result?: { tailoredCVId: string; consumptionId: string };
+  }>('/user/me/cv/tailor/progress/' + bullId);
+  if (!response.data) {
+    throw new Error('Failed to check tailoring status');
+  }
+  return response.data;
+}
+
+// Upload CV file
+export async function uploadCVFile(authToken: string, file: File, baseUrl?: string): Promise<{ fileUrl: string; fileName: string }> {
+  // TODO: Implement file upload functionality
+  console.log('File to upload:', file.name);
+  throw new Error('Method not implemented.');
+}
+
+// Get CV PDF
+export async function getCVPDF(
+  authToken: string,
+  cvId: string,
+  options?: CVToPDFOptions,
+  baseUrl?: string
+): Promise<Blob> {
+  const client = createAxiosClient(baseUrl);
+  setAuthToken(client, authToken);
+
+  const {
+    pictureId,
+    template,
+    primaryColorOverride,
+    secondaryColorOverride,
+    textColorOverride,
+    text2ColorOverride,
+    backgroundColorOverride,
+  } = options || {};
+
+  console.log('🔄 CVsService: Fetching CV PDF...');
+  const url = new URL(`/user/me/cv/${cvId}/pdf`, baseUrl || constants.API_URL);
+  if (pictureId) url.searchParams.append('pictureId', pictureId);
+  if (template) url.searchParams.append('template', template);
+  if (primaryColorOverride) url.searchParams.append('primaryColor', primaryColorOverride);
+  if (secondaryColorOverride) url.searchParams.append('secondaryColor', secondaryColorOverride);
+  if (textColorOverride) url.searchParams.append('textColor', textColorOverride);
+  if (text2ColorOverride) url.searchParams.append('text2Color', text2ColorOverride);
+  if (backgroundColorOverride)
+    url.searchParams.append('backgroundColor', backgroundColorOverride);
+
+  const response = await client.get(url.toString(), {
+    responseType: 'blob', // Important for binary data
+  });
+
+  if (!response.data) {
+    throw new Error('Failed to fetch CV PDF');
+  }
+  return response.data;
+}
+
+export async function getPDFv2(
+  authToken: string,
+  html: string,
+  pictureId?: string,
+  docTitle?: string,
+  baseUrl?: string
+): Promise<Blob> {
+  const client = createAxiosClient(baseUrl);
+  setAuthToken(client, authToken);
+
+  const response = await client.post(
+    '/utils/generate-pdf',
+    { html, pictureId, docTitle },
+    { responseType: 'blob' }
+  );
+  if (!response.data) {
+    throw new Error('Failed to generate PDF');
+  }
+  return response.data;
 }
 
 export function isCVOnboarded(cv: CV | null): boolean {

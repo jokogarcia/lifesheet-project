@@ -4,7 +4,7 @@ import { Button } from '../ui/button';
 import { ArrowDown, ArrowLeft } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import {
-  cvsService,
+  getPDFv2,
   defaultLeftColumnSections,
   defaultPdfOptions,
   defaultSectionOrder,
@@ -16,6 +16,8 @@ import ReactMarkdown from 'react-markdown';
 import { EditableCV } from '../ui/editable-cv';
 import { FormattedMessage, useIntl } from 'react-intl';
 import posthog from 'posthog-js';
+import { useAuth } from '@/hooks/auth-hook';
+
 export function ExportPdf() {
   const intl = useIntl();
   const queryParams = new URLSearchParams(useLocation().search);
@@ -31,6 +33,8 @@ export function ExportPdf() {
   const [coverLetter, setCoverLetter] = useState('');
   const [isCoverLetterVisible, setIsCoverLetterVisible] = useState(true);
   const pdfOptions = cv?.tailored?.pdfOptions || defaultPdfOptions;
+  const { getAccessTokenSilently } = useAuth();
+
   useEffect(() => {
     if (!originalCV) return;
     const tailored: TailoredData = originalCV.tailored ?? {
@@ -66,6 +70,7 @@ export function ExportPdf() {
       return prevCv;
     });
   }, [coverLetter, isCoverLetterVisible]);
+
   const previewRef = useRef<HTMLDivElement>(null);
 
   async function handleSave() {
@@ -77,7 +82,10 @@ export function ExportPdf() {
       const html = document.getElementById('rendered-cv-container')?.outerHTML;
 
       if (!html) throw new Error(intl.formatMessage({ id: 'exportPdf.errorGettingHtml', defaultMessage: 'Error getting raw HTML' }));
-      const pdfBlob = await cvsService.getPDFv2(
+
+      const token = await getAccessTokenSilently();
+      const pdfBlob = await getPDFv2(
+        token,
         html,
         pdfOptions.pictureId,
         originalCV?.personal_info.fullName + '- CV'

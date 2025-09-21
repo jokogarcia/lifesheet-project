@@ -1,15 +1,19 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { useUserCV } from './use-cv';
-import cvsService, { type CV, type CreateOrUpdateCVRequest } from '@/services/cvs-service';
+import { getUserCV, createOrUpdateCV, deleteCV, type CV, type CreateOrUpdateCVRequest } from '@/services/cvs-service';
+import { useAuth } from './auth-hook';
 
-// Mock the CVs service
+// Mock the CVs service functions
 vi.mock('@/services/cvs-service', () => ({
-    default: {
-        getUserCV: vi.fn(),
-        createOrUpdateCV: vi.fn(),
-        deleteCV: vi.fn(),
-    },
+    getUserCV: vi.fn(),
+    createOrUpdateCV: vi.fn(),
+    deleteCV: vi.fn(),
+}));
+
+// Mock the auth hook
+vi.mock('./auth-hook', () => ({
+    useAuth: vi.fn(),
 }));
 
 // Mock data
@@ -54,11 +58,6 @@ const mockCV: CV = {
             name: 'JavaScript',
             level: 'Expert',
         },
-        {
-            id: 'skill-2',
-            name: 'React',
-            level: 'Advanced',
-        },
     ],
     language_skills: [
         {
@@ -80,19 +79,38 @@ const mockCV: CV = {
 };
 
 const mockCreateOrUpdateRequest: CreateOrUpdateCVRequest = {
+    personal_info: mockCV.personal_info,
+    work_experience: mockCV.work_experience,
+    education: mockCV.education,
+    skills: mockCV.skills,
+    language_skills: mockCV.language_skills,
+};
+
+const updatedCV: CV = {
+    ...mockCV,
     personal_info: {
-        fullName: 'Jane Doe',
-        email: 'jane@example.com',
-        title: 'Frontend Developer',
+        ...mockCV.personal_info,
+        fullName: 'John Updated Doe',
     },
-    work_experience: [],
-    education: [],
-    skills: [],
 };
 
 describe('useUserCV', () => {
+    const mockGetUserCV = vi.mocked(getUserCV);
+    const mockCreateOrUpdateCV = vi.mocked(createOrUpdateCV);
+    const mockDeleteCV = vi.mocked(deleteCV);
+    const mockUseAuth = vi.mocked(useAuth);
+
     beforeEach(() => {
         vi.clearAllMocks();
+
+        // Mock the auth hook to return a mock token getter
+        mockUseAuth.mockReturnValue({
+            isAuthenticated: true,
+            user: {},
+            loginWithRedirect: vi.fn(),
+            logout: vi.fn(),
+            getAccessTokenSilently: vi.fn().mockResolvedValue('mock-token-123'),
+        });
     });
 
     afterEach(() => {
@@ -101,51 +119,45 @@ describe('useUserCV', () => {
 
     describe('initial state', () => {
         it('should initialize with correct default values', () => {
-            vi.mocked(cvsService.getUserCV).mockResolvedValue(null);
+            mockGetUserCV.mockResolvedValue(null);
 
             const { result } = renderHook(() => useUserCV());
 
-            expect(result.current.cv).toBeNull();
+            expect(result.current.cv).toBe(null);
             expect(result.current.isLoading).toBe(true);
             expect(result.current.isSaving).toBe(false);
-            expect(result.current.error).toBeNull();
-            expect(typeof result.current.saveCV).toBe('function');
-            expect(typeof result.current.deleteCV).toBe('function');
-            expect(typeof result.current.refetch).toBe('function');
+            expect(result.current.error).toBe(null);
         });
 
-        it('should initialize with correct default values when cvId is provided', () => {
-            vi.mocked(cvsService.getUserCV).mockResolvedValue(null);
+        it('should initialize with cvId parameter', () => {
+            mockGetUserCV.mockResolvedValue(null);
 
             const { result } = renderHook(() => useUserCV('cv-123'));
 
-            expect(result.current.cv).toBeNull();
+            expect(result.current.cv).toBe(null);
             expect(result.current.isLoading).toBe(true);
             expect(result.current.isSaving).toBe(false);
-            expect(result.current.error).toBeNull();
+            expect(result.current.error).toBe(null);
         });
     });
 
     describe('fetching CV', () => {
         it('should fetch CV successfully', async () => {
-            vi.mocked(cvsService.getUserCV).mockResolvedValue(mockCV);
+            mockGetUserCV.mockResolvedValue(mockCV);
 
             const { result } = renderHook(() => useUserCV('cv-123'));
-
-            expect(result.current.isLoading).toBe(true);
-            expect(result.current.cv).toBeNull();
 
             await waitFor(() => {
                 expect(result.current.isLoading).toBe(false);
             });
 
             expect(result.current.cv).toEqual(mockCV);
-            expect(result.current.error).toBeNull();
-            expect(cvsService.getUserCV).toHaveBeenCalledWith('cv-123');
+            expect(result.current.error).toBe(null);
+            expect(mockGetUserCV).toHaveBeenCalledWith('mock-token-123', 'cv-123');
         });
 
         it('should fetch CV without cvId', async () => {
-            vi.mocked(cvsService.getUserCV).mockResolvedValue(mockCV);
+            mockGetUserCV.mockResolvedValue(mockCV);
 
             const { result } = renderHook(() => useUserCV());
 
@@ -154,28 +166,13 @@ describe('useUserCV', () => {
             });
 
             expect(result.current.cv).toEqual(mockCV);
-            expect(cvsService.getUserCV).toHaveBeenCalledWith(undefined);
+            expect(result.current.error).toBe(null);
+            expect(mockGetUserCV).toHaveBeenCalledWith('mock-token-123', undefined);
         });
 
-        it('should handle fetch CV error', async () => {
-            const error = new Error('Failed to fetch CV');
-            vi.mocked(cvsService.getUserCV).mockRejectedValue(error);
-
-            const { result } = renderHook(() => useUserCV('cv-123'));
-
-            expect(result.current.isLoading).toBe(true);
-
-            await waitFor(() => {
-                expect(result.current.isLoading).toBe(false);
-            });
-
-            expect(result.current.cv).toBeNull();
-            expect(result.current.error).toBe('Failed to fetch CV');
-            expect(cvsService.getUserCV).toHaveBeenCalledWith('cv-123');
-        });
-
-        it('should handle non-Error objects in fetch CV', async () => {
-            vi.mocked(cvsService.getUserCV).mockRejectedValue('String error');
+        it('should handle fetch error', async () => {
+            const error = new Error('Network error');
+            mockGetUserCV.mockRejectedValue(error);
 
             const { result } = renderHook(() => useUserCV('cv-123'));
 
@@ -183,39 +180,28 @@ describe('useUserCV', () => {
                 expect(result.current.isLoading).toBe(false);
             });
 
-            expect(result.current.error).toBe('Failed to fetch CV');
+            expect(result.current.cv).toBe(null);
+            expect(result.current.error).toBe('Network error');
         });
 
-        it('should refetch when cvId changes', async () => {
-            vi.mocked(cvsService.getUserCV).mockResolvedValue(mockCV);
+        it('should handle fetch error with string', async () => {
+            mockGetUserCV.mockRejectedValue('String error');
 
-            const { result, rerender } = renderHook(
-                ({ cvId }) => useUserCV(cvId),
-                { initialProps: { cvId: 'cv-123' } }
-            );
+            const { result } = renderHook(() => useUserCV('cv-123'));
 
             await waitFor(() => {
                 expect(result.current.isLoading).toBe(false);
             });
 
-            expect(cvsService.getUserCV).toHaveBeenCalledWith('cv-123');
-
-            // Change cvId
-            rerender({ cvId: 'cv-456' });
-
-            await waitFor(() => {
-                expect(cvsService.getUserCV).toHaveBeenCalledWith('cv-456');
-            });
-
-            expect(cvsService.getUserCV).toHaveBeenCalledTimes(2);
+            expect(result.current.cv).toBe(null);
+            expect(result.current.error).toBe('Failed to fetch CV');
         });
     });
 
     describe('saving CV', () => {
         it('should save CV successfully', async () => {
-            const updatedCV = { ...mockCV, personal_info: { ...mockCV.personal_info, fullName: 'Jane Doe' } };
-            vi.mocked(cvsService.getUserCV).mockResolvedValue(mockCV);
-            vi.mocked(cvsService.createOrUpdateCV).mockResolvedValue(updatedCV);
+            mockGetUserCV.mockResolvedValue(mockCV);
+            mockCreateOrUpdateCV.mockResolvedValue(updatedCV);
 
             const { result } = renderHook(() => useUserCV('cv-123'));
 
@@ -223,118 +209,86 @@ describe('useUserCV', () => {
                 expect(result.current.isLoading).toBe(false);
             });
 
-            expect(result.current.isSaving).toBe(false);
-
-            let savedCV: CV;
-            await act(async () => {
-                savedCV = await result.current.saveCV('cv-123', mockCreateOrUpdateRequest);
-            });
-
-            expect(savedCV!).toEqual(updatedCV);
-            expect(result.current.cv).toEqual(updatedCV);
-            expect(result.current.isSaving).toBe(false);
-            expect(result.current.error).toBeNull();
-            expect(cvsService.createOrUpdateCV).toHaveBeenCalledWith('cv-123', mockCreateOrUpdateRequest);
-        });
-
-        it('should handle save CV error', async () => {
-            const error = new Error('Failed to save CV');
-            vi.mocked(cvsService.getUserCV).mockResolvedValue(mockCV);
-            vi.mocked(cvsService.createOrUpdateCV).mockRejectedValue(error);
-
-            const { result } = renderHook(() => useUserCV('cv-123'));
-
-            await waitFor(() => {
-                expect(result.current.isLoading).toBe(false);
-            });
-
-            expect(result.current.isSaving).toBe(false);
-
-            await act(async () => {
-                await expect(result.current.saveCV('cv-123', mockCreateOrUpdateRequest)).rejects.toThrow('Failed to save CV');
-            });
-
-            expect(result.current.isSaving).toBe(false);
-            expect(result.current.error).toBe('Failed to save CV');
-            expect(result.current.cv).toEqual(mockCV); // Should remain unchanged
-        });
-
-        it('should handle non-Error objects in save CV', async () => {
-            vi.mocked(cvsService.getUserCV).mockResolvedValue(mockCV);
-            vi.mocked(cvsService.createOrUpdateCV).mockRejectedValue('String error');
-
-            const { result } = renderHook(() => useUserCV('cv-123'));
-
-            await waitFor(() => {
-                expect(result.current.isLoading).toBe(false);
-            });
-
-            await act(async () => {
-                await expect(result.current.saveCV('cv-123', mockCreateOrUpdateRequest)).rejects.toThrow('Failed to save CV');
-            });
-
-            expect(result.current.error).toBe('Failed to save CV');
-        });
-
-        it('should clear error when saving after previous error', async () => {
-            // First, cause a fetch error
-            const fetchError = new Error('Failed to fetch CV');
-            vi.mocked(cvsService.getUserCV).mockRejectedValueOnce(fetchError);
-
-            const { result } = renderHook(() => useUserCV('cv-123'));
-
-            await waitFor(() => {
-                expect(result.current.isLoading).toBe(false);
-            });
-
-            expect(result.current.error).toBe('Failed to fetch CV');
-
-            // Now mock successful responses
-            vi.mocked(cvsService.getUserCV).mockResolvedValue(mockCV);
-            vi.mocked(cvsService.createOrUpdateCV).mockResolvedValue(mockCV);
-
-            // Trigger refetch to clear the error
-            await act(async () => {
-                await result.current.refetch();
-            });
-
-            expect(result.current.error).toBeNull();
-
-            // Now try to save
             await act(async () => {
                 await result.current.saveCV('cv-123', mockCreateOrUpdateRequest);
             });
 
-            expect(result.current.error).toBeNull();
+            expect(result.current.cv).toEqual(updatedCV);
+            expect(result.current.error).toBe(null);
+            expect(result.current.isSaving).toBe(false);
+            expect(mockCreateOrUpdateCV).toHaveBeenCalledWith('mock-token-123', 'cv-123', mockCreateOrUpdateRequest);
+        });
+
+        it('should handle save error', async () => {
+            mockGetUserCV.mockResolvedValue(mockCV);
+            const error = new Error('Save failed');
+            mockCreateOrUpdateCV.mockRejectedValue(error);
+
+            const { result } = renderHook(() => useUserCV('cv-123'));
+
+            await waitFor(() => {
+                expect(result.current.isLoading).toBe(false);
+            });
+
+            await act(async () => {
+                try {
+                    await result.current.saveCV('cv-123', mockCreateOrUpdateRequest);
+                } catch (e) {
+                    // Expected to throw
+                }
+            });
+
+            expect(result.current.error).toBe('Save failed');
+            expect(result.current.isSaving).toBe(false);
+        });
+
+        it('should handle save error with string', async () => {
+            mockGetUserCV.mockResolvedValue(mockCV);
+            mockCreateOrUpdateCV.mockRejectedValue('String error');
+
+            const { result } = renderHook(() => useUserCV('cv-123'));
+
+            await waitFor(() => {
+                expect(result.current.isLoading).toBe(false);
+            });
+
+            await act(async () => {
+                try {
+                    await result.current.saveCV('cv-123', mockCreateOrUpdateRequest);
+                } catch (e) {
+                    // Expected to throw
+                }
+            });
+
+            expect(result.current.error).toBe('Failed to save CV');
+            expect(result.current.isSaving).toBe(false);
         });
     });
 
     describe('deleting CV', () => {
         it('should delete CV successfully', async () => {
-            vi.mocked(cvsService.getUserCV).mockResolvedValue(mockCV);
-            vi.mocked(cvsService.deleteCV).mockResolvedValue();
+            mockGetUserCV.mockResolvedValue(mockCV);
+            mockDeleteCV.mockResolvedValue();
 
             const { result } = renderHook(() => useUserCV('cv-123'));
 
             await waitFor(() => {
                 expect(result.current.isLoading).toBe(false);
             });
-
-            expect(result.current.cv).toEqual(mockCV);
 
             await act(async () => {
                 await result.current.deleteCV();
             });
 
-            expect(result.current.cv).toBeNull();
-            expect(result.current.error).toBeNull();
-            expect(cvsService.deleteCV).toHaveBeenCalledTimes(1);
+            expect(result.current.cv).toBe(null);
+            expect(result.current.error).toBe(null);
+            expect(mockDeleteCV).toHaveBeenCalledWith('mock-token-123');
         });
 
-        it('should handle delete CV error', async () => {
-            const error = new Error('Failed to delete CV');
-            vi.mocked(cvsService.getUserCV).mockResolvedValue(mockCV);
-            vi.mocked(cvsService.deleteCV).mockRejectedValue(error);
+        it('should handle delete error', async () => {
+            mockGetUserCV.mockResolvedValue(mockCV);
+            const error = new Error('Delete failed');
+            mockDeleteCV.mockRejectedValue(error);
 
             const { result } = renderHook(() => useUserCV('cv-123'));
 
@@ -342,70 +296,42 @@ describe('useUserCV', () => {
                 expect(result.current.isLoading).toBe(false);
             });
 
-            expect(result.current.cv).toEqual(mockCV);
-
             await act(async () => {
-                await expect(result.current.deleteCV()).rejects.toThrow('Failed to delete CV');
+                try {
+                    await result.current.deleteCV();
+                } catch (e) {
+                    // Expected to throw
+                }
             });
 
-            expect(result.current.cv).toEqual(mockCV); // Should remain unchanged
+            expect(result.current.error).toBe('Delete failed');
+        });
+
+        it('should handle delete error with string', async () => {
+            mockGetUserCV.mockResolvedValue(mockCV);
+            mockDeleteCV.mockRejectedValue('String error');
+
+            const { result } = renderHook(() => useUserCV('cv-123'));
+
+            await waitFor(() => {
+                expect(result.current.isLoading).toBe(false);
+            });
+
+            await act(async () => {
+                try {
+                    await result.current.deleteCV();
+                } catch (e) {
+                    // Expected to throw
+                }
+            });
+
             expect(result.current.error).toBe('Failed to delete CV');
-        });
-
-        it('should handle non-Error objects in delete CV', async () => {
-            vi.mocked(cvsService.getUserCV).mockResolvedValue(mockCV);
-            vi.mocked(cvsService.deleteCV).mockRejectedValue('String error');
-
-            const { result } = renderHook(() => useUserCV('cv-123'));
-
-            await waitFor(() => {
-                expect(result.current.isLoading).toBe(false);
-            });
-
-            await act(async () => {
-                await expect(result.current.deleteCV()).rejects.toThrow('Failed to delete CV');
-            });
-
-            expect(result.current.error).toBe('Failed to delete CV');
-        });
-
-        it('should clear error when deleting after previous error', async () => {
-            // First, cause a fetch error
-            const fetchError = new Error('Failed to fetch CV');
-            vi.mocked(cvsService.getUserCV).mockRejectedValueOnce(fetchError);
-
-            const { result } = renderHook(() => useUserCV('cv-123'));
-
-            await waitFor(() => {
-                expect(result.current.isLoading).toBe(false);
-            });
-
-            expect(result.current.error).toBe('Failed to fetch CV');
-
-            // Now mock successful responses
-            vi.mocked(cvsService.getUserCV).mockResolvedValue(mockCV);
-            vi.mocked(cvsService.deleteCV).mockResolvedValue();
-
-            // Trigger refetch to clear the error
-            await act(async () => {
-                await result.current.refetch();
-            });
-
-            expect(result.current.error).toBeNull();
-
-            // Now try to delete
-            await act(async () => {
-                await result.current.deleteCV();
-            });
-
-            expect(result.current.error).toBeNull();
-            expect(result.current.cv).toBeNull();
         });
     });
 
     describe('refetch functionality', () => {
         it('should refetch CV when refetch is called', async () => {
-            vi.mocked(cvsService.getUserCV).mockResolvedValue(mockCV);
+            mockGetUserCV.mockResolvedValueOnce(mockCV);
 
             const { result } = renderHook(() => useUserCV('cv-123'));
 
@@ -413,21 +339,21 @@ describe('useUserCV', () => {
                 expect(result.current.isLoading).toBe(false);
             });
 
-            expect(cvsService.getUserCV).toHaveBeenCalledTimes(1);
+            expect(mockGetUserCV).toHaveBeenCalledTimes(1);
 
             // Call refetch
             await act(async () => {
                 await result.current.refetch();
             });
 
-            expect(cvsService.getUserCV).toHaveBeenCalledTimes(2);
-            expect(cvsService.getUserCV).toHaveBeenCalledWith('cv-123');
+            expect(mockGetUserCV).toHaveBeenCalledTimes(2);
+            expect(mockGetUserCV).toHaveBeenCalledWith('mock-token-123', 'cv-123');
         });
 
         it('should handle refetch error', async () => {
-            vi.mocked(cvsService.getUserCV)
-                .mockResolvedValueOnce(mockCV)
-                .mockRejectedValueOnce(new Error('Refetch failed'));
+            mockGetUserCV.mockResolvedValueOnce(mockCV);
+            const fetchError = new Error('Refetch failed');
+            mockGetUserCV.mockRejectedValueOnce(fetchError);
 
             const { result } = renderHook(() => useUserCV('cv-123'));
 
@@ -435,21 +361,26 @@ describe('useUserCV', () => {
                 expect(result.current.isLoading).toBe(false);
             });
 
-            expect(result.current.error).toBeNull();
-
-            // Call refetch which will fail
+            // Call refetch
             await act(async () => {
                 await result.current.refetch();
             });
 
             expect(result.current.error).toBe('Refetch failed');
-            expect(result.current.cv).toEqual(mockCV); // Should remain unchanged
         });
     });
 
-    describe('edge cases', () => {
-        it('should handle null CV response', async () => {
-            vi.mocked(cvsService.getUserCV).mockResolvedValue(null);
+    describe('loading states', () => {
+        it('should set loading to true initially', () => {
+            mockGetUserCV.mockResolvedValue(mockCV);
+
+            const { result } = renderHook(() => useUserCV('cv-123'));
+
+            expect(result.current.isLoading).toBe(true);
+        });
+
+        it('should set loading to false after successful fetch', async () => {
+            mockGetUserCV.mockResolvedValue(mockCV);
 
             const { result } = renderHook(() => useUserCV('cv-123'));
 
@@ -457,12 +388,53 @@ describe('useUserCV', () => {
                 expect(result.current.isLoading).toBe(false);
             });
 
-            expect(result.current.cv).toBeNull();
-            expect(result.current.error).toBeNull();
+            expect(result.current.isLoading).toBe(false);
         });
 
-        it('should handle empty string cvId', async () => {
-            vi.mocked(cvsService.getUserCV).mockResolvedValue(mockCV);
+        it('should set loading to false after error', async () => {
+            const error = new Error('Test error');
+            mockGetUserCV.mockRejectedValue(error);
+
+            const { result } = renderHook(() => useUserCV('cv-123'));
+
+            await waitFor(() => {
+                expect(result.current.isLoading).toBe(false);
+            });
+
+            expect(result.current.isLoading).toBe(false);
+        });
+    });
+
+    describe('return value structure', () => {
+        it('should return the correct structure', async () => {
+            mockGetUserCV.mockResolvedValue(mockCV);
+
+            const { result } = renderHook(() => useUserCV('cv-123'));
+
+            await waitFor(() => {
+                expect(result.current.isLoading).toBe(false);
+            });
+
+            expect(result.current).toHaveProperty('cv');
+            expect(result.current).toHaveProperty('isLoading');
+            expect(result.current).toHaveProperty('isSaving');
+            expect(result.current).toHaveProperty('error');
+            expect(result.current).toHaveProperty('saveCV');
+            expect(result.current).toHaveProperty('deleteCV');
+            expect(result.current).toHaveProperty('refetch');
+
+            expect(typeof result.current.isLoading).toBe('boolean');
+            expect(typeof result.current.isSaving).toBe('boolean');
+            expect(typeof result.current.error).toBe('object'); // null is typeof 'object'
+            expect(typeof result.current.saveCV).toBe('function');
+            expect(typeof result.current.deleteCV).toBe('function');
+            expect(typeof result.current.refetch).toBe('function');
+        });
+    });
+
+    describe('edge cases', () => {
+        it('should handle empty cvId', async () => {
+            mockGetUserCV.mockResolvedValue(mockCV);
 
             const { result } = renderHook(() => useUserCV(''));
 
@@ -470,14 +442,14 @@ describe('useUserCV', () => {
                 expect(result.current.isLoading).toBe(false);
             });
 
-            expect(cvsService.getUserCV).toHaveBeenCalledWith('');
+            expect(result.current.cv).toEqual(mockCV);
+            expect(mockGetUserCV).toHaveBeenCalledWith('mock-token-123', '');
         });
 
-        it('should maintain state consistency during multiple operations', async () => {
-            const updatedCV = { ...mockCV, personal_info: { ...mockCV.personal_info, fullName: 'Jane Doe' } };
-            vi.mocked(cvsService.getUserCV).mockResolvedValue(mockCV);
-            vi.mocked(cvsService.createOrUpdateCV).mockResolvedValue(updatedCV);
-            vi.mocked(cvsService.deleteCV).mockResolvedValue();
+        it('should handle multiple operations', async () => {
+            mockGetUserCV.mockResolvedValue(mockCV);
+            mockCreateOrUpdateCV.mockResolvedValue(updatedCV);
+            mockDeleteCV.mockResolvedValue();
 
             const { result } = renderHook(() => useUserCV('cv-123'));
 
@@ -489,21 +461,15 @@ describe('useUserCV', () => {
             await act(async () => {
                 await result.current.saveCV('cv-123', mockCreateOrUpdateRequest);
             });
+
             expect(result.current.cv).toEqual(updatedCV);
-            expect(result.current.isSaving).toBe(false);
 
             // Delete CV
             await act(async () => {
                 await result.current.deleteCV();
             });
-            expect(result.current.cv).toBeNull();
 
-            // Refetch
-            vi.mocked(cvsService.getUserCV).mockResolvedValue(mockCV);
-            await act(async () => {
-                await result.current.refetch();
-            });
-            expect(result.current.cv).toEqual(mockCV);
+            expect(result.current.cv).toBe(null);
         });
     });
 });

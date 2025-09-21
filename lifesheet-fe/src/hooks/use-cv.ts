@@ -1,18 +1,21 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import cvsService, { type CV, type CreateOrUpdateCVRequest } from '../services/cvs-service';
+import { getUserCV, createOrUpdateCV, deleteCV, type CV, type CreateOrUpdateCVRequest } from '../services/cvs-service';
+import { useAuth } from './auth-hook';
 
 export function useUserCV(cvId?: string) {
   const [cv, setCV] = useState<CV | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const { getAccessTokenSilently } = useAuth();
 
   const fetchCV = useCallback(async () => {
     try {
       setIsLoading(true);
-      const fetchedCV = await cvsService.getUserCV(cvId);
+      const token = await getAccessTokenSilently();
+      const fetchedCV = await getUserCV(token, cvId);
       setCV(fetchedCV);
       setError(null); // Explicitly clear error on success
     } catch (err) {
@@ -22,12 +25,13 @@ export function useUserCV(cvId?: string) {
     } finally {
       setIsLoading(false);
     }
-  }, [cvId]);
+  }, [cvId, getAccessTokenSilently]);
 
   const saveCV = async (cvId: string, cvData: CreateOrUpdateCVRequest): Promise<CV> => {
     try {
       setIsSaving(true);
-      const savedCV = await cvsService.createOrUpdateCV(cvId, cvData);
+      const token = await getAccessTokenSilently();
+      const savedCV = await createOrUpdateCV(token, cvId, cvData);
       setCV(savedCV);
       setError(null); // Explicitly clear error on success
       return savedCV;
@@ -40,9 +44,10 @@ export function useUserCV(cvId?: string) {
     }
   };
 
-  const deleteCV = async (): Promise<void> => {
+  const deleteCVHandler = async (): Promise<void> => {
     try {
-      await cvsService.deleteCV();
+      const token = await getAccessTokenSilently();
+      await deleteCV(token);
       setCV(null);
       setError(null); // Explicitly clear error on success
     } catch (err) {
@@ -62,7 +67,7 @@ export function useUserCV(cvId?: string) {
     isSaving,
     error,
     saveCV,
-    deleteCV,
+    deleteCV: deleteCVHandler,
     refetch: fetchCV,
   };
 }

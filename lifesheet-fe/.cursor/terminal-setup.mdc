@@ -1,0 +1,19 @@
+# Terminal Setup Rules
+
+## Shell Configuration
+- Always use `/bin/bash` as the terminal shell
+- At the start of each terminal session, run `nvm use 22` to set Node.js version 22
+- This ensures consistent Node.js environment across all terminal operations
+
+## Package Manager
+- Use `yarn` as the primary package manager for this project
+- Run `yarn install` to install dependencies
+- Use `yarn test` to run tests
+- Use `yarn dev-remote` to start the development server
+- Use `yarn build` to build the project
+
+## Development Workflow
+1. Start terminal session with `/bin/bash`
+2. Run `nvm use 22` to set Node.js version
+3. Use `yarn` commands for all package management tasks
+4. Follow the existing code style and patterns in the project
