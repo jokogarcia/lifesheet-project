@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import { CVData } from './components/dashboard/cv-data';
 import { Welcome } from './components/welcome';
-import userService from './services/user-service';
 import { TailorCV } from './components/dashboard/tailor-cv';
 import { PlansPage } from './components/dashboard/plans/plans-page';
 import { CheckoutPage } from './components/dashboard/plans/checkout-page';
@@ -29,7 +28,6 @@ function App() {
       setHasToken(false);
       const token = keycloak.token;
       if (token) {
-        userService.setAuthToken(token);
         setHasToken(true);
       }
     }

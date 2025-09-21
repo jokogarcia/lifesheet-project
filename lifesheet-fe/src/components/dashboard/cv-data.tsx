@@ -23,7 +23,7 @@ import type {
 } from '../../services/cvs-service';
 import { useAuth } from '@/hooks/auth-hook';
 import { useLocation, useNavigate } from 'react-router-dom';
-import userService from '../../services/user-service';
+import * as userService from '../../services/user-service';
 import {
   PersonalInfoTab,
   WorkExperienceTab,
@@ -35,7 +35,7 @@ import { CoverLetterTab } from '../cv-tabs/cover-letter-tab';
 import { FormattedMessage, useIntl } from 'react-intl';
 
 export function CVData() {
-  const { user } = useAuth();
+  const { user, getAccessTokenSilently } = useAuth();
   const navigate = useNavigate();
   const intl = useIntl();
   const queryParams = new URLSearchParams(useLocation().search);
@@ -113,7 +113,8 @@ export function CVData() {
   useEffect(() => {
     const loadPictures = async () => {
       try {
-        const userPictures = await userService.getUserPictures();
+        const token = await getAccessTokenSilently();
+        const userPictures = await userService.getUserPictures(token);
         setPictures(userPictures);
       } catch (error) {
         console.error(intl.formatMessage(
@@ -173,9 +174,10 @@ export function CVData() {
     if (file) {
       setIsUploadingPicture(true);
       try {
-        const pictureId = await userService.uploadPicture(file);
+        const token = await getAccessTokenSilently();
+        const pictureId = await userService.uploadPicture(file, token);
         // Reload pictures to get the updated list
-        const updatedPictures = await userService.getUserPictures();
+        const updatedPictures = await userService.getUserPictures(token);
         setPictures(updatedPictures);
         console.log(intl.formatMessage(
           { id: 'cvData.pictureUploadSuccess', defaultMessage: 'Picture uploaded successfully:' }),
@@ -194,7 +196,8 @@ export function CVData() {
 
   const handleDeletePicture = async (pictureId: string) => {
     try {
-      await userService.deletePicture(pictureId);
+      const token = await getAccessTokenSilently();
+      await userService.deletePicture(pictureId, token);
       // Remove the picture from state
       setPictures(pictures.filter(id => id !== pictureId));
     } catch (error) {
