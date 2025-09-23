@@ -18,6 +18,9 @@ import { Dashboard } from './components/dashboard';
 import { LoadingIndicator } from './components/ui/loading-indicator';
 import { LanguageProvider, useLanguage } from './contexts/language-context';
 import { MyAccount } from './components/dashboard/my-account';
+import { useTermsOfService } from './hooks/use-terms-of-service';
+import { ErrorPage } from './components/ui/error-page';
+import { TermsOfService } from './components/terms-of-service';
 
 function App() {
   const { keycloak, initialized } = useKeycloak();
@@ -57,6 +60,7 @@ function AppWithLanguage({ initialized, keycloak, hasToken }: {
   const { currentLanguage } = useLanguage();
   const [messages, setMessages] = useState<Record<string, string>>({});
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
+  const { isLoading: tosLoading, isAccepted: tosIsAccepted, version: tosVersion, lastAcceptedVersion: tosLastAcceptedVersion, error: tosError, acceptTerms: tosAcceptTerms, refetch: tosRefetch } = useTermsOfService();
 
   // Load the translations for the current language
   useEffect(() => {
@@ -77,14 +81,16 @@ function AppWithLanguage({ initialized, keycloak, hasToken }: {
     loadMessages();
   }, [currentLanguage]);
 
-  if (!initialized) {
+  if (!initialized || isLoadingMessages || tosLoading) {
     return <LoadingIndicator />;
   }
 
-  if (isLoadingMessages) {
-    return <LoadingIndicator />;
+  if (tosError) {
+    throw new Error("Error loading terms of service:\n " + tosError);
   }
-
+  if (!tosIsAccepted) {
+    return <TermsOfService />;
+  }
   if (!keycloak?.authenticated || !hasToken) {
     return (
       <IntlProvider locale={currentLanguage} messages={messages} onError={(err) => {
