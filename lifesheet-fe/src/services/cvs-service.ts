@@ -177,8 +177,8 @@ function transformSetsToArrays(data: any): any {
   return data;
 }
 
-async function wait(miliseconds: number) {
-  return new Promise(resolve => setTimeout(resolve, miliseconds));
+async function wait(milliseconds: number) {
+  return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
 // Get user's CV (single CV per user)
