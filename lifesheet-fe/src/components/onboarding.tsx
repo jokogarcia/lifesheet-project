@@ -17,9 +17,10 @@ import type {
   Skill,
   LanguageSkill,
 } from '@/services/cvs-service';
-import userService from '@/services/user-service';
+import * as userService from '@/services/user-service';
 import { LoadingIndicator } from './ui/loading-indicator';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { useAuth } from '@/hooks/auth-hook';
 import posthog from 'posthog-js';
 
 export const Onboarding = () => {
@@ -75,12 +76,14 @@ export const Onboarding = () => {
   const [pictures, setPictures] = useState<string[]>([]);
   const [isUploadingPicture, setIsUploadingPicture] = useState(false);
   const [canClickNext, setCanClickNext] = useState(false);
+  const { getAccessTokenSilently } = useAuth();
 
   // Load user pictures
   useEffect(() => {
     const loadPictures = async () => {
       try {
-        const userPictures = await userService.getUserPictures();
+        const token = await getAccessTokenSilently();
+        const userPictures = await userService.getUserPictures(token);
         setPictures(userPictures);
       } catch (error) {
         console.error(intl.formatMessage({
@@ -141,10 +144,11 @@ export const Onboarding = () => {
     if (file) {
       setIsUploadingPicture(true);
       try {
-        const pictureId = await userService.uploadPicture(file);
+        const token = await getAccessTokenSilently();
+        const pictureId = await userService.uploadPicture(file, token);
         console.log('Uploaded picture ID:', pictureId);
         // Reload pictures to get the updated list
-        const updatedPictures = await userService.getUserPictures();
+        const updatedPictures = await userService.getUserPictures(token);
         setPictures(updatedPictures);
 
       } catch (error) {
@@ -160,7 +164,8 @@ export const Onboarding = () => {
 
   const handleDeletePicture = async (pictureId: string) => {
     try {
-      await userService.deletePicture(pictureId);
+      const token = await getAccessTokenSilently();
+      await userService.deletePicture(pictureId, token);
       // Remove the picture from state
       setPictures(pictures.filter(id => id !== pictureId));
     } catch (error) {

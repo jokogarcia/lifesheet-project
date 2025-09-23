@@ -6,8 +6,6 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import { CVData } from './components/dashboard/cv-data';
 import { Welcome } from './components/welcome';
-import cvsService from './services/cvs-service';
-import userService from './services/user-service';
 import { TailorCV } from './components/dashboard/tailor-cv';
 import { PlansPage } from './components/dashboard/plans/plans-page';
 import { CheckoutPage } from './components/dashboard/plans/checkout-page';
@@ -24,13 +22,12 @@ import { MyAccount } from './components/dashboard/my-account';
 function App() {
   const { keycloak, initialized } = useKeycloak();
   const [hasToken, setHasToken] = useState(false);
+
   useEffect(() => {
     if (initialized && keycloak?.authenticated) {
       setHasToken(false);
       const token = keycloak.token;
       if (token) {
-        cvsService.setAuthToken(token);
-        userService.setAuthToken(token);
         setHasToken(true);
       }
     }
@@ -138,6 +135,7 @@ function AppWithLanguage({ initialized, keycloak, hasToken }: {
     </IntlProvider>
   );
 }
+
 function Logout() {
   const { keycloak } = useKeycloak();
   const url = new URL(window.location.href);
@@ -147,4 +145,5 @@ function Logout() {
   }, [keycloak]);
   return <div><FormattedMessage id="app.loggingOut" defaultMessage="Logging out..." /></div>;
 }
+
 export default App;

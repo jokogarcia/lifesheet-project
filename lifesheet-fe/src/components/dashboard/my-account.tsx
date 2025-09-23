@@ -5,13 +5,13 @@ import { useAuth } from '@/hooks/auth-hook';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LoadingIndicator } from '@/components/ui/loading-indicator';
-import userService from '@/services/user-service';
+import * as userService from '@/services/user-service';
 import { useUserCV } from '@/hooks/use-cv';
 import { constants } from '@/constants';
 export function MyAccount() {
     const intl = useIntl();
     const navigate = useNavigate();
-    const { logout: _logout } = useAuth();
+    const { logout: _logout, getAccessTokenSilently } = useAuth();
     const { cv, isLoading } = useUserCV();
     const [isDeleting, setIsDeleting] = useState(false);
     const [isDeletingLoading, setIsDeletingLoading] = useState(false);
@@ -43,7 +43,8 @@ export function MyAccount() {
             if (confirmed) {
                 try {
                     setIsDeletingLoading(true);
-                    await userService.deleteUserAccount();
+                    const token = await getAccessTokenSilently();
+                    await userService.deleteUserAccount(token);
                     alert(
                         intl.formatMessage({
                             id: 'myAccount.accountDeleted',
@@ -86,7 +87,8 @@ export function MyAccount() {
             if (confirmed) {
                 try {
                     setIsResetingLoading(true);
-                    await userService.resetUserAccount();
+                    const token = await getAccessTokenSilently();
+                    await userService.resetUserAccount(token);
                     alert(
                         intl.formatMessage({
                             id: 'myAccount.accountReset',

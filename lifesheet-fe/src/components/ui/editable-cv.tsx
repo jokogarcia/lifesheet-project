@@ -6,8 +6,9 @@ import { CardContent, CardHeader, Card } from './card';
 import { Button } from "./button";
 import { ArrowDown, ArrowDownToLine, ArrowUp, ArrowUpToLine, ChevronDown, Pencil } from "lucide-react";
 import PictureSelector from "./picture-selector";
-import userService from "@/services/user-service";
+import * as userService from "@/services/user-service";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/auth-hook";
 
 interface EditableSectionCardProps {
     title: string;
@@ -97,6 +98,7 @@ function getSections(cv: CV): string[] {
 export function EditableCV({ cv, setCV }: { cv: CV, setCV: (cv: CV) => void }) {
     const navigate = useNavigate();
     const sections = getSections(cv);
+    const { getAccessTokenSilently } = useAuth();
 
     const reRender = () => { setCV({ ...cv }) };
     const setSections = (newOrder: string[]) => {
@@ -190,7 +192,8 @@ export function EditableCV({ cv, setCV }: { cv: CV, setCV: (cv: CV) => void }) {
         //setPdfOptions({ pictureId, ...pdfOptions });
 
         if (cv) {
-            const shareUrl = pictureId ? await userService.getPictureShareLink(pictureId) : '';
+            const token = await getAccessTokenSilently();
+            const shareUrl = pictureId ? await userService.getPictureShareLink(pictureId, token) : '';
             cv.personal_info.profilePictureUrl = shareUrl;
             reRender();
 

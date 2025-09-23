@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-
+import * as userService from '@/services/user-service';
+import { useAuth } from '@/hooks/auth-hook';
 interface SecureImgProps {
   pictureId: string;
   alt?: string;
@@ -11,7 +12,7 @@ const placeholder =
 export function SecureImg({ pictureId, alt, className }: SecureImgProps) {
   const [error, setError] = useState(false);
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
-
+  const { getAccessTokenSilently } = useAuth();
   useEffect(() => {
     if (!pictureId) {
       setError(true);
@@ -20,8 +21,8 @@ export function SecureImg({ pictureId, alt, className }: SecureImgProps) {
 
     const loadImage = async () => {
       try {
-        const { default: userService } = await import('../../services/user-service');
-        const blob = await userService.getPicture(pictureId);
+        const token = await getAccessTokenSilently();
+        const blob = await userService.getPicture(pictureId, token);
         if (blob) {
           setBlobUrl(blob);
         } else {

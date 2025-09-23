@@ -5,12 +5,13 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, FileText, Wand2 } from 'lucide-react';
 import { useUserCV } from '@/hooks/use-cv';
 import { useNavigate } from 'react-router-dom';
-import cvsService from '@/services/cvs-service';
+import { tailorCV } from '@/services/cvs-service';
 import { useSaaSActiveSubscription } from '@/hooks/use-saas';
 import RichTextEditor from '../ui/editor';
 import { LoadingIndicator } from '../ui/loading-indicator';
 import { FormattedMessage, useIntl } from 'react-intl';
 import posthog from 'posthog-js';
+import { useAuth } from '@/hooks/auth-hook';
 
 
 export function TailorCV() {
@@ -23,6 +24,8 @@ export function TailorCV() {
   const [companyName, setCompanyName] = useState('');
   const { canUseAI, isLoading: isLoadingSubscription } = useSaaSActiveSubscription();
   const [translateTo, setTranslateTo] = useState('none');
+  const { getAccessTokenSilently } = useAuth();
+
   const handleTailorCV = async () => {
     posthog.capture('tailor_cv_ai', { includeCoverLetter, translateTo });
     if (!canUseAI) {
@@ -38,8 +41,10 @@ export function TailorCV() {
     setIsTailoring(true);
 
     try {
+      const token = await getAccessTokenSilently();
       // Call the real API endpoint to tailor the CV
-      const { cvId: tailoredCVId } = await cvsService.tailorCV(
+      const { cvId: tailoredCVId } = await tailorCV(
+        token,
         jobDescription,
         companyName,
         includeCoverLetter,
@@ -61,13 +66,16 @@ export function TailorCV() {
       setIsTailoring(false);
     }
   };
+
   const handleManualTailoring = async () => {
     setIsTailoring(true);
     posthog.capture('tailor_cv_manual', { includeCoverLetter, translateTo });
 
     try {
+      const token = await getAccessTokenSilently();
       // Call the real API endpoint to tailor the CV
-      const { cvId: tailoredCVId } = await cvsService.tailorCV(
+      const { cvId: tailoredCVId } = await tailorCV(
+        token,
         jobDescription,
         companyName,
         includeCoverLetter,
@@ -89,6 +97,7 @@ export function TailorCV() {
       setIsTailoring(false);
     }
   };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -255,4 +264,3 @@ export function TailorCV() {
     </div>
   );
 }
-

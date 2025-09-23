@@ -2,8 +2,9 @@ import * as React from 'react';
 import { Check, User } from 'lucide-react';
 import { SecureImg } from '@/components/ui/secure-img';
 import { useEffect } from 'react';
-import userService from '@/services/user-service';
+import * as userService from '@/services/user-service';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { useAuth } from '@/hooks/auth-hook';
 
 interface PictureSelectorProps {
   onPictureSelected: (pictureId: string | undefined) => void;
@@ -14,13 +15,15 @@ export function PictureSelector({ onPictureSelected }: PictureSelectorProps) {
   const [isLoadingPictures, setIsLoadingPictures] = React.useState(true);
   const [error, setError] = React.useState<string>('');
   const [selectedPicture, setSelectedPicture] = React.useState<string>('');
+  const { getAccessTokenSilently } = useAuth();
   const intl = useIntl();
 
   useEffect(() => {
     const loadPictures = async () => {
       setIsLoadingPictures(true);
       try {
-        const userPictures = await userService.getUserPictures();
+        const token = await getAccessTokenSilently();
+        const userPictures = await userService.getUserPictures(token);
         setPictures(userPictures);
         if (userPictures.length > 0) {
           // Set the first picture as selected by default
@@ -82,8 +85,8 @@ export function PictureSelector({ onPictureSelected }: PictureSelectorProps) {
               onPictureSelected(undefined);
             }}
             className={`flex items-center p-3 border rounded-lg cursor-pointer transition-all ${selectedPicture === ''
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+              ? 'border-blue-500 bg-blue-50'
+              : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
               }`}
           >
             <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
@@ -110,8 +113,8 @@ export function PictureSelector({ onPictureSelected }: PictureSelectorProps) {
                   onPictureSelected(pictureId);
                 }}
                 className={`flex items-center p-3 border rounded-lg cursor-pointer transition-all ${selectedPicture === pictureId
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                   }`}
               >
                 <div className="w-12 h-12 rounded-lg overflow-hidden mr-3 bg-gray-100">

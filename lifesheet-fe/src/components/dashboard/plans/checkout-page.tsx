@@ -4,7 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSaasPlans } from '@/hooks/use-saas';
 import { PlanCard } from './plan-card';
 import { useEffect, useState } from 'react';
-import saasService, { type SaaSPlan } from '@/services/saas-service';
+import * as saasService from '@/services/saas-service';
+import { type SaaSPlan } from '@/services/saas-service';
+
 import { useAuth } from '@/hooks/auth-hook';
 import { loadStripe } from '@stripe/stripe-js';
 async function getStripe() {
@@ -57,7 +59,8 @@ export function CheckoutPage() {
             const response = await saasService.createStripeCheckoutSession(
                 selectedPlan._id,
                 window.location.origin + '/checkout-success',
-                window.location.origin + '/checkout-cancel'
+                window.location.origin + '/checkout-cancel',
+                token
             );
 
             // Redirect to Stripe checkout
