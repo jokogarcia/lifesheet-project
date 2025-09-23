@@ -10,6 +10,8 @@ import {
     getPictureShareLink,
     deleteUserAccount,
     resetUserAccount,
+    getTermsOfService,
+    acceptTermsOfService,
     type UserProfile,
     type UpdateProfileRequest,
 } from './user-service';
@@ -553,6 +555,216 @@ describe('user-service', () => {
                     },
                 }
             );
+        });
+    });
+
+    describe('getTermsOfService', () => {
+        const mockTermsResponse = {
+            accepted: true,
+            version: '1.2.0',
+            content: 'Terms of Service content...',
+            lastAcceptedVersion: '1.1.0',
+        };
+
+        it('should get terms of service successfully', async () => {
+            mockAxiosInstance.get.mockResolvedValue({ data: mockTermsResponse });
+
+            const result = await getTermsOfService('test-token');
+
+            expect(result).toEqual(mockTermsResponse);
+            expect(result.accepted).toBe(true);
+            expect(result.version).toBe('1.2.0');
+            expect(result.content).toBe('Terms of Service content...');
+            expect(result.lastAcceptedVersion).toBe('1.1.0');
+            expect(mockAxiosInstance.get).toHaveBeenCalledWith('/user/me/terms-of-service');
+            expect(mockAxiosInstance.defaults.headers.common['Authorization']).toBe('Bearer test-token');
+        });
+
+        it('should return terms data when user has not accepted latest version', async () => {
+            const notAcceptedResponse = {
+                accepted: false,
+                version: '1.3.0',
+                content: 'Updated Terms of Service content...',
+                lastAcceptedVersion: '1.1.0',
+            };
+            mockAxiosInstance.get.mockResolvedValue({ data: notAcceptedResponse });
+
+            const result = await getTermsOfService('test-token');
+
+            expect(result).toEqual(notAcceptedResponse);
+            expect(result.accepted).toBe(false);
+            expect(result.version).toBe('1.3.0');
+            expect(result.content).toBe('Updated Terms of Service content...');
+            expect(result.lastAcceptedVersion).toBe('1.1.0');
+            expect(mockAxiosInstance.get).toHaveBeenCalledWith('/user/me/terms-of-service');
+        });
+
+        it('should handle different version scenarios', async () => {
+            const versionScenarios = [
+                {
+                    accepted: true,
+                    version: '1.0.0',
+                    content: 'Initial terms',
+                    lastAcceptedVersion: '1.0.0',
+                },
+                {
+                    accepted: false,
+                    version: '2.0.0',
+                    content: 'Major update terms',
+                    lastAcceptedVersion: '1.0.0',
+                },
+                {
+                    accepted: true,
+                    version: '1.5.0',
+                    content: 'Minor update terms',
+                    lastAcceptedVersion: '1.5.0',
+                },
+            ];
+
+            for (const scenario of versionScenarios) {
+                mockAxiosInstance.get.mockResolvedValue({ data: scenario });
+
+                const result = await getTermsOfService('test-token');
+
+                expect(result).toEqual(scenario);
+            }
+        });
+
+        it('should handle API errors', async () => {
+            const error = new Error('Terms fetch failed');
+            mockAxiosInstance.get.mockRejectedValue(error);
+
+            await expect(getTermsOfService('test-token')).rejects.toThrow('Terms fetch failed');
+        });
+
+        it('should require token parameter', async () => {
+            mockAxiosInstance.get.mockResolvedValue({ data: mockTermsResponse });
+
+            await getTermsOfService('required-token');
+
+            expect(mockAxiosInstance.defaults.headers.common['Authorization']).toBe('Bearer required-token');
+        });
+
+        it('should handle empty content', async () => {
+            const emptyContentResponse = {
+                accepted: false,
+                version: '1.0.0',
+                content: '',
+                lastAcceptedVersion: '',
+            };
+            mockAxiosInstance.get.mockResolvedValue({ data: emptyContentResponse });
+
+            const result = await getTermsOfService('test-token');
+
+            expect(result).toEqual(emptyContentResponse);
+            expect(result.content).toBe('');
+            expect(result.lastAcceptedVersion).toBe('');
+        });
+
+        it('should handle network errors', async () => {
+            const networkError = new Error('Network Error');
+            mockAxiosInstance.get.mockRejectedValue(networkError);
+
+            await expect(getTermsOfService('test-token')).rejects.toThrow('Network Error');
+        });
+    });
+
+    describe('acceptTermsOfService', () => {
+        it('should accept terms of service successfully', async () => {
+            mockAxiosInstance.post.mockResolvedValue({ data: {} });
+
+            await acceptTermsOfService('test-token', '1.2.0');
+
+            expect(mockAxiosInstance.post).toHaveBeenCalledWith('/user/me/terms-of-service', {
+                version: '1.2.0',
+                accepted: true,
+            });
+            expect(mockAxiosInstance.defaults.headers.common['Authorization']).toBe('Bearer test-token');
+        });
+
+        it('should handle different version numbers', async () => {
+            const versions = ['1.0.0', '1.5.0', '2.0.0', '2.1.3'];
+
+            for (const version of versions) {
+                mockAxiosInstance.post.mockResolvedValue({ data: {} });
+
+                await acceptTermsOfService('test-token', version);
+
+                expect(mockAxiosInstance.post).toHaveBeenCalledWith('/user/me/terms-of-service', {
+                    version,
+                    accepted: true,
+                });
+            }
+        });
+
+        it('should handle API errors', async () => {
+            const error = new Error('Terms acceptance failed');
+            mockAxiosInstance.post.mockRejectedValue(error);
+
+            await expect(acceptTermsOfService('test-token', '1.2.0')).rejects.toThrow('Terms acceptance failed');
+        });
+
+        it('should require token parameter', async () => {
+            mockAxiosInstance.post.mockResolvedValue({ data: {} });
+
+            await acceptTermsOfService('required-token', '1.2.0');
+
+            expect(mockAxiosInstance.defaults.headers.common['Authorization']).toBe('Bearer required-token');
+        });
+
+        it('should require version parameter', async () => {
+            mockAxiosInstance.post.mockResolvedValue({ data: {} });
+
+            await acceptTermsOfService('test-token', '1.2.0');
+
+            expect(mockAxiosInstance.post).toHaveBeenCalledWith('/user/me/terms-of-service', {
+                version: '1.2.0',
+                accepted: true,
+            });
+        });
+
+        it('should handle network errors', async () => {
+            const networkError = new Error('Network Error');
+            mockAxiosInstance.post.mockRejectedValue(networkError);
+
+            await expect(acceptTermsOfService('test-token', '1.2.0')).rejects.toThrow('Network Error');
+        });
+
+        it('should handle server errors', async () => {
+            const serverError = new Error('Internal Server Error');
+            mockAxiosInstance.post.mockRejectedValue(serverError);
+
+            await expect(acceptTermsOfService('test-token', '1.2.0')).rejects.toThrow('Internal Server Error');
+        });
+
+        it('should handle version validation errors', async () => {
+            const validationError = new Error('Invalid version format');
+            mockAxiosInstance.post.mockRejectedValue(validationError);
+
+            await expect(acceptTermsOfService('test-token', 'invalid-version')).rejects.toThrow('Invalid version format');
+        });
+
+        it('should handle empty version string', async () => {
+            mockAxiosInstance.post.mockResolvedValue({ data: {} });
+
+            await acceptTermsOfService('test-token', '');
+
+            expect(mockAxiosInstance.post).toHaveBeenCalledWith('/user/me/terms-of-service', {
+                version: '',
+                accepted: true,
+            });
+        });
+
+        it('should handle special characters in version', async () => {
+            const specialVersion = '1.2.0-beta.1+build.123';
+            mockAxiosInstance.post.mockResolvedValue({ data: {} });
+
+            await acceptTermsOfService('test-token', specialVersion);
+
+            expect(mockAxiosInstance.post).toHaveBeenCalledWith('/user/me/terms-of-service', {
+                version: specialVersion,
+                accepted: true,
+            });
         });
     });
 });

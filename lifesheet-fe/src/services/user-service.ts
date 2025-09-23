@@ -99,3 +99,19 @@ export async function resetUserAccount(token: string): Promise<void> {
   console.log('🔄 UserService: Resetting user account...');
   await getClient(token).post('/user/me/reset');
 }
+export interface GetTermsOfServiceResponse {
+  accepted: boolean;
+  version: string;
+  content: string;
+  lastAcceptedVersion: string;
+}
+export async function getTermsOfService(token: string): Promise<GetTermsOfServiceResponse> {
+  console.log('🔄 UserService: Checking if user has accepted terms of service...');
+  const response = await getClient(token).get<GetTermsOfServiceResponse>('/user/me/terms-of-service');
+  return response.data;
+}
+export async function acceptTermsOfService(token: string, version: string): Promise<void> {
+  console.log('🔄 UserService: Accepting terms of service...');
+  await getClient(token).post('/user/me/terms-of-service', { version, accepted: true });
+}
+
