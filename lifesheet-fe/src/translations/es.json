@@ -229,7 +229,7 @@
     "faq.getSupport.answer": "Puedes contactarnos en support@lifesheet.online",
     "faq.contactUs": "¿Cómo puedo contactarte?",
     "faq.contactUs.answer": "Puedes contactarnos en support@lifesheet.online",
-    "faq.dataSafety": "¿Están seguros mis datos contigo?",
+    "faq.dataSafety": "¿Están seguros mis datos ustedes?",
     "faq.dataSafety.answer": "No compartimos ni compartiremos nunca tus datos con terceros con fines de lucro. Si usas nuestras funciones mejoradas con IA, entonces tu información será compartida con nuestros proveedores de IA, y estará sujeta a sus políticas de privacidad. Haremos nuestro mejor esfuerzo para proteger tus datos, pero no podemos garantizar 100% de seguridad. Ten en cuenta que tus datos se almacenan en la Unión Europea. Se almacenan en forma no encriptada, por lo que podríamos, si quisiéramos, leerlos. Pero no queremos. Puedes eliminar tus datos en cualquier momento siguiendo las instrucciones en la configuración de tu cuenta.",
     "faq.deleteData": "¿Cómo puedo eliminar mis datos?",
     "faq.deleteData.answer": "Ve a la configuración de tu cuenta. Tienes dos opciones: Eliminar tu cuenta o Restablecer tu cuenta. Eliminar tu cuenta eliminará permanentemente tu cuenta y todos tus datos. No podrás iniciar sesión de nuevo. Restablecer tu cuenta restablecerá permanentemente tu cuenta y todos tus datos. Podrás iniciar sesión de nuevo, pero todos tus datos se perderán. Ten en cuenta que, por razones operativas, hacemos copias de seguridad de nuestras bases de datos. Podemos mantener tus datos por un período limitado incluso después de que los elimines, para fines de copia de seguridad y recuperación. No más de 30 días, hasta que las copias de seguridad se sincronicen con la base de datos principal.",
