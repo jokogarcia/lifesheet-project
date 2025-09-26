@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/auth-hook';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { LanguageSelector } from './ui/language-selector';
+import { FAQ } from './faq';
 export function Welcome() {
   const { loginWithRedirect } = useAuth();
   const intl = useIntl();
@@ -91,6 +92,7 @@ export function Welcome() {
           </Button>
         </div>
       </div>
+      <FAQ />
     </div>
   );
 }
