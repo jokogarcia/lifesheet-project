@@ -48,12 +48,30 @@ export class PDFService {
     let page: Page | null = null;
     try {
       const browser = await this.getBrowser();
+
       page = await browser.newPage();
 
       await page.setContent(html, {
         waitUntil: ['domcontentloaded', 'networkidle0'],
         timeout: 30000,
       });
+      // Explicit image loading check
+
+      page.on('console', msg => {
+        if (msg.type() === 'error') {
+          console.log('[Puppeteer console error]', msg.text());
+        }
+      });
+      page.on('requestfailed', request => {
+        console.log('[Puppeteer request failed]', request.url(), request.failure()?.errorText);
+      });
+      await page.waitForFunction(
+        () => {
+          const images = Array.from(document.querySelectorAll('img'));
+          return images.every(img => img.complete);
+        },
+        { timeout: 10000 }
+      );
 
       const pdfBuffer = await page.pdf({
         format: options?.format || 'A4',
