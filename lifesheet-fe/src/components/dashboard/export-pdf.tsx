@@ -32,6 +32,7 @@ export function ExportPdf() {
   const [printMode, setPrintMode] = useState(false);
   const [coverLetter, setCoverLetter] = useState('');
   const [isCoverLetterVisible, setIsCoverLetterVisible] = useState(true);
+  const [isGenerating, setIsGenerating] = useState(false);
   const pdfOptions = cv?.tailored?.pdfOptions || defaultPdfOptions;
   const { getAccessTokenSilently } = useAuth();
 
@@ -80,6 +81,7 @@ export function ExportPdf() {
     try {
       console.log(intl.formatMessage({ id: 'exportPdf.generatingPdf', defaultMessage: 'Generating PDF...' }));
       const html = document.getElementById('rendered-cv-container')?.outerHTML;
+      setIsGenerating(true);
 
       if (!html) throw new Error(intl.formatMessage({ id: 'exportPdf.errorGettingHtml', defaultMessage: 'Error getting raw HTML' }));
 
@@ -104,6 +106,7 @@ export function ExportPdf() {
       console.error(intl.formatMessage({ id: 'exportPdf.errorGeneratingPdf', defaultMessage: 'Error generating PDF:' }), error);
     } finally {
       setPrintMode(false);
+      setIsGenerating(false);
     }
   }
 
@@ -174,7 +177,14 @@ export function ExportPdf() {
               border: '1px solid lightgray',
             }}
           >
-            <div
+            {isGenerating ? (<div>
+              <div className="text-center" style={{ height: '100%', paddingTop: '40%' }}>
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900 mx-auto"></div>
+                <p className="mt-4 text-lg">
+                  <FormattedMessage id="exportPdf.generatingPdf" defaultMessage="Generating PDF..." />
+                </p>
+              </div>
+            </div>) : (<div
               ref={previewRef}
               style={{
                 border: '1px solid #eee',
@@ -196,7 +206,7 @@ export function ExportPdf() {
               ) : (
                 <CVPreviewer cvData={cv!} printMode={printMode} />
               )}
-            </div>
+            </div>)}
           </div>
         </div>
       </div>
