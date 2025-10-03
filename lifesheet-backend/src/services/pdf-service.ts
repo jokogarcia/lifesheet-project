@@ -68,11 +68,12 @@ export class PDFService {
       await page.waitForFunction(
         () => {
           const images = Array.from(document.querySelectorAll('img'));
+          console.log(`Found ${images.length} images on the page.`);
           return images.every(img => img.complete);
         },
         { timeout: 10000 }
       );
-
+      console.log('All images loaded, generating PDF...', html);
       const pdfBuffer = await page.pdf({
         format: options?.format || 'A4',
         landscape: options?.landscape || false,
