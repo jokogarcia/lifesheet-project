@@ -14,6 +14,13 @@ export function getSecondsUntilNextWeek(): number {
   return Math.floor((nextMonday.getTime() - now.getTime()) / 1000);
 }
 export function getApiUrl(req: Request): string {
-  console.log('Request protocol:', req.protocol);
-  return `${req.protocol}://${req.get('host')}`;
+  let protocol = req.protocol;
+  // If behind a proxy (like Nginx), check the X-Forwarded-Proto header
+  if (req.get('X-Forwarded-Proto')) {
+    protocol = req.get('X-Forwarded-Proto')!.split(',')[0]; // Use the first value if there are multiple
+  }
+  const host = req.get('host');
+  console.log('Determined protocol:', protocol);
+  console.log('Determined host:', host);
+  return `${protocol}://${host}`;
 }
