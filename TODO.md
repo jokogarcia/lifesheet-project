@@ -3,6 +3,7 @@ tailor-cv view
 remove preview button X
 add WYSIWYG editor for job description X
 implement "Download Tailored CV" functionality X
+When manualy tailoring a CV, save to server on every step
 
 General:
 
@@ -13,7 +14,7 @@ General:
 - Provide more templates to choose from when generating PDFs. X
 - Bring AI functionality to node project and get rid of python project X
 - Add option to generate cover letter. X
-- Add multilingual support for the AI
+- Add multilingual support for the AI X
 - Implement real payment system X
 - Migrate Auth0 tenant X
 - Async AI operations with BullMQ X
@@ -40,6 +41,7 @@ Other:
 - refactor CI pipeline for github actions and deployment to prod or dev
 - fix user onboarding X
 
-- fix operation counter
-- add posibility to generate CVs and Cover LEtters in other languages
-- Make UI Internationalized
+- fix operation counter X
+- add posibility to generate CVs and Cover LLetters in other languages X
+- Make UI Internationalized X
+- add loading indicator to pdf generator X
