@@ -154,7 +154,10 @@ export function ExportPdf() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-xs" style={{ textAlign: 'left' }}>
         <div className="card-hover bg-gradient-subtle">
 
-          <EditableCV cv={cv} setCV={setCV} />
+          <EditableCV cv={cv} setCV={newCv => {
+            saveCV(newCv._id, newCv);
+            setCV(newCv);
+          }} />
         </div>
 
         {/* Preview */}
