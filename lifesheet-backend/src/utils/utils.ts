@@ -19,8 +19,15 @@ export function getApiUrl(req: Request): string {
   if (req.get('X-Forwarded-Proto')) {
     protocol = req.get('X-Forwarded-Proto')!.split(',')[0]; // Use the first value if there are multiple
   }
+  //print all headers
+  console.log('Request headers:');
+  Object.entries(req.headers || {}).forEach(([key, value]) => {
+    console.log(`  ${key}: ${value}`);
+  });
   const host = req.get('host');
   console.log('Determined protocol:', protocol);
   console.log('Determined host:', host);
+  protocol = 'https'; // Force HTTPS
+  console.log("forced protocol to 'https'");
   return `${protocol}://${host}`;
 }
