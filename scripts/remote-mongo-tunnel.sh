@@ -11,8 +11,9 @@ REMOTE_MONGO_PORT="27017"                  # Remote MongoDB port
 
 # Command line argument handling
 if [[ $# -eq 0 ]]; then
-    echo "Usage: $0 <remote-user>@<remote-host> [remote-project-path]"
-    echo "Example: $0 user@example.com /home/user/lifesheet-project"
+    echo "Usage: $0 <remote-user>@<remote-host> [remote-project-path] [ssh-port]"
+    echo "Example: $0 user@example.com /home/user/lifesheet-project 22"
+    echo "SSH port defaults to 22 if not specified"
     exit 1
 fi
 
@@ -23,11 +24,16 @@ if [[ $1 == *"@"* ]]; then
 fi
 
 # Use provided project path if specified
-if [[ $# -eq 2 ]]; then
+if [[ $# -ge 2 ]]; then
     REMOTE_PROJECT_PATH=$2
 fi
 
-echo "Connecting to $REMOTE_USER@$REMOTE_HOST..."
+# Use provided SSH port if specified, otherwise keep default (22)
+if [[ $# -ge 3 ]]; then
+    REMOTE_PORT=$3
+fi
+
+echo "Connecting to $REMOTE_USER@$REMOTE_HOST on port $REMOTE_PORT..."
 echo "Project path on remote: $REMOTE_PROJECT_PATH"
 
 # Step 1: SSH to the remote server and set up the mongo-tools
