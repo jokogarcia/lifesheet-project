@@ -60,6 +60,11 @@ export const SaaSSubscription = mongoose.model<ISaasSubscription>(
 
 //Initial seed
 async function initialSeed() {
+  // Wait for connection to be ready
+  if (mongoose.connection.readyState !== 1) {
+    console.log('Waiting for MongoDB connection...');
+    await mongoose.connection.asPromise();
+  }
   const numberOfExistingPlans = await SaaSPlan.countDocuments();
   if (numberOfExistingPlans === 0) {
     console.log('Seeding initial SaaS plans...');
