@@ -14,5 +14,6 @@ export function getSecondsUntilNextWeek(): number {
   return Math.floor((nextMonday.getTime() - now.getTime()) / 1000);
 }
 export function getApiUrl(req: Request): string {
+  console.log('Request protocol:', req.protocol);
   return `${req.protocol}://${req.get('host')}`;
 }
