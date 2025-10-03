@@ -17,10 +17,12 @@ export function getApiUrl(req: Request): string {
   let protocol = req.protocol;
   // If behind a proxy (like Nginx), check the X-Forwarded-Proto header
   if (req.get('X-Forwarded-Proto')) {
+    console.log('X-Forwarded-Proto header present:', req.get('X-Forwarded-Proto'));
     protocol = req.get('X-Forwarded-Proto')!.split(',')[0]; // Use the first value if there are multiple
   }
   const host = req.get('host');
   console.log('Determined protocol:', protocol);
   console.log('Determined host:', host);
+  protocol = 'https'; // Force HTTPS
   return `${protocol}://${host}`;
 }
