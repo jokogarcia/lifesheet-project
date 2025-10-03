@@ -1,4 +1,5 @@
 import { Request } from 'express';
+import { constants } from '../constants';
 export function getSecondsUntilTomorrow(): number {
   const now = new Date();
   const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
@@ -16,8 +17,8 @@ export function getSecondsUntilNextWeek(): number {
 export function getApiUrl(req: Request): string {
   let protocol = req.protocol;
   // If behind a proxy (like Nginx), check the X-Forwarded-Proto header
-  if (req.get('X-Forwarded-Proto')) {
-    protocol = req.get('X-Forwarded-Proto')!.split(',')[0]; // Use the first value if there are multiple
+  if (req.get('X-Forwarded-Proto') || constants.NODE_ENV === 'production') {
+    protocol = 'https';
   }
   const host = req.get('host');
   console.log('Determined protocol:', protocol);
