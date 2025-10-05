@@ -26,6 +26,8 @@ router.get('/cv-toprint/:id', async (req, res) => {
       summaryTitle: 'PROFESSIONAL SUMMARY',
       skillsTitle: 'TECHNICAL SKILLS',
       languageSkillsTitle: 'LANGUAGE SKILLS',
+      projectsTitle: 'PROJECTS',
+      signatureTitle: 'SIGNATURE',
       name: cv.personal_info.fullName,
       title: cv.personal_info.title,
       //@ts-ignore
@@ -34,6 +36,8 @@ router.get('/cv-toprint/:id', async (req, res) => {
       workExperience: cv.work_experience,
       skills: cv.skills.map(s => s.name),
       languageSkills: cv.language_skills,
+      projects: cv.projects || [],
+      signature: cv.signature,
       profilePictureUrl: cv.personal_info.profilePictureUrl,
       summary: cv.personal_info.summary,
     };

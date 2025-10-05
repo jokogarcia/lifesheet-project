@@ -46,6 +46,19 @@ export interface LanguageSkill {
   level: string;
 }
 
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  url?: string;
+  skills?: Skill[];
+}
+
+export interface Signature {
+  imageUrl: string;
+  date: string;
+}
+
 interface CVToPDFOptions {
   pictureId?: string;
   template?: string;
@@ -80,6 +93,8 @@ export interface ICV extends Document {
   education: Education[];
   skills: Skill[];
   language_skills: LanguageSkill[];
+  projects?: Project[];
+  signature?: Signature;
   isPublic: boolean;
   created_at: Date;
   updated_at: Date;
@@ -151,6 +166,25 @@ const cvSchema = new Schema(
         level: { type: String, required: true },
       },
     ],
+    projects: [
+      {
+        id: String,
+        name: { type: String, required: true },
+        description: String,
+        url: String,
+        skills: [
+          {
+            id: String,
+            name: String,
+            level: String,
+          },
+        ],
+      },
+    ],
+    signature: {
+      imageUrl: String,
+      date: String,
+    },
     isPublic: {
       type: Boolean,
       default: false,
@@ -190,6 +224,8 @@ const cvSchema = new Schema(
         languageSkills: 'Language Skills',
         personalInfo: 'Personal Info',
         coverLetter: 'Cover Letter',
+        projects: 'Projects',
+        signature: 'Signature',
       },
     },
   },
@@ -207,5 +243,7 @@ export const defaultSectionOrder = [
   'workExperience',
   'education',
   'languages',
+  'projects',
+  'signature',
 ];
 export const defaultLeftColumnSections = ['personalInfo', 'skills', 'languages'];

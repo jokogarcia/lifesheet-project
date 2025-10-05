@@ -37,6 +37,8 @@
     "onboarding.step.education": "Education",
     "onboarding.step.skills": "Skills",
     "onboarding.step.profilePhoto": "Profile Photo",
+    "onboarding.step.signature": "Signature",
+    "onboarding.step.projects": "Projects",
     "onboarding.error.loadingPictures": "Error loading pictures:",
     "onboarding.validation.startStep": "Starting validation for step: {step}",
     "onboarding.validation.passedStep": "Passed validation for step: {step}",

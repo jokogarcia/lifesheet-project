@@ -12,6 +12,8 @@ import {
   ArrowLeft,
   ImageIcon,
   User,
+  BookHeart,
+  Signature as SignatureIcon,
 } from 'lucide-react';
 import { useUserCV } from '../../hooks/use-cv';
 import type {
@@ -20,6 +22,8 @@ import type {
   Education,
   Skill,
   LanguageSkill,
+  Project,
+  Signature,
 } from '../../services/cvs-service';
 import { useAuth } from '@/hooks/auth-hook';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -33,6 +37,8 @@ import {
 } from '../cv-tabs';
 import { CoverLetterTab } from '../cv-tabs/cover-letter-tab';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { ProjectsTab } from '../cv-tabs/projects-tab';
+import { SignatureTab } from '../cv-tabs/signature-tab';
 
 export function CVData() {
   const { user, getAccessTokenSilently } = useAuth();
@@ -47,6 +53,8 @@ export function CVData() {
   const [activeTab, setActiveTab] = useState(jumpToTab || 'personal');
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [pictures, setPictures] = useState<string[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [signature, setSignature] = useState<Signature | null>(null);
   const [isUploadingPicture, setIsUploadingPicture] = useState(false);
   // Form state
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({
@@ -102,6 +110,8 @@ export function CVData() {
       setEducation(cv.education);
       setSkills(cv.skills);
       setLanguageSkills(cv.language_skills || []);
+      setProjects(cv.projects || []);
+      setSignature(cv.signature || null);
     }
   }, [cv, isEditing]);
   useEffect(() => {
@@ -133,6 +143,8 @@ export function CVData() {
       setEducation(cv.education);
       setSkills(cv.skills);
       setLanguageSkills(cv.language_skills || []);
+      setProjects(cv.projects || []);
+      setSignature(cv.signature || null);
     }
     setIsEditing(true);
   };
@@ -155,6 +167,8 @@ export function CVData() {
         skills: skills,
         language_skills: languageSkills,
         tailored: cv.tailored,
+        projects: projects,
+        signature: signature || undefined,
       });
 
       setIsEditing(false);
@@ -224,7 +238,7 @@ export function CVData() {
 
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="max-w-7xl mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         {isMainCv && <div>
@@ -327,7 +341,7 @@ export function CVData() {
 
 
           <div className="w-full text-left">
-            <div className="grid grid-cols-5 mb-4">
+            <div className="grid grid-cols-7 mb-4">
               <div
                 onClick={() => setActiveTab('personal')}
                 className="flex items-center gap-2 cursor-pointer"
@@ -350,6 +364,13 @@ export function CVData() {
                 <FormattedMessage id="cvData.tab.education" defaultMessage="Education" />
               </div>
               <div
+                onClick={() => setActiveTab('projects')}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <BookHeart className="h-4 w-4" />
+                <FormattedMessage id="cvData.tab.projects" defaultMessage="Projects" />
+              </div>
+              <div
                 onClick={() => setActiveTab('skills')}
                 className="flex items-center gap-2 cursor-pointer"
               >
@@ -362,6 +383,14 @@ export function CVData() {
               >
                 <ImageIcon className="h-4 w-4" />
                 <FormattedMessage id="cvData.tab.pictures" defaultMessage="Pictures" />
+              </div>
+
+              <div
+                onClick={() => setActiveTab('signature')}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <SignatureIcon className="h-4 w-4" />
+                <FormattedMessage id="cvData.tab.signature" defaultMessage="Signature" />
               </div>
               {cv?.tailored?.coverLetter && <div
                 onClick={() => setActiveTab('coverLetter')}
@@ -402,6 +431,18 @@ export function CVData() {
               />
             )}
 
+            {/* Projects Tab */}
+
+            {activeTab === 'projects' && (
+              <ProjectsTab
+                isEditing={isEditing}
+                projects={projects}
+                setProjects={setProjects}
+                cv={cv}
+                availableSkills={cv?.skills || []}
+              />
+            )}
+
             {/* Skills Tab */}
             {activeTab === 'skills' && (
               <SkillsTab
@@ -425,6 +466,16 @@ export function CVData() {
                 isUploadingPicture={isUploadingPicture}
                 handlePictureUpload={handlePictureUpload}
                 handleDeletePicture={handleDeletePicture}
+              />
+            )}
+
+            {/* Signature Tab */}
+            {activeTab === 'signature' && (
+              <SignatureTab
+                isEditing={isEditing}
+                signature={signature}
+                setSignature={setSignature}
+                cv={cv}
               />
             )}
             {/* Cover Letter Tab */}

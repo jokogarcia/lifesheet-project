@@ -1,5 +1,5 @@
 import { defaultSectionOrder, type CV } from "@/services/cvs-service";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { CardContent, CardHeader, Card } from './card';
@@ -26,6 +26,7 @@ function standardize_color(str: string | undefined) {
     ctx.fillStyle = str;
     return ctx.fillStyle;
 }
+const defaultColorList = ['cadetblue', 'darkgreen', 'darkblue', 'darkred', 'darkorange'];
 
 function EditableSectionCard({ title, children, toolBarOptions, menuOptions, onIncludeChange, disableInclude }: EditableSectionCardProps) {
     const [hidden, setIsHidden] = useState(true);
@@ -74,7 +75,9 @@ function EditableSectionCard({ title, children, toolBarOptions, menuOptions, onI
     </Card>;
 }
 function getSections(cv: CV): string[] {
+    
     let sections
+    
     if (!cv.tailored || !cv.tailored?.sectionOrder) {
         sections = defaultSectionOrder;
     } else {
@@ -150,6 +153,8 @@ export function EditableCV({ cv, setCV }: { cv: CV, setCV: (cv: CV) => void }) {
         if (section === 'workExperience') section = 'experience';
         if (section === 'cover-letter') section = 'coverLetter';
         if (section === 'languages') section = 'skills';
+        if (section === 'projects') section = 'projects';
+        if (section === 'signature') section = 'signature';
 
         navigate(`/cv-data?edit=true&tab=${section}&cvId=${cv._id}`);
     }
@@ -227,40 +232,27 @@ export function EditableCV({ cv, setCV }: { cv: CV, setCV: (cv: CV) => void }) {
                     <span>Two Column</span>
                 </label>
             </div>
-            <div className="flex flex-row space-x-2">
-                <p className="font-semibold mr-4">Colors:</p>
-                <input
-                    type="color"
-                    value={standardize_color(cv.tailored?.pdfOptions?.primaryColorOverride)}
-                    onChange={e => {
-                        cv.tailored && (cv.tailored.pdfOptions = { ...cv.tailored.pdfOptions, primaryColorOverride: e.target.value })
+            <DiscreteColorPicker
+                label="Primary Color"
+                options={[cv.tailored?.pdfOptions?.primaryColorOverride || 'black', ...defaultColorList]}
+                onColorChange={(color: string) => {
+                    if (cv.tailored) {
+                        cv.tailored.pdfOptions = { ...cv.tailored.pdfOptions, primaryColorOverride: color };
                         reRender();
-                    }}
-                    className="h-6 w-6 p-1"
-                />
-                <span className="ml-2">Primary</span>
-                <input
-                    type="color"
-                    value={standardize_color(cv.tailored?.pdfOptions?.secondaryColorOverride)}
-                    onChange={e => {
-                        cv.tailored && (cv.tailored.pdfOptions = { ...cv.tailored.pdfOptions, secondaryColorOverride: e.target.value })
-                        reRender();
-                    }}
-                    className="h-6 w-6 p-1"
-                />
-                <span className="ml-2">Secondary</span>
-                <input
-                    type="color"
-                    value={standardize_color(cv.tailored?.pdfOptions?.textColorOverride)}
-                    onChange={e => {
-                        cv.tailored && (cv.tailored.pdfOptions = { ...cv.tailored.pdfOptions, textColorOverride: e.target.value })
-                        reRender();
-                    }}
-                    className="h-6 w-6 p-1"
-                />
-                <span className="ml-2">Main Text</span>
+                    }
+                }}
+            />
+            <DiscreteColorPicker label="Secondary Color" options={[cv.tailored?.pdfOptions?.secondaryColorOverride || 'black', 'lightblue', 'lightsalmon', 'linen', 'whitesmoke']} 
+            onColorChange={color => {
+                cv.tailored && (cv.tailored.pdfOptions = { ...cv.tailored.pdfOptions, secondaryColorOverride: color })
+                reRender();
+            }} />
+            <DiscreteColorPicker label="Text Color" options={[cv.tailored?.pdfOptions?.textColorOverride || 'black', '#333333', '#555500', '#000000', '#000055']} 
+            onColorChange={color => {
+                cv.tailored && (cv.tailored.pdfOptions = { ...cv.tailored.pdfOptions, textColorOverride: color })
+                reRender();
+            }} />
 
-            </div>
             <PictureSelector onPictureSelected={handlePictureSelected} />
 
         </div>
@@ -379,6 +371,57 @@ export function EditableCV({ cv, setCV }: { cv: CV, setCV: (cv: CV) => void }) {
                         ))}
                         </ul>
                     </EditableSectionCard>);
+                case 'projects':
+                    return (<EditableSectionCard title="Projects" onIncludeChange={s => { onHideSection('projects', s) }} toolBarOptions={[
+                        ColumnToggleButton('projects'),
+                        { name: 'Edit', icon: <Pencil />, action: () => editSection('projects') },
+                        { name: 'Move up', icon: <ArrowUp />, action: () => { moveSectionUp('projects') } },
+                        { name: 'Move down', icon: <ArrowDown />, action: () => { moveSectionDown('projects') } },
+                    ]}>
+                        {cv.projects && cv.projects.length > 0 ? (
+                            cv.projects.map(project => (
+                                <div key={project.id} className="mb-2">
+                                    <h4 className="font-semibold">{project.name}</h4>
+                                    <p className="text-sm text-muted-foreground">{project.description}</p>
+                                    {project.url && (
+                                        <a href={project.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                            View Project
+                                        </a>
+                                    )}
+                                    {project.skills && project.skills.length > 0 && (
+                                        <div className="mt-1">
+                                            <span className="text-sm font-medium">Skills: </span>
+                                            <span className="text-sm">{project.skills.map(skill => skill.name).join(', ')}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-muted-foreground">No projects added yet.</p>
+                        )}
+                    </EditableSectionCard>);
+                case 'signature':
+                    return (<EditableSectionCard title="Signature" onIncludeChange={s => { onHideSection('signature', s) }} toolBarOptions={[
+                        ColumnToggleButton('signature'),
+                        { name: 'Edit', icon: <Pencil />, action: () => editSection('signature') },
+                        { name: 'Move up', icon: <ArrowUp />, action: () => { moveSectionUp('signature') } },
+                        { name: 'Move down', icon: <ArrowDown />, action: () => { moveSectionDown('signature') } },
+                    ]}>
+                        {cv.signature ? (
+                            <div className="space-y-2">
+                                {cv.signature.imageUrl && (
+                                    <div>
+                                        <img src={cv.signature.imageUrl} alt="Signature" className="max-w-xs max-h-32 object-contain" />
+                                    </div>
+                                )}
+                                {cv.signature.date && (
+                                    <p className="text-sm text-muted-foreground">Date: {cv.signature.date}</p>
+                                )}
+                            </div>
+                        ) : (
+                            <p className="text-muted-foreground">No signature added yet.</p>
+                        )}
+                    </EditableSectionCard>);
             }
         })}
     </div>;
@@ -390,3 +433,36 @@ function LeftColumnIcon() {
 function RightColumnIcon() {
     return <img src="/right-column.svg" alt="Right Column Icon" className="h-5 w-5" />;
 } 
+
+function DiscreteColorPicker({ label, options, onColorChange }: { label: string, options: string[], onColorChange: (color: string) => void }) {
+    const pickerRef = useRef<HTMLInputElement>(null);
+    return <div className="flex flex-row space-x-2">
+        <p>{label}</p>
+        {options.map(option => (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" 
+            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            onClick={() => onColorChange(option)}
+            style={{cursor: 'pointer' }}>
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" fill={standardize_color(option)} />
+            </svg>
+        ))}
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" 
+            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            onClick={() => {pickerRef.current?.click()}}
+            style={{cursor: 'pointer' }}>
+                <defs>
+                    <linearGradient id="multicolorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#ff0000" />
+                        <stop offset="25%" stopColor="#ff00ff" />
+                        <stop offset="50%" stopColor="#0000ff" />
+                        <stop offset="75%" stopColor="#fff000" />
+                        <stop offset="100%" stopColor="#00ff00" />
+                    </linearGradient>
+                </defs>
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" 
+                fill="url(#multicolorGradient)" />
+            </svg>
+        <input hidden ref = {pickerRef} type="color" value={standardize_color(options[0])} onChange={e => onColorChange(e.target.value)} className="h-6 w-6 p-1" />
+
+    </div>
+}

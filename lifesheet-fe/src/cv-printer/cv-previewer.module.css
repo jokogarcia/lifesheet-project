@@ -308,3 +308,24 @@ div.coverLetter {
     margin-top: 1em;
   }
 }
+div.signature-section {
+  align-items: center;
+  justify-content: center;
+  text-align: right;
+  img {
+    height: 3cm;
+    width: auto;
+    margin-bottom: -1cm;
+    margin-left:auto;
+  }
+  h1 {
+    font-size: 1.2em;
+    margin: 0;
+    border:0;
+  }
+  h2 {
+    font-size: 1em;
+    margin: 0;
+    border:0;
+  }
+}

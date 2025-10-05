@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import moduleStyles from './cv-previewer.module.css';
 import { defaultLeftColumnSections, defaultPdfOptions, defaultSectionOrder, type CV, type CVToPDFOptions } from '@/services/cvs-service';
 import ReactMarkdown from 'react-markdown';
+import { FormattedMessage } from 'react-intl';
 
 interface CVPreviewerProps {
   cvData: CV;
@@ -109,6 +110,10 @@ export function renderTwoColumns({ cvData, printMode }: CVPreviewerProps) {
                 return renderEducationSection(cvData, moduleStyles);
               case 'languages':
                 return renderLanguagesSection(cvData, moduleStyles);
+              case 'projects':
+                return renderProjectsSection(cvData, moduleStyles);
+              case 'signature':
+                return renderSignatureSection(cvData, moduleStyles);
               default:
                 return null;
             }
@@ -135,6 +140,10 @@ export function renderTwoColumns({ cvData, printMode }: CVPreviewerProps) {
                 return renderEducationSection(cvData, moduleStyles);
               case 'languages':
                 return renderLanguagesSection(cvData, moduleStyles);
+              case 'projects':
+                return renderProjectsSection(cvData, moduleStyles);
+              case 'signature':
+                return renderSignatureSection(cvData, moduleStyles);
               default:
                 return null;
             }
@@ -220,6 +229,10 @@ export function renderOneColumn({ cvData, printMode }: CVPreviewerProps) {
             return renderEducationSection(cvData, moduleStyles);
           case 'languages':
             return renderLanguagesSection(cvData, moduleStyles);
+          case 'projects':
+            return renderProjectsSection(cvData, moduleStyles);
+          case 'signature':
+            return renderSignatureSection(cvData, moduleStyles);
           default:
             return null;
         }
@@ -267,22 +280,18 @@ const renderWorkExperienceSection = (cvData: CV, moduleStyles: any) => {
     <h2>{cvData.sectionTitles['workExperience'] || 'Work Experience'}</h2>
     {cvData.work_experience.map(job => (
       <div className={`work-experience ${moduleStyles['work-experience']}`} key={job.id}>
-        <h3 className={`we-jobtitle ${moduleStyles['we-jobtitle']}`}>{job.position}</h3>
-        <span className={`we-company ${moduleStyles['we-company']}`}>{job.company}</span>
-
+        <h3 className={`we-jobtitle ${moduleStyles['we-jobtitle']}`}>
+          <strong>{job.position} </strong> 
+          <FormattedMessage id="work-experience.at" defaultMessage="at" /> 
+           { ' '} { job.company}
+        </h3>
+        
+        
         <span className={`we-dates ${moduleStyles['we-dates']}`}>
           {job.startDate} - {job.endDate}
         </span>
         <h5 className={`we-location ${moduleStyles['we-location']}`}>📍 {job.location}</h5>
-        <p>{job.description}</p>
-        {job.achievements && (
-          <ul>
-            {job.achievements.map((a, i) => (
-              <li key={i}>{a}</li>
-            ))}
-          </ul>
-        )}
-      </div>
+        <p>{job.description}</p></div>
     ))}
   </div>;
 };
@@ -292,8 +301,7 @@ const renderSkillsSection = (cvData: CV, moduleStyles: any) => {
     <ul className={`${moduleStyles['skills-list']} skills-list`}>
       {cvData.skills.map(skill => (
         <li key={skill.id}>{skill.name}</li>
-      ))}
-    </ul>
+      ))}</ul>
   </div>;
 };
 const renderSummarySection = (cvData: CV, moduleStyles: any) => {
@@ -314,3 +322,24 @@ const renderPersonalInfo = (cvData: CV, moduleStyles: any) => {
     {cvData.personal_info.github && <p><strong>GitHub:</strong> {cvData.personal_info.github}</p>}
   </div>;
 }
+const renderProjectsSection = (cvData: CV, moduleStyles: any) => {
+  console.log("Rendering projects section");
+  return <div className={`section breakable ${moduleStyles.section} ${moduleStyles.breakable}`}>
+    <h2>{cvData.sectionTitles['projects'] || 'Projects'}</h2>
+    {cvData.projects?.map(project => (
+      <div key={project.id} className={`work-experience ${moduleStyles['work-experience']}`} ><h3>{project.name} {project.url && <a href={project.url} target="_blank" rel="noopener noreferrer">{project.url}</a>}</h3>
+      <p>{project.description}</p>
+      {project.skills && <p>Skills: {project.skills.map(skill => skill.name).join(' ')}</p>}
+      </div>
+    ))}
+  </div>;
+};
+const renderSignatureSection = (cvData: CV, moduleStyles: any) => {
+  console.log("Rendering signature section");
+  return <div className={`section ${moduleStyles.section} signature-section ${moduleStyles['signature-section']}`}>
+    
+    {cvData.signature?.imageUrl && <img src={cvData.signature.imageUrl} alt="Signature" />}
+    <h1>{cvData.personal_info.fullName}</h1>
+    <h2>{cvData?.signature?.date || ''}</h2>
+  </div>;
+};

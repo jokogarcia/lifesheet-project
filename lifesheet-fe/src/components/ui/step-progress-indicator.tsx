@@ -6,10 +6,11 @@ export interface StepProgressIndicatorProps {
 }
 export const StepProgressIndicator = (props: StepProgressIndicatorProps) => {
   const { steps, currentStep, onStepClick } = props;
-
+  const width = Math.floor(100/steps.length);
+  console.log("width", width);
   return (
-    <div className={moduleStyles['progressbar-wrapper']}>
-      <ul className={moduleStyles.progressbar}>
+    <div className={moduleStyles['progressbar-wrapper'] }>
+      <ul className={moduleStyles.progressbar} >
         {steps.map((step, index) => {
           let className = '';
           if (onStepClick) className = moduleStyles.interactive;
@@ -19,6 +20,7 @@ export const StepProgressIndicator = (props: StepProgressIndicatorProps) => {
             <li
               key={index}
               className={className}
+              style={{width: `${width}%`}}
               onClick={() => !!onStepClick && onStepClick(index)}
             >
               {step}

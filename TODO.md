@@ -3,7 +3,8 @@ tailor-cv view
 remove preview button X
 add WYSIWYG editor for job description X
 implement "Download Tailored CV" functionality X
-When manualy tailoring a CV, save to server on every step
+When manualy tailoring a CV, save to server on every step X
+Add fields: Signature, Projects,
 
 General:
 

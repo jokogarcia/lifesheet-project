@@ -134,6 +134,8 @@ function createBlankCV(userId: string, userEmail: string, userName: string) {
     education: [],
     skills: [],
     language_skills: [],
+    projects: [],
+    signature: undefined,
     isPublic: false,
     created_at: new Date(),
     updated_at: new Date(),

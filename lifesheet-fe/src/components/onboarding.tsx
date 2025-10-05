@@ -16,12 +16,16 @@ import type {
   Education,
   Skill,
   LanguageSkill,
+  Signature,
+  Project,
 } from '@/services/cvs-service';
 import * as userService from '@/services/user-service';
 import { LoadingIndicator } from './ui/loading-indicator';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useAuth } from '@/hooks/auth-hook';
 import posthog from 'posthog-js';
+import { ProjectsTab } from './cv-tabs/projects-tab';
+import { SignatureTab } from './cv-tabs/signature-tab';
 
 export const Onboarding = () => {
   const intl = useIntl();
@@ -31,8 +35,10 @@ export const Onboarding = () => {
     intl.formatMessage({ id: 'onboarding.step.personalInfo', defaultMessage: 'Personal Information' }),
     intl.formatMessage({ id: 'onboarding.step.workExperience', defaultMessage: 'Work Experience' }),
     intl.formatMessage({ id: 'onboarding.step.education', defaultMessage: 'Education' }),
+    intl.formatMessage({ id: 'onboarding.step.projects', defaultMessage: 'Projects' }),
     intl.formatMessage({ id: 'onboarding.step.skills', defaultMessage: 'Skills' }),
-    intl.formatMessage({ id: 'onboarding.step.profilePhoto', defaultMessage: 'Profile Photo' })
+    intl.formatMessage({ id: 'onboarding.step.profilePhoto', defaultMessage: 'Profile Photo' }),
+    intl.formatMessage({ id: 'onboarding.step.signature', defaultMessage: 'Signature' })
   ];
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -74,6 +80,8 @@ export const Onboarding = () => {
   const [languageSkills, setLanguageSkills] = useState<LanguageSkill[]>([]);
   const [newLanguageSkill, setNewLanguageSkill] = useState({ language: '', level: 'Intermediate' });
   const [pictures, setPictures] = useState<string[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [signature, setSignature] = useState<Signature | null>(null);
   const [isUploadingPicture, setIsUploadingPicture] = useState(false);
   const [canClickNext, setCanClickNext] = useState(false);
   const { getAccessTokenSilently } = useAuth();
@@ -101,6 +109,8 @@ export const Onboarding = () => {
       setEducation(cv.education);
       setSkills(cv.skills);
       setLanguageSkills(cv.language_skills);
+      setProjects(cv.projects || []);
+      setSignature(cv.signature || null);
     }
   }, [cv]);
   useEffect(() => {
@@ -189,6 +199,9 @@ export const Onboarding = () => {
         education: education,
         skills: skills,
         language_skills: languageSkills,
+        projects: projects,
+        signature: signature || undefined,
+        
       });
 
     } catch (error) {
@@ -243,6 +256,16 @@ export const Onboarding = () => {
               );
             case 3:
               return (
+                <ProjectsTab
+                  isEditing={true}
+                  cv={cv}
+                  projects={projects}
+                  setProjects={setProjects}
+                  availableSkills={cv?.skills || []}
+                />
+              );
+            case 4:
+              return (
                 <SkillsTab
                   isEditing={true}
                   cv={cv}
@@ -256,13 +279,22 @@ export const Onboarding = () => {
                   setNewLanguageSkill={setNewLanguageSkill}
                 />
               );
-            case 4:
+            case 5:
               return (
                 <PicturesTab
                   pictures={pictures}
                   isUploadingPicture={isUploadingPicture}
                   handlePictureUpload={handlePictureUpload}
                   handleDeletePicture={handleDeletePicture}
+                />
+              );
+            case 6:
+              return (
+                <SignatureTab
+                  isEditing={true}
+                  cv={cv}
+                  signature={signature}
+                  setSignature={setSignature}
                 />
               );
             default:

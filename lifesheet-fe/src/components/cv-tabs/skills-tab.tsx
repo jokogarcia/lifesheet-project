@@ -33,10 +33,10 @@ export function SkillsTab({
       const skill: Skill = {
         id: Date.now().toString(),
         name: newSkill.name,
-        level: newSkill.level,
+        level: 'Advanced',
       };
       setSkills([...skills, skill]);
-      setNewSkill({ name: '', level: 'Intermediate' });
+      setNewSkill({ name: '', level: 'Advanced' });
     }
   };
 
@@ -80,24 +80,6 @@ export function SkillsTab({
                   placeholder={intl.formatMessage({ id: "dashboard.skillName.placeholder", defaultMessage: "Skill name (e.g., JavaScript, Project Management)" })}
                   className="flex-1 border rounded-lg p-2 placeholder-gray-500"
                 />
-                <select
-                  value={newSkill.level}
-                  onChange={e => setNewSkill({ ...newSkill, level: e.target.value })}
-                  className="px-3 py-2 border rounded-md"
-                >
-                  <option value="Beginner">
-                    {intl.formatMessage({ id: "dashboard.skillLevel.beginner", defaultMessage: "Beginner" })}
-                  </option>
-                  <option value="Intermediate">
-                    {intl.formatMessage({ id: "dashboard.skillLevel.intermediate", defaultMessage: "Intermediate" })}
-                  </option>
-                  <option value="Advanced">
-                    {intl.formatMessage({ id: "dashboard.skillLevel.advanced", defaultMessage: "Advanced" })}
-                  </option>
-                  <option value="Expert">
-                    {intl.formatMessage({ id: "dashboard.skillLevel.expert", defaultMessage: "Expert" })}
-                  </option>
-                </select>
                 <button
                   onClick={addSkill}
                   className="bg-green-100 text-green-600 px-4 py-2 rounded btn-custom"

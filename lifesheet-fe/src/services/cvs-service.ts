@@ -46,11 +46,25 @@ export interface Skill {
   level: string;
 }
 
+
 export interface LanguageSkill {
   id: string;
   language: string;
   level: string;
 }
+
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  url?: string;
+  skills?: Skill[];
+}
+export interface Signature {
+  imageUrl: string;
+  date: string;
+}
+
 export interface CV {
   _id: string;
 
@@ -64,6 +78,8 @@ export interface CV {
   user_id: string;
   tailored?: TailoredData;
   sectionTitles: { [key: string]: string };
+  projects?: Project[];
+  signature?: Signature;
 }
 export interface CVListItem {
   _id: string;
@@ -79,9 +95,11 @@ export interface CreateOrUpdateCVRequest {
   skills: Skill[];
   language_skills?: LanguageSkill[];
   tailored?: TailoredData;
+  projects?: Project[];
+  signature?: Signature;
 }
-export const defaultSectionOrder = ['cover-letter', 'personalInfo', 'summary', 'skills', 'workExperience', 'education', 'languages'];
-export const defaultLeftColumnSections = ['personalInfo', 'skills', 'languages'];
+export const defaultSectionOrder = ['cover-letter', 'personalInfo', 'summary', 'skills', 'workExperience', 'education', 'languages', 'projects', 'signature'];
+export const defaultLeftColumnSections = ['personalInfo', 'skills', 'languages', 'projects', 'signature'];
 export const defaultPdfOptions: CVToPDFOptions = {
   includeEmail: true,
   includePhone: true,
