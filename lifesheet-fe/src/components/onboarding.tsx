@@ -95,10 +95,7 @@ export const Onboarding = () => {
         const userPictures = await userService.getUserPictures(token);
         setPictures(userPictures);
       } catch (error) {
-        console.error(intl.formatMessage({
-          id: 'onboarding.error.loadingPictures',
-          defaultMessage: 'Error loading pictures:'
-        }), error);
+        console.error('Error loading pictures:', error);
       }
     };
     loadPictures();
@@ -171,10 +168,7 @@ export const Onboarding = () => {
         setPictures(updatedPictures);
 
       } catch (error) {
-        console.error(intl.formatMessage({
-          id: 'onboarding.error.pictureUpload',
-          defaultMessage: 'Error uploading picture:'
-        }), error);
+        console.error('Error uploading picture:', error);
       } finally {
         setIsUploadingPicture(false);
       }
@@ -188,10 +182,7 @@ export const Onboarding = () => {
       // Remove the picture from state
       setPictures(pictures.filter(id => id !== pictureId));
     } catch (error) {
-      console.error(intl.formatMessage({
-        id: 'onboarding.error.pictureDelete',
-        defaultMessage: 'Error deleting picture:'
-      }), error);
+      console.error('Error deleting picture:', error);
     }
   };
   const handleSave = async () => {
@@ -214,10 +205,7 @@ export const Onboarding = () => {
       });
 
     } catch (error) {
-      console.error(intl.formatMessage({
-        id: 'onboarding.error.savingCV',
-        defaultMessage: 'Error saving CV:'
-      }), error);
+      console.error('Error saving CV:', error);
     }
   };
   if (isLoadingCV) {

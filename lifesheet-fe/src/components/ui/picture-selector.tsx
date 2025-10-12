@@ -33,10 +33,7 @@ export function PictureSelector({ onPictureSelected }: PictureSelectorProps) {
           onPictureSelected(undefined);
         }
       } catch (error) {
-        console.error(intl.formatMessage(
-          { id: 'pictureSelector.errorLoading', defaultMessage: 'Error loading pictures:' }),
-          error
-        );
+        console.error('Error loading pictures:', error);
         setError(intl.formatMessage(
           { id: 'pictureSelector.failedToLoad', defaultMessage: 'Failed to load pictures. Please try again later.' }
         ));

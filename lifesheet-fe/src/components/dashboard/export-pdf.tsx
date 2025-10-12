@@ -79,7 +79,7 @@ export function ExportPdf() {
     if (!cv) return;
     await saveCV(cv._id, cv);
     try {
-      console.log(intl.formatMessage({ id: 'exportPdf.generatingPdf', defaultMessage: 'Generating PDF...' }));
+      console.log('Generating PDF...');
       const html = document.getElementById('rendered-cv-container')?.outerHTML;
       setIsGenerating(true);
 
@@ -103,7 +103,7 @@ export function ExportPdf() {
       document.body.removeChild(a);
       posthog.capture('cv_pdf_exported');
     } catch (error) {
-      console.error(intl.formatMessage({ id: 'exportPdf.errorGeneratingPdf', defaultMessage: 'Error generating PDF:' }), error);
+      console.error('Error generating PDF:', error);
     } finally {
       setPrintMode(false);
       setIsGenerating(false);

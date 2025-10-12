@@ -53,10 +53,7 @@ export function TailorCV() {
       );
       await navigate(`/export-pdf?cvId=${tailoredCVId}`);
     } catch (error) {
-      console.error(intl.formatMessage({
-        id: 'tailorCV.error.tailoringFailed',
-        defaultMessage: 'Error tailoring CV:'
-      }), error);
+      console.error('Error tailoring CV:', error);
       // Show error message to user
       alert(intl.formatMessage({
         id: 'tailorCV.error.tryAgain',
@@ -84,10 +81,7 @@ export function TailorCV() {
       );
       await navigate(`/export-pdf?cvId=${tailoredCVId}`);
     } catch (error) {
-      console.error(intl.formatMessage({
-        id: 'tailorCV.error.tailoringFailed',
-        defaultMessage: 'Error tailoring CV:'
-      }), error);
+      console.error('Error tailoring CV:', error);
       // Show error message to user
       alert(intl.formatMessage({
         id: 'tailorCV.error.tryAgain',

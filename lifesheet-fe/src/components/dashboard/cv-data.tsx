@@ -128,10 +128,7 @@ export function CVData() {
         const userPictures = await userService.getUserPictures(token);
         setPictures(userPictures);
       } catch (error) {
-        console.error(intl.formatMessage(
-          { id: 'cvData.loadPicturesError', defaultMessage: 'Error loading pictures:' }),
-          error
-        );
+        console.error('Error loading pictures:', error);
       }
     };
     loadPictures();
@@ -179,7 +176,7 @@ export function CVData() {
         if (!isMainCv) navigate(-1);
       }, 700);
     } catch (error) {
-      console.error(intl.formatMessage({ id: 'cvData.errorSaving', defaultMessage: 'Error saving CV:' }), error);
+      console.error('Error saving CV:', error);
     }
   };
 
@@ -202,15 +199,9 @@ export function CVData() {
         // Reload pictures to get the updated list
         const updatedPictures = await userService.getUserPictures(token);
         setPictures(updatedPictures);
-        console.log(intl.formatMessage(
-          { id: 'cvData.pictureUploadSuccess', defaultMessage: 'Picture uploaded successfully:' }),
-          pictureId
-        );
+        console.log('Picture uploaded successfully:', pictureId);
       } catch (error) {
-        console.error(intl.formatMessage(
-          { id: 'cvData.pictureUploadError', defaultMessage: 'Error uploading picture:' }),
-          error
-        );
+        console.error('Error uploading picture:', error);
       } finally {
         setIsUploadingPicture(false);
       }
@@ -224,10 +215,7 @@ export function CVData() {
       // Remove the picture from state
       setPictures(pictures.filter(id => id !== pictureId));
     } catch (error) {
-      console.error(intl.formatMessage(
-        { id: 'cvData.pictureDeleteError', defaultMessage: 'Error deleting picture:' }),
-        error
-      );
+      console.error('Error deleting picture:', error);
     }
   };
 
