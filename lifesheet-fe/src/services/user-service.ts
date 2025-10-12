@@ -65,6 +65,7 @@ export async function uploadPicture(file: File, token: string): Promise<string> 
   return response.data.pictureId;
 }
 
+
 export async function deletePicture(pictureId: string, token: string): Promise<void> {
   console.log('🔄 UserService: Deleting picture...');
   await getClient(token).delete(`/user/me/picture/${pictureId}`);

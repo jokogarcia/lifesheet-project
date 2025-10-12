@@ -8,9 +8,10 @@ import fs from 'fs';
 import path from 'path';
 import Picture from '../../../models/picture.model';
 router.post('/generate-pdf', async (req, res) => {
-  const { html, imageId, docTitle } = req.body as {
+  const { html, imageId, docTitle, signatureImageId } = req.body as {
     html: string;
     imageId?: string;
+    signatureImageId?: string;
     docTitle?: string;
   };
   const filename = docTitle?.replace(/\s+/g, '-') || 'CV';
@@ -22,8 +23,19 @@ router.post('/generate-pdf', async (req, res) => {
     Picture.findById(imageId).then(picture => {
       if (picture) {
         fullPage = replaceImageSrc(fullPage, 'img.profile-photo', picture.filepath);
+        
       } else {
         throw new Error('Image not found');
+      }
+    });
+  }
+  if (signatureImageId) {
+    Picture.findById(signatureImageId).then(picture => {
+      if (picture) {
+        fullPage = replaceImageSrc(fullPage, 'img.signature', picture.filepath);
+      }
+      else{
+        throw new Error('Signature image not found');
       }
     });
   }
@@ -68,6 +80,7 @@ function replaceImageSrc(html: string, selector: string, newSrc: string): string
   const dom = new JSDOM(html);
   const doc = dom.window.document;
   const img = doc.querySelector(selector) as HTMLImageElement | null;
+  
   if (img) img.setAttribute('src', newSrc);
   return dom.serialize(); // or doc.documentElement.outerHTML
 }

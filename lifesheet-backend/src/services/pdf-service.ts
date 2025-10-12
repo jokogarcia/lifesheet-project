@@ -65,13 +65,13 @@ export class PDFService {
       page.on('requestfailed', request => {
         console.log('[Puppeteer request failed]', request.url(), request.failure()?.errorText);
       });
-      await page.waitForFunction(
-        () => {
-          const images = Array.from(document.querySelectorAll('img'));
-          return images.every(img => img.complete);
-        },
-        { timeout: 10000 }
-      );
+      // await page.waitForFunction(
+      //   () => {
+      //     const images = Array.from(document.querySelectorAll('img'));
+      //     return images.every(img => img.complete);
+      //   },
+      //   { timeout: 10000 }
+      // );
 
       const pdfBuffer = await page.pdf({
         format: options?.format || 'A4',

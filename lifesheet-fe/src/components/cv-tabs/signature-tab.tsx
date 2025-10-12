@@ -2,13 +2,15 @@ import { PenTool, Upload, X } from 'lucide-react';
 import React, { useState } from 'react';
 import type { CV, Signature } from '../../services/cvs-service';
 import { FormattedMessage, useIntl } from 'react-intl';
-
+import { constants } from '@/constants';
+import * as userService from '../../services/user-service';
+import { useAuth } from '@/hooks/auth-hook';
+import { SecureImg } from '../ui/secure-img';
 interface SignatureTabProps {
   isEditing: boolean;
   signature: Signature | null;
   setSignature: (signature: Signature | null) => void;
   cv: CV | null;
-  onSignatureUpload?: (file: File) => Promise<string>;
 }
 
 export function SignatureTab({
@@ -16,11 +18,11 @@ export function SignatureTab({
   signature,
   setSignature,
   cv,
-  onSignatureUpload,
 }: SignatureTabProps) {
   const intl = useIntl();
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const authService = useAuth();
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -67,7 +69,7 @@ export function SignatureTab({
     }
 
     // Validate file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
+    if (file.size > constants.MAX_FILE_SIZE) {
       alert(intl.formatMessage({
         id: 'signature.error.fileTooLarge',
         defaultMessage: 'File size must be less than 2MB.'
@@ -77,19 +79,12 @@ export function SignatureTab({
 
     setIsUploading(true);
     try {
-      let imageUrl: string;
-      
-      if (onSignatureUpload) {
-        // Use provided upload function (e.g., upload to server)
-        imageUrl = await onSignatureUpload(file);
-      } else {
-        // Create local URL for preview
-        imageUrl = URL.createObjectURL(file);
-      }
-
+      let imageId: string;
+      const token = await authService.getAccessTokenSilently();
+      imageId = await userService.uploadPicture(file, token);
       // Create signature object with current date
       const newSignature: Signature = {
-        imageUrl,
+        imageId: imageId,
         date: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
       };
 
@@ -127,9 +122,8 @@ export function SignatureTab({
                   onDragEnter={handleDragEnter}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                    isDraggingOver ? 'border-primary bg-primary/10' : 'border-muted-foreground/25'
-                  }`}
+                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${isDraggingOver ? 'border-primary bg-primary/10' : 'border-muted-foreground/25'
+                    }`}
                 >
                   <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                   <div className="space-y-2">
@@ -169,19 +163,21 @@ export function SignatureTab({
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
                     <div className="flex items-center gap-3">
-                      <img
-                        src={signature.imageUrl}
-                        alt="Signature preview"
-                        className="h-16 w-auto border border-gray-300 rounded bg-white"
-                        style={{ maxWidth: '200px' }}
-                      />
+                      <SecureImg
+                        pictureId={signature.imageId}
+                        alt={intl.formatMessage({
+                          id: 'dashboard.signaturePreview',
+                          defaultMessage: 'Signature preview'
+                        })}
+                        className="h-20 w-auto border border-gray-300 rounded bg-white max-w-[250px]" />
+
                       <div>
                         <p className="font-medium">
                           <FormattedMessage id="dashboard.signatureUploaded" defaultMessage="Signature uploaded" />
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          <FormattedMessage 
-                            id="dashboard.signatureDate" 
+                          <FormattedMessage
+                            id="dashboard.signatureDate"
                             defaultMessage="Date: {date}"
                             values={{ date: signature.date }}
                           />
@@ -230,19 +226,20 @@ export function SignatureTab({
               ) : (
                 <div className="p-4 border rounded-lg bg-gray-50">
                   <div className="flex items-center gap-4">
-                    <img
-                      src={cv.signature.imageUrl}
-                      alt="Digital signature"
-                      className="h-20 w-auto border border-gray-300 rounded bg-white"
-                      style={{ maxWidth: '250px' }}
-                    />
+                    <SecureImg
+                      pictureId={cv.signature.imageId}
+                      alt={intl.formatMessage({
+                        id: 'dashboard.signaturePreview',
+                        defaultMessage: 'Signature preview'
+                      })}
+                      className="h-20 w-auto border border-gray-300 rounded bg-white max-w-[250px]" />
                     <div>
                       <h4 className="font-medium">
                         <FormattedMessage id="dashboard.digitalSignature" defaultMessage="Digital Signature" />
                       </h4>
                       <p className="text-sm text-muted-foreground">
-                        <FormattedMessage 
-                          id="dashboard.signatureDate" 
+                        <FormattedMessage
+                          id="dashboard.signatureDate"
                           defaultMessage="Date: {date}"
                           values={{ date: cv.signature.date }}
                         />

@@ -26,6 +26,7 @@ import { useAuth } from '@/hooks/auth-hook';
 import posthog from 'posthog-js';
 import { ProjectsTab } from './cv-tabs/projects-tab';
 import { SignatureTab } from './cv-tabs/signature-tab';
+import { constants } from '@/constants';
 
 export const Onboarding = () => {
   const intl = useIntl();
@@ -153,6 +154,14 @@ export const Onboarding = () => {
     const file = event.target.files?.[0];
     if (file) {
       setIsUploadingPicture(true);
+      // Validate file size (max 2MB)
+      if (file.size > constants.MAX_FILE_SIZE) {
+        alert(intl.formatMessage({
+          id: 'signature.error.fileTooLarge',
+          defaultMessage: 'File size must be less than 2MB.'
+        }));
+        return;
+      }
       try {
         const token = await getAccessTokenSilently();
         const pictureId = await userService.uploadPicture(file, token);
@@ -201,7 +210,7 @@ export const Onboarding = () => {
         language_skills: languageSkills,
         projects: projects,
         signature: signature || undefined,
-        
+
       });
 
     } catch (error) {

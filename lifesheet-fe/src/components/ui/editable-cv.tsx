@@ -1,5 +1,5 @@
 import { defaultSectionOrder, type CV } from "@/services/cvs-service";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { CardContent, CardHeader, Card } from './card';
@@ -75,9 +75,9 @@ function EditableSectionCard({ title, children, toolBarOptions, menuOptions, onI
     </Card>;
 }
 function getSections(cv: CV): string[] {
-    
+
     let sections
-    
+
     if (!cv.tailored || !cv.tailored?.sectionOrder) {
         sections = defaultSectionOrder;
     } else {
@@ -109,7 +109,18 @@ export function EditableCV({ cv, setCV }: { cv: CV, setCV: (cv: CV) => void }) {
         setCV({ ...cv, tailored: { ...cv.tailored, sectionOrder: newOrder } });
     };
 
+    useEffect(() => {
+        const populateSignatureUrl = async () => {
+            if (!cv.signature || cv.signature.imageUrl) return;
+            const t = await getAccessTokenSilently();
+            const shareUrl = await userService.getPictureShareLink(cv.signature.imageId, t);
+            setCV({ ...cv, signature: { ...cv.signature, imageUrl: shareUrl } })
+        }
+        populateSignatureUrl().catch(
+            e => console.error("Error populating signature URL", e)
+        ).then(() => console.log("populated url for singature"))
 
+    }, [cv.signature])
 
     const moveSectionUp = (section: string) => {
         if (!sections) return;
@@ -242,16 +253,16 @@ export function EditableCV({ cv, setCV }: { cv: CV, setCV: (cv: CV) => void }) {
                     }
                 }}
             />
-            <DiscreteColorPicker label="Secondary Color" options={[cv.tailored?.pdfOptions?.secondaryColorOverride || 'black', 'lightblue', 'lightsalmon', 'linen', 'whitesmoke']} 
-            onColorChange={color => {
-                cv.tailored && (cv.tailored.pdfOptions = { ...cv.tailored.pdfOptions, secondaryColorOverride: color })
-                reRender();
-            }} />
-            <DiscreteColorPicker label="Text Color" options={[cv.tailored?.pdfOptions?.textColorOverride || 'black', '#333333', '#555500', '#000000', '#000055']} 
-            onColorChange={color => {
-                cv.tailored && (cv.tailored.pdfOptions = { ...cv.tailored.pdfOptions, textColorOverride: color })
-                reRender();
-            }} />
+            <DiscreteColorPicker label="Secondary Color" options={[cv.tailored?.pdfOptions?.secondaryColorOverride || 'black', 'lightblue', 'lightsalmon', 'linen', 'whitesmoke']}
+                onColorChange={color => {
+                    cv.tailored && (cv.tailored.pdfOptions = { ...cv.tailored.pdfOptions, secondaryColorOverride: color })
+                    reRender();
+                }} />
+            <DiscreteColorPicker label="Text Color" options={[cv.tailored?.pdfOptions?.textColorOverride || 'black', '#333333', '#555500', '#000000', '#000055']}
+                onColorChange={color => {
+                    cv.tailored && (cv.tailored.pdfOptions = { ...cv.tailored.pdfOptions, textColorOverride: color })
+                    reRender();
+                }} />
 
             <PictureSelector onPictureSelected={handlePictureSelected} />
 
@@ -432,37 +443,38 @@ function LeftColumnIcon() {
 }
 function RightColumnIcon() {
     return <img src="/right-column.svg" alt="Right Column Icon" className="h-5 w-5" />;
-} 
+}
 
 function DiscreteColorPicker({ label, options, onColorChange }: { label: string, options: string[], onColorChange: (color: string) => void }) {
     const pickerRef = useRef<HTMLInputElement>(null);
+    const gradientRef = useRef<SVGSVGElement>(null);
     return <div className="flex flex-row space-x-2">
         <p>{label}</p>
         {options.map(option => (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" 
-            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-            onClick={() => onColorChange(option)}
-            style={{cursor: 'pointer' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                onClick={() => onColorChange(option)}
+                style={{ cursor: 'pointer' }}>
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2" fill={standardize_color(option)} />
             </svg>
         ))}
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" 
+        <svg ref={gradientRef} width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-            onClick={() => {pickerRef.current?.click()}}
-            style={{cursor: 'pointer' }}>
-                <defs>
-                    <linearGradient id="multicolorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#ff0000" />
-                        <stop offset="25%" stopColor="#ff00ff" />
-                        <stop offset="50%" stopColor="#0000ff" />
-                        <stop offset="75%" stopColor="#fff000" />
-                        <stop offset="100%" stopColor="#00ff00" />
-                    </linearGradient>
-                </defs>
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" 
+            onClick={() => { pickerRef.current?.click() }}
+            style={{ cursor: 'pointer' }}>
+            <defs>
+                <linearGradient id="multicolorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#ff0000" />
+                    <stop offset="25%" stopColor="#ff00ff" />
+                    <stop offset="50%" stopColor="#0000ff" />
+                    <stop offset="75%" stopColor="#fff000" />
+                    <stop offset="100%" stopColor="#00ff00" />
+                </linearGradient>
+            </defs>
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"
                 fill="url(#multicolorGradient)" />
-            </svg>
-        <input hidden ref = {pickerRef} type="color" value={standardize_color(options[0])} onChange={e => onColorChange(e.target.value)} className="h-6 w-6 p-1" />
+        </svg>
+        <input hidden ref={pickerRef} type="color" value={standardize_color(options[0])} onChange={e => onColorChange(e.target.value)} className="h-6 w-6 p-1" />
 
     </div>
 }

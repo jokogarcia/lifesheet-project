@@ -39,6 +39,7 @@ import { CoverLetterTab } from '../cv-tabs/cover-letter-tab';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { ProjectsTab } from '../cv-tabs/projects-tab';
 import { SignatureTab } from '../cv-tabs/signature-tab';
+import { constants } from '@/constants';
 
 export function CVData() {
   const { user, getAccessTokenSilently } = useAuth();
@@ -186,6 +187,14 @@ export function CVData() {
   const handlePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Validate file size (max 2MB)
+      if (file.size > constants.MAX_FILE_SIZE) {
+        alert(intl.formatMessage({
+          id: 'signature.error.fileTooLarge',
+          defaultMessage: 'File size must be less than 2MB.'
+        }));
+        return;
+      }
       setIsUploadingPicture(true);
       try {
         const token = await getAccessTokenSilently();

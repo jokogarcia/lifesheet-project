@@ -5,6 +5,7 @@ export interface IPicture extends Document {
   user_id: mongoose.Schema.Types.ObjectId;
   filepath: string;
   contentType: string;
+  type: string;
   deletedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -21,6 +22,12 @@ const pictureSchema: Schema = new Schema(
       type: String,
       required: true,
       trim: true,
+    },
+    type: {
+      type: String,
+      required: true,
+      enum: ['picture', 'signature'],
+      default: 'picture',
     },
     contentType: {
       type: String,

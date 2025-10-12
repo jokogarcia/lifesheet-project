@@ -21,7 +21,5 @@ export function getApiUrl(req: Request): string {
     protocol = 'https';
   }
   const host = req.get('host');
-  console.log('Determined protocol:', protocol);
-  console.log('Determined host:', host);
   return `${protocol}://${host}`;
 }

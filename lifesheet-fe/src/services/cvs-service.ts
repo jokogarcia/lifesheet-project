@@ -61,8 +61,9 @@ export interface Project {
   skills?: Skill[];
 }
 export interface Signature {
-  imageUrl: string;
+  imageId: string;
   date: string;
+  imageUrl?: string
 }
 
 export interface CV {
@@ -370,6 +371,7 @@ export async function getPDFv2(
   authToken: string,
   html: string,
   pictureId?: string,
+  signaturePictureId?: string,
   docTitle?: string,
   baseUrl?: string
 ): Promise<Blob> {
@@ -378,7 +380,7 @@ export async function getPDFv2(
 
   const response = await client.post(
     '/utils/generate-pdf',
-    { html, pictureId, docTitle },
+    { html, pictureId, signaturePictureId, docTitle },
     { responseType: 'blob' }
   );
   if (!response.data) {

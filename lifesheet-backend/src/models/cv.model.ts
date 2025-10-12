@@ -55,8 +55,8 @@ export interface Project {
 }
 
 export interface Signature {
-  imageUrl: string;
   date: string;
+  imageId: string;
 }
 
 interface CVToPDFOptions {
@@ -184,6 +184,7 @@ const cvSchema = new Schema(
     signature: {
       imageUrl: String,
       date: String,
+      imageId: String,
     },
     isPublic: {
       type: Boolean,

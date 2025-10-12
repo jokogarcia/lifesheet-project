@@ -351,6 +351,7 @@ export const uploadPicture = async (req: Request, res: Response, next: NextFunct
     }
     // save file to local drive
     const filePath = `uploads/${userId}/profile-picture-${Date.now()}.${req.file.originalname.split('.').pop()}`;
+    const type = (req.query.type as string) || 'picture';
     await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
     await fs.promises.writeFile(filePath, req.file.buffer);
     // save file info to database
@@ -358,6 +359,7 @@ export const uploadPicture = async (req: Request, res: Response, next: NextFunct
       user_id: userId,
       contentType: req.file.mimetype,
       filepath: filePath,
+      type,
     });
     res.json({ pictureId: p.id });
   } catch (err) {
@@ -367,7 +369,11 @@ export const uploadPicture = async (req: Request, res: Response, next: NextFunct
 export const getUserPictures = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = resolveUserId(req);
-    const pictures = await Picture.find({ user_id: userId, deletedAt: null }).select('_id');
+    const pictures = await Picture.find({
+      user_id: userId,
+      deletedAt: null,
+      type: 'picture',
+    }).select('_id');
     const pictureIds = pictures.map(picture => picture._id).map((id: any) => id.toString());
 
     res.json({ pictureIds });
