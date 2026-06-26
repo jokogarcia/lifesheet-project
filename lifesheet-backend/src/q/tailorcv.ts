@@ -85,23 +85,39 @@ const worker = new Worker(
     job.log(`Created new CV ${newCvId} as copy of main CV`);
     job.updateProgress(10);
 
-    await CreateAISummaryWithRetry(userId, jobDescriptionId);
-    job.updateProgress(30);
-    job.log('Job description summary ensured');
-    let jobDescriptionDoc = await JobDescription.findOne({
-      _id: jobDescriptionId,
-      userId,
-      deletedAt: null,
-    });
-    if (!jobDescriptionDoc) {
-      throw new Error(`Job description with id ${jobDescriptionId} not found`);
+    let totalTokens = 0;
+    let we_tokens_used = 0;
+    let skills_tokens_used = 0;
+
+    if (useAiTailoring || includeCoverLetter) {
+      await CreateAISummaryWithRetry(userId, jobDescriptionId);
+      job.log('Job description summary ensured');
     }
-    console.log('Job Description Summary:', jobDescriptionDoc.aiSummary);
-    const we_tokens = await TailorWorkExperienceWithRetry(userId, newCvId, jobDescriptionId);
-    job.updateProgress(60);
-    job.log('Work experience tailored');
-    const skillsResult = await TailorSkillsWithRetry(userId, newCvId, jobDescriptionId);
-    job.updateProgress(80);
+    job.updateProgress(30);
+
+    if (useAiTailoring) {
+      let jobDescriptionDoc = await JobDescription.findOne({
+        _id: jobDescriptionId,
+        userId,
+        deletedAt: null,
+      });
+      if (!jobDescriptionDoc) {
+        throw new Error(`Job description with id ${jobDescriptionId} not found`);
+      }
+      console.log('Job Description Summary:', jobDescriptionDoc.aiSummary);
+      const we_tokens = await TailorWorkExperienceWithRetry(userId, newCvId, jobDescriptionId);
+      job.updateProgress(60);
+      job.log('Work experience tailored');
+      const skillsResult = await TailorSkillsWithRetry(userId, newCvId, jobDescriptionId);
+      job.updateProgress(80);
+      we_tokens_used = we_tokens.tokensUsed;
+      skills_tokens_used = skillsResult.tokensUsed;
+      totalTokens += we_tokens_used + skills_tokens_used;
+    } else {
+      job.log('Skipping AI tailoring of work experience and skills');
+      job.updateProgress(80);
+    }
+
     let cl_tokens = 0;
     if (includeCoverLetter) {
       job.log('Generating cover letter');
@@ -110,9 +126,9 @@ const worker = new Worker(
       cl_tokens = cl_result.tokensUsed;
     }
     job.updateProgress(90);
-    let totalTokens = we_tokens.tokensUsed + skillsResult.tokensUsed + cl_tokens;
+    totalTokens += cl_tokens;
     job.log(
-      `Total tokens used: ${totalTokens} (Work Experience: ${we_tokens.tokensUsed}, Skills: ${skillsResult.tokensUsed}, Cover Letter: ${cl_tokens})`
+      `Total tokens used: ${totalTokens} (Work Experience: ${we_tokens_used}, Skills: ${skills_tokens_used}, Cover Letter: ${cl_tokens})`
     );
 
     job.log(
