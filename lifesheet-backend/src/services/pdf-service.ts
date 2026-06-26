@@ -1,6 +1,10 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import puppeteer, { Browser, Page } from 'puppeteer';
 import { ApiError } from '../middleware/errorHandler';
 import { constants } from '../constants'; // Import constants for API URL
+
+const LOGS_DIR = path.join(process.cwd(), 'logs');
 interface CVToPDFOptions {
   pictureId?: string;
   template?: string;
@@ -12,6 +16,37 @@ interface CVToPDFOptions {
 }
 export class PDFService {
   private static browser: Browser | null = null;
+
+  /**
+   * Attach console and request-failure listeners to a page and stream all
+   * output to a timestamped plaintext log file under the `logs/` directory.
+   * Returns a cleanup function that closes the write stream.
+   */
+  private static attachPageLogger(page: Page): () => void {
+    try {
+      fs.mkdirSync(LOGS_DIR, { recursive: true });
+    } catch {
+      // directory already exists or creation failed; proceed regardless
+    }
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const logPath = path.join(LOGS_DIR, `${timestamp}.log`);
+    const stream = fs.createWriteStream(logPath, { flags: 'w' });
+    stream.on('error', err => console.error('[PDFService] Log write error:', err));
+
+    const writeLine = (line: string) => stream.write(`[${new Date().toISOString()}] ${line}\n`);
+
+    page.on('console', msg => {
+      writeLine(`[console:${msg.type()}] ${msg.text()}`);
+    });
+    page.on('requestfailed', request => {
+      writeLine(`[request-failed] ${request.url()} - ${request.failure()?.errorText ?? ''}`);
+    });
+    page.on('pageerror', err => {
+      writeLine(`[page-error] ${err.message}`);
+    });
+
+    return () => stream.end();
+  }
 
   /**
    * Get or create a browser instance (singleton pattern for performance)
@@ -46,10 +81,13 @@ export class PDFService {
     }
   ): Promise<Buffer> {
     let page: Page | null = null;
+    let closeLogger: (() => void) | null = null;
     try {
       const browser = await this.getBrowser();
 
       page = await browser.newPage();
+
+      closeLogger = PDFService.attachPageLogger(page);
 
       await page.setContent(html, {
         waitUntil: ['domcontentloaded', 'networkidle0'],
@@ -57,14 +95,6 @@ export class PDFService {
       });
       // Explicit image loading check
 
-      page.on('console', msg => {
-        if (msg.type() === 'error') {
-          console.log('[Puppeteer console error]', msg.text());
-        }
-      });
-      page.on('requestfailed', request => {
-        console.log('[Puppeteer request failed]', request.url(), request.failure()?.errorText);
-      });
       await page.waitForFunction(
         () => {
           const images = Array.from(document.querySelectorAll('img'));
@@ -94,6 +124,7 @@ export class PDFService {
       if (page) {
         await page.close();
       }
+      if (closeLogger) closeLogger();
     }
   }
 
@@ -108,9 +139,12 @@ export class PDFService {
       backgroundColorOverride,
     } = options || {};
 
+    let page: Page | null = null;
+    let closeLogger: (() => void) | null = null;
     try {
       const browser = await this.getBrowser();
-      const page = await browser.newPage();
+      page = await browser.newPage();
+      closeLogger = PDFService.attachPageLogger(page);
       let jsonurl = new URL(`private/cv-toprint/${cvId}`, constants.PRIVATE_API_URL).toString();
       if (pictureId) jsonurl += `?pictureId=${pictureId}`;
       const fullurl = new URL(
@@ -144,6 +178,11 @@ export class PDFService {
     } catch (error) {
       console.error('Error generating CV PDF:', error);
       throw new ApiError(500, 'Failed to generate CV PDF');
+    } finally {
+      if (page) {
+        await page.close();
+      }
+      if (closeLogger) closeLogger();
     }
   }
 
