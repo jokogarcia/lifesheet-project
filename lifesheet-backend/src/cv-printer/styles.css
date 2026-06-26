@@ -1,6 +1,27 @@
 /*!IMPORTANT: this file needs to be synchronized with
 the file cv-previewer.module.css in the frontend. 
 They should be identical*/
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    src: url('./fonts/roboto-latin-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 500;
+    src: url('./fonts/roboto-latin-500-normal.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 700;
+    src: url('./fonts/roboto-latin-700-normal.woff2') format('woff2');
+}
+
 :root {
     --primary-color: black;
     /* Azul para el nombre */
