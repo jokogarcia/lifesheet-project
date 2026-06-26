@@ -271,7 +271,7 @@ const renderWorkExperienceSection = (cvData: CV, moduleStyles: any) => {
         <span className={`we-company ${moduleStyles['we-company']}`}>{job.company}</span>
 
         <span className={`we-dates ${moduleStyles['we-dates']}`}>
-          {job.startDate} - {job.endDate}
+          {job.startDate} - {!job.endDate ? 'Present' : job.endDate}
         </span>
         <h5 className={`we-location ${moduleStyles['we-location']}`}>📍 {job.location}</h5>
         <p>{job.description}</p>
