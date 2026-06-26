@@ -17,7 +17,7 @@ router.post('/generate-pdf', async (req, res) => {
   let fullPage = `<html><head>
     <title>${docTitle || 'CV'}</title>
     <link rel="stylesheet" href="${constants.PRIVATE_API_URL}/private/cv-printer/styles.css">
-    </head><body>${html}</body></html>`;
+    </head><body><div class="rootContainer">${html}</div></body></html>`;
   if (imageId) {
     Picture.findById(imageId).then(picture => {
       if (picture) {

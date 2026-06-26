@@ -22,6 +22,8 @@ export class PDFService {
         browser: 'firefox',
         executablePath: '/usr/bin/firefox',
         headless: true,
+        //headless: false,
+        //slowMo: 500,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -72,7 +74,6 @@ export class PDFService {
         },
         { timeout: 10000 }
       );
-
       const pdfBuffer = await page.pdf({
         format: options?.format || 'A4',
         landscape: options?.landscape || false,
